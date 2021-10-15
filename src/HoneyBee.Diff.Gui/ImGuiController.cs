@@ -6,8 +6,9 @@ using System.IO;
 using Veldrid;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using ImGuiNET;
 
-namespace ImGuiNET
+namespace HoneyBee.Diff.Gui
 {
     /// <summary>
     /// A modified version of Veldrid.ImGui's ImGuiRenderer.
@@ -41,6 +42,7 @@ namespace ImGuiNET
         private int _windowWidth;
         private int _windowHeight;
         private Vector2 _scaleFactor = Vector2.One;
+        public static Vector2 ScreenSize { get; private set; }
 
         // Image trackers
         private readonly Dictionary<TextureView, ResourceSetInfo> _setsByView
@@ -90,6 +92,8 @@ namespace ImGuiNET
         {
             _windowWidth = width;
             _windowHeight = height;
+
+            ScreenSize = new Vector2(width, height);
         }
 
         public void DestroyDeviceObjects()

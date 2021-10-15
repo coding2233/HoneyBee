@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Globalization;
 using ImGuiNET;
 using System.Numerics;
 
-namespace ImGuiNET
+namespace HoneyBee.Diff.Gui
 {
     // C# port of ocornut's imgui_memory_editor.h - https://gist.github.com/ocornut/0673e37e54aff644298b
 
