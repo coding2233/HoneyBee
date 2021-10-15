@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Reflection;
 using System.IO;
 using Veldrid;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace ImGuiNET
 {
@@ -61,8 +62,20 @@ namespace ImGuiNET
 
             IntPtr context = ImGui.CreateContext();
             ImGui.SetCurrentContext(context);
-            var fonts = ImGui.GetIO().Fonts;
-            ImGui.GetIO().Fonts.AddFontDefault();
+            //var fonts = ImGui.GetIO().Fonts;
+            //ImGui.GetIO().Fonts.AddFontDefault();
+
+            //Load chinese font.
+            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("wqy-microhei.ttc"))
+            {
+                if (stream.Length > 0)
+                {
+                    byte[] buffer = new byte[stream.Length];
+                    stream.Read(buffer, 0, buffer.Length);
+                    var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
+                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, 14, 14.0f, null, ImGui.GetIO().Fonts.GetGlyphRangesChineseSimplifiedCommon());
+                }
+            }
 
             CreateDeviceResources(gd, outputDescription);
             SetKeyMappings();

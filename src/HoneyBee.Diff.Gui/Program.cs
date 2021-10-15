@@ -1,6 +1,9 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using ImPlotNET;
 using Veldrid;
 using Veldrid.Sdl2;
@@ -51,7 +54,6 @@ namespace ImGuiNET
             Random random = new Random();
             _memoryEditorData = Enumerable.Range(0, 1024).Select(i => (byte)random.Next(255)).ToArray();
 
-            ImGui.GetIO().Fonts.AddFontFromFileTTF("wqy-microhei.ttc", 14.0f,null, ImGui.GetIO().Fonts.GetGlyphRangesChineseSimplifiedCommon());
             //ImGui.StyleColorsLight();
 
             // Main application loop
@@ -89,7 +91,7 @@ namespace ImGuiNET
             {
                 if (ImGui.BeginMenu("File"))
                 {
-                    ImGui.MenuItem("xxx");
+                    ImGui.MenuItem("中文测试");
                     ImGui.MenuItem("xxx");
                     ImGui.Separator();
                     ImGui.MenuItem("xxx");
