@@ -11,14 +11,20 @@ namespace HoneyBee.Diff.Gui
     public class MainWindow:IDisposable
     {
         private DiffFolderWindow _folderWindow;
+        int _styleIndex = 1;
 
         public MainWindow()
         {
             _folderWindow = new DiffFolderWindow();
-        }
 
+            _styleIndex = UserSettings.GetInt("StyleColors",1);
+            SetStyleColors();
+        }
+        
         public void OnDraw()
         {
+            ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 3.0f);
+
             var viewport= ImGui.GetMainViewport();
             ImGui.SetNextWindowPos(viewport.WorkPos);
             ImGui.SetNextWindowSize(viewport.WorkSize);
@@ -31,7 +37,30 @@ namespace HoneyBee.Diff.Gui
                     if (ImGui.BeginMenu("File"))
                     {
                         ImGui.MenuItem("中文测试");
-                        ImGui.MenuItem("xxx");
+
+                        if (ImGui.BeginMenu("Style"))
+                        {
+                            var styleIndex = _styleIndex;
+                            if (ImGui.MenuItem("Light", "", _styleIndex == 0))
+                            {
+                                styleIndex = 0;
+                            }
+                            if (ImGui.MenuItem("Drak", "", _styleIndex == 1))
+                            {
+                                styleIndex = 1;
+                            }
+                            if (ImGui.MenuItem("Classic", "", _styleIndex == 2))
+                            {
+                                styleIndex = 2;
+                            }
+                            if (styleIndex != _styleIndex)
+                            {
+                                _styleIndex = styleIndex;
+                                UserSettings.SetInt("StyleColors", _styleIndex);
+                                SetStyleColors();
+                            }
+                            ImGui.EndMenu();
+                        }
                         ImGui.Separator();
                         ImGui.MenuItem("xxx");
                     }
@@ -57,6 +86,23 @@ namespace HoneyBee.Diff.Gui
 
         public void Dispose()
         {
+        }
+
+        //设置
+        private void SetStyleColors()
+        {
+            switch (_styleIndex)
+            {
+                case 0:
+                    ImGui.StyleColorsLight();
+                    break;
+                case 1:
+                    ImGui.StyleColorsDark();
+                    break;
+                case 2:
+                    ImGui.StyleColorsClassic();
+                    break;
+            }
         }
     }
 }
