@@ -24,6 +24,10 @@
     <EmbeddedResource Include="Shaders/Metal/imgui-frag.metallib" LogicalName="imgui-frag.metallib" />
   </ItemGroup>
 
+	<ItemGroup>
+		<EmbeddedResource Include="Fonts/wqy-microhei.ttc" LogicalName="wqy-microhei.ttc" />
+	</ItemGroup>
+	
   <ItemGroup>
     <Content Include="$(RepositoryRootDirectory)/deps/cimgui/win-x64/cimgui.dll" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="$(RepositoryRootDirectory)/deps/cimgui/osx-x64/cimgui.dylib" CopyToOutputDirectory="PreserveNewest" />
