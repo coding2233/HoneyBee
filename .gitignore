@@ -259,7 +259,7 @@ Session.vim
 .idea
 
 # download dir
-deps/
+#deps/
 
 # VS Launch
 launchSettings.json
