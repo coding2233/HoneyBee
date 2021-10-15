@@ -13,6 +13,7 @@ namespace HoneyBee.Diff.Gui
         private DiffFolder _leftDiffFolder;
         private DiffFolder _rightDiffFolder;
 
+        private bool _showCompare = false;
  
 
         public DiffFolderWindow()
@@ -36,8 +37,7 @@ namespace HoneyBee.Diff.Gui
                     Compare();
                 }
 
-                ImGui.Text("Left");
-                ImGui.Text("Left");
+                OnDrawItem(_leftDiffFolder);
             }
             ImGui.EndChild();
 
@@ -56,25 +56,39 @@ namespace HoneyBee.Diff.Gui
                 {
                     Compare();
                 }
-                ImGui.Text("Right");
+                OnDrawItem(_rightDiffFolder);
             }
             ImGui.EndChild();
         }
 
 
-        protected void OnDrawLeft()
-        { 
-
-        }
-
-        protected void OnDrawRight()
+        protected void OnDrawItem(DiffFolder diffFolde)
         {
-            
+            if (_showCompare)
+            {
+                foreach (var item in diffFolde.DiffNode.ChildrenNodes)
+                {
+                    if (!item.IsEmpty)
+                        ImGui.Text(item.FullName);
+                    else
+                        ImGui.Text("----------");
+                }
+                
+            }
         }
+
+    
 
         private void Compare()
         {
             Console.WriteLine(_leftDiffFolder.Path+"\n"+ _rightDiffFolder.Path);
+
+            _showCompare = _leftDiffFolder.GetDiffFlag(_rightDiffFolder);
+            if (_showCompare)
+            {
+                
+            }
+
         }
 
     }

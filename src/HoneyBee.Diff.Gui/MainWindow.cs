@@ -40,10 +40,9 @@ namespace HoneyBee.Diff.Gui
                 }
                 ImGui.EndMainMenuBar();
 
-                var itemSize = ImGui.GetItemRectSize();
                 Vector2 contentSize = viewport.WorkSize;
-                contentSize.Y -= itemSize.Y;
-                Vector2 contentPos = new Vector2(0, itemSize.Y);
+                contentSize.Y -= 20;
+                Vector2 contentPos = new Vector2(0,20);
 
                 ImGui.SetNextWindowPos(contentPos);
                 ImGui.SetNextWindowSize(contentSize);

@@ -24,6 +24,7 @@ namespace HoneyBee.Diff.Gui
                     if (PathBuffer[i] == '\0')
                     {
                         count = i;
+                        break;
                     }
                 }
                 string path = Encoding.UTF8.GetString(PathBuffer, 0, count);
@@ -33,6 +34,7 @@ namespace HoneyBee.Diff.Gui
         
         public byte[] PathBuffer { get; private set; } = new byte[1024];
 
+        public DiffFolderNode DiffNode { get; private set; }
 
         public DiffFolderNode GetNode()
         {
@@ -46,6 +48,9 @@ namespace HoneyBee.Diff.Gui
             {
                 node = new DiffFolderNode();
             }
+
+            DiffNode = node;
+
             return node;
         }
 
@@ -59,7 +64,7 @@ namespace HoneyBee.Diff.Gui
                 List<DiffFolderNode> folderNodes = new List<DiffFolderNode>();
                 foreach (var item in dirs)
                 {
-                    DiffFolderNode dirNode = GetDirectoryNodes(item, fullName, true);
+                    DiffFolderNode dirNode = GetDirectoryNodes(item, node.FullName, true);
                     folderNodes.Add(dirNode);
                 }
                 node.ChildrenNodes.AddRange( folderNodes.OrderBy(x => x.Name));
@@ -71,7 +76,7 @@ namespace HoneyBee.Diff.Gui
                 List<DiffFolderNode> filesNodes = new List<DiffFolderNode>();
                 foreach (var item in files)
                 {
-                    DiffFolderNode fileNode = new DiffFolderNode(item,fullName);
+                    DiffFolderNode fileNode = new DiffFolderNode(item, node.FullName);
                     filesNodes.Add(fileNode);
                 }
                 node.ChildrenNodes.AddRange(filesNodes.OrderBy(x => x.Name));
@@ -81,7 +86,7 @@ namespace HoneyBee.Diff.Gui
 
         public bool GetDiffFlag(DiffFolder other)
         {
-            var thisNode = GetNode();
+            var thisNode = this.GetNode();
             var otherNode = other.GetNode();
 
             bool thisFlag = !string.IsNullOrEmpty(thisNode.Name) && thisNode.Expansion;
@@ -98,20 +103,38 @@ namespace HoneyBee.Diff.Gui
 
         public void SetDiffNodes(DiffFolderNode thisNode, DiffFolderNode otherNode)
         {
-            HashSet<string> allNodeNames = new HashSet<string>();
+            HashSet<string> dirNodeNames = new HashSet<string>();
+            HashSet<string> fileNodeNames = new HashSet<string>();
             foreach (var item in thisNode.ChildrenNodes)
             {
-                allNodeNames.Add(item.Name);
+                if (!item.IsEmpty)
+                {
+                    if (item.IsFolder)
+                        dirNodeNames.Add(item.Name);
+                    else
+                        fileNodeNames.Add(item.Name);
+                }
             }
 
+         
             foreach (var item in otherNode.ChildrenNodes)
             {
-                allNodeNames.Add(item.Name);
+                if (!item.IsEmpty)
+                {
+                    if (item.IsFolder)
+                        dirNodeNames.Add(item.Name);
+                    else
+                        fileNodeNames.Add(item.Name);
+                }
             }
+            var dirList = dirNodeNames.ToList();
+            dirList.Sort();
+            var fileList = fileNodeNames.ToList();
+            fileList.Sort();
 
             List<string> nodeNames = new List<string>();
-            nodeNames.AddRange(allNodeNames);
-            nodeNames.Sort();
+            nodeNames.AddRange(dirList);
+            nodeNames.AddRange(fileList);
 
             for (int i = 0; i < nodeNames.Count; i++)
             {
@@ -132,6 +155,10 @@ namespace HoneyBee.Diff.Gui
                         }
                     }
                 }
+                else
+                {
+                    thisNode.ChildrenNodes.Add(new DiffFolderNode());
+                }
 
                 if (i < otherNode.ChildrenNodes.Count)
                 {
@@ -144,6 +171,10 @@ namespace HoneyBee.Diff.Gui
                     {
                         folderIndex++;
                     }
+                }
+                else
+                {
+                    otherNode.ChildrenNodes.Add(new DiffFolderNode());
                 }
 
                 if (folderIndex == 2)
