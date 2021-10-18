@@ -76,6 +76,9 @@ namespace HoneyBee.Diff.Gui
                     {
                         var item = diffFolde.DiffNode.ChildrenNodes[i];
                         ShowItemColumns(item);
+
+                        //
+                       
                         //ImGui.TableNextRow();
 
                         //ImGui.TableSetColumnIndex(0);
@@ -101,8 +104,10 @@ namespace HoneyBee.Diff.Gui
         }
 
 
-        private void ShowItemColumns(DiffFolderNode node)
+        private unsafe void ShowItemColumns(DiffFolderNode node)
         {
+            //ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(*ImGui.GetStyleColorVec4(ImGuiCol.HeaderHovered)));
+            var rectPos= ImGui.GetCursorScreenPos();
             ImGui.TableNextRow();
 
             ImGui.TableSetColumnIndex(0);
@@ -131,6 +136,15 @@ namespace HoneyBee.Diff.Gui
                 ImGui.TreePop();
             }
 
+            var rectSize = ImGui.GetContentRegionAvail();
+            if (ImGui.IsMouseClicked(ImGuiMouseButton.Left))
+            {
+                Console.WriteLine(rectPos+"--"+rectSize);
+                if (ImGui.IsMouseHoveringRect(rectPos, rectPos + rectSize))
+                {
+                    Console.WriteLine(node.FullName);
+                }
+            }
         }
     
 

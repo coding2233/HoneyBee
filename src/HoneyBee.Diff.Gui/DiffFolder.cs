@@ -12,6 +12,8 @@ namespace HoneyBee.Diff.Gui
 
         public DiffFolder()
         {
+            string userPath = Environment.GetEnvironmentVariable("USERPROFILE");
+            PathBuffer = Encoding.UTF8.GetBytes($"{userPath}\\Downloads");
         }
 
         public string Path 
@@ -80,11 +82,10 @@ namespace HoneyBee.Diff.Gui
                 List<DiffFolderNode> filesNodes = new List<DiffFolderNode>();
                 foreach (var item in files)
                 {
-                    byte[] buffer = GetFileBuffer(item);
                     DiffFolderNode fileNode = new DiffFolderNode(item, node.FullName);
-                    fileNode.Size = buffer.Length;
+                    fileNode.Size = GetFileLength(item);
                     fileNode.SizeString = ToSizeString(fileNode.Size);
-                    fileNode.MD5 = GetFileMD5(buffer);
+                    fileNode.MD5 = GetFileMD5(item);
                     fileNode.UpdateTime = File.GetLastWriteTime(item).ToString("yyyy-MM-dd HH:mm");
                     filesNodes.Add(fileNode);
                     node.Size += fileNode.Size;
@@ -197,18 +198,24 @@ namespace HoneyBee.Diff.Gui
         }
 
 
-        private byte[] GetFileBuffer(string filePath)
+        private long GetFileLength(string filePath)
         {
-            return File.ReadAllBytes(filePath);
+            using (var fileStream = File.OpenRead(filePath))
+            {
+                return fileStream.Length;
+            }
         }
 
         //获取文件的md5值
-        public string GetFileMD5(byte[] data)
+        public string GetFileMD5(string filePath)
         {
-            System.Security.Cryptography.MD5 md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
-            byte[] toData = md5.ComputeHash(data);
-            string fileMD5 = BitConverter.ToString(toData).Replace("-", "").ToLower();
-            return fileMD5;
+            using (var fileStream = File.OpenRead(filePath))
+            {
+                System.Security.Cryptography.MD5 md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
+                byte[] toData = md5.ComputeHash(fileStream);
+                string fileMD5 = BitConverter.ToString(toData).Replace("-", "").ToLower();
+                return fileMD5;
+            }
         }
 
         //获取文件大小的显示
@@ -222,9 +229,13 @@ namespace HoneyBee.Diff.Gui
             {
                 return $"{(size / 1024.0f).ToString("f2")} KB";
             }
-            else
+            else if (size < 1024 * 1024 * 1024)
             {
                 return $"{(size / 1024.0f / 1024.0f).ToString("f2")} MB";
+            }
+            else
+            {
+                return $"{(size / 1024.0f / 1024.0f / 1024.0f).ToString("f2")} GB";
             }
         }
     }
