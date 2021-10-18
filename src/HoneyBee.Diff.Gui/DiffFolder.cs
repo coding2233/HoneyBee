@@ -38,7 +38,7 @@ namespace HoneyBee.Diff.Gui
 
         public DiffFolderNode DiffNode { get; private set; }
 
-        public string SelectPath { get; set; } = "";
+        public string SelectPath  = "";
 
         public DiffFolderNode GetNode()
         {

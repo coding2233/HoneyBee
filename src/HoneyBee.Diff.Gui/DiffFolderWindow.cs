@@ -14,7 +14,7 @@ namespace HoneyBee.Diff.Gui
         private DiffFolder _rightDiffFolder;
 
         private bool _showCompare = false;
- 
+        private bool _prepare = false;
 
         public DiffFolderWindow()
         {
@@ -59,15 +59,28 @@ namespace HoneyBee.Diff.Gui
                 OnDrawItem(_rightDiffFolder);
             }
             ImGui.EndChild();
+
+            //var center = ImGui.GetMainViewport().GetCenter();
+            //ImGui.SetNextWindowPos(center, ImGuiCond.Appearing,Vector2.One*0.5f);
+            //if (ImGui.BeginPopupModal("Delete"))
+            //{
+            //    ImGui.Text("All those beautiful files will be deleted.\nThis operation cannot be undone!\n\n");
+            //    ImGui.Separator();
+
+            //    //static int unused_i = 0;
+            //    //ImGui::Combo("Combo", &unused_i, "Delete\0Delete harder\0");
+
+            //    ImGui.EndPopup();
+            //}
         }
 
         protected void OnDrawItem(DiffFolder diffFolde)
         {
             if (ImGui.BeginTable("DiffFolderTable", 3, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders|ImGuiTableFlags.Resizable|ImGuiTableFlags.Reorderable))
             {
-                ImGui.TableSetupColumn("名称", ImGuiTableColumnFlags.WidthFixed);
-                ImGui.TableSetupColumn("大小", ImGuiTableColumnFlags.WidthFixed);
-                ImGui.TableSetupColumn("修改时间", ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableSetupColumn("名称", ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableSetupColumn("大小", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize);
+                ImGui.TableSetupColumn("修改时间", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize);
                 ImGui.TableHeadersRow();
 
                 if (_showCompare)
@@ -75,7 +88,7 @@ namespace HoneyBee.Diff.Gui
                     for (int i = 0; i < diffFolde.DiffNode.ChildrenNodes.Count; i++)
                     {
                         var item = diffFolde.DiffNode.ChildrenNodes[i];
-                        ShowItemColumns(item,diffFolde.SelectPath);
+                        ShowItemColumns(item,ref diffFolde.SelectPath);
                         //ImGui.TableNextRow();
 
                         //ImGui.TableSetColumnIndex(0);
@@ -101,9 +114,8 @@ namespace HoneyBee.Diff.Gui
         }
 
 
-        private unsafe void ShowItemColumns(DiffFolderNode node,string selectPath)
+        private unsafe void ShowItemColumns(DiffFolderNode node,ref string selectPath)
         {
-            //ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(*ImGui.GetStyleColorVec4(ImGuiCol.HeaderHovered)));
             //var rectPos= ImGui.GetCursorScreenPos();
             ImGui.TableNextRow();
 
@@ -113,6 +125,7 @@ namespace HoneyBee.Diff.Gui
             if (!string.IsNullOrEmpty(selectPath) && selectPath.Equals(node.FullName))
             {
                 flag |= ImGuiTreeNodeFlags.Selected;
+                //ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(*ImGui.GetStyleColorVec4(ImGuiCol.HeaderHovered)));
             }
             bool openFolder = !node.IsEmpty && node.IsFolder;
             if (openFolder)
@@ -123,11 +136,13 @@ namespace HoneyBee.Diff.Gui
             {
                 ImGui.TreeNodeEx(itemName, flag | ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.NoTreePushOnOpen );
             }
+
             if (!node.IsEmpty && ImGui.IsItemClicked())
             {
                 selectPath = node.FullName;
                 //Console.WriteLine($"Item click: {itemName} {node.FullName}");
             }
+
             ImGui.TableSetColumnIndex(1);
             ImGui.Text(node.SizeString);
             ImGui.TableSetColumnIndex(2);
@@ -137,7 +152,7 @@ namespace HoneyBee.Diff.Gui
             {
                 foreach (var item in node.ChildrenNodes)
                 {
-                    ShowItemColumns(item, selectPath);
+                    ShowItemColumns(item,ref selectPath);
                 }
                 ImGui.TreePop();
             }
@@ -157,11 +172,9 @@ namespace HoneyBee.Diff.Gui
         private async void Compare()
         {
             Console.WriteLine(_leftDiffFolder.Path+"\n"+ _rightDiffFolder.Path);
-            ImGui.OpenPopup("Compare wait");
             await Task.Run( () => {
                 _showCompare = _leftDiffFolder.GetDiffFlag(_rightDiffFolder);
              });
-            ImGui.CloseCurrentPopup();
         }
 
     }
