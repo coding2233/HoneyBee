@@ -61,33 +61,50 @@ namespace HoneyBee.Diff.Gui
             ImGui.EndChild();
         }
 
-
         protected void OnDrawItem(DiffFolder diffFolde)
         {
-            if (_showCompare)
+            if (ImGui.BeginTable("DiffFolderTable", 3, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders|ImGuiTableFlags.Resizable|ImGuiTableFlags.Reorderable))
             {
-                foreach (var item in diffFolde.DiffNode.ChildrenNodes)
+                ImGui.TableSetupColumn("名称", ImGuiTableColumnFlags.WidthFixed);
+                ImGui.TableSetupColumn("大小", ImGuiTableColumnFlags.WidthFixed);
+                ImGui.TableSetupColumn("修改时间", ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableHeadersRow();
+
+                if (_showCompare)
                 {
-                    if (!item.IsEmpty)
-                        ImGui.Text(item.FullName);
-                    else
-                        ImGui.Text("----------");
+                    for (int i = 0; i < diffFolde.DiffNode.ChildrenNodes.Count; i++)
+                    {
+                        var item = diffFolde.DiffNode.ChildrenNodes[i];
+
+                        ImGui.TableNextRow();
+
+                        ImGui.TableSetColumnIndex(0);
+                        string itemName = item.IsEmpty?"---":item.Name;
+                        if (ImGui.Selectable(itemName, i == diffFolde.SelectIndex, ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.AllowItemOverlap))
+                        {
+                            diffFolde.SelectIndex = i;
+                        }
+
+                        ImGui.TableSetColumnIndex(1);
+                        ImGui.Text(item.Size.ToString());
+                        ImGui.TableSetColumnIndex(2);
+                        ImGui.Text(item.UpdateTime);
+                    }
+                  
                 }
-                
+                ImGui.EndTable();
             }
         }
 
     
 
-        private void Compare()
+        private async void Compare()
         {
             Console.WriteLine(_leftDiffFolder.Path+"\n"+ _rightDiffFolder.Path);
 
-            _showCompare = _leftDiffFolder.GetDiffFlag(_rightDiffFolder);
-            if (_showCompare)
-            {
-                
-            }
+            Task.Run( () => {
+                _showCompare = _leftDiffFolder.GetDiffFlag(_rightDiffFolder);
+             });
 
         }
 

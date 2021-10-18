@@ -36,6 +36,8 @@ namespace HoneyBee.Diff.Gui
 
         public DiffFolderNode DiffNode { get; private set; }
 
+        public int SelectIndex { get; set; } = -1;
+
         public DiffFolderNode GetNode()
         {
             DiffFolderNode node;
