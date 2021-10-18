@@ -15,8 +15,10 @@ namespace HoneyBee.Diff.Gui
         public bool IsFolder;
         public List<DiffFolderNode> ChildrenNodes;
         public bool IsEmpty;
-        public long Size=10000;
-        public string UpdateTime="2021-10-18 15：36";
+        public long Size=0;
+        public string SizeString = "0 Byte";
+        public string UpdateTime="--";
+        public string MD5="";
 
         public DiffFolderNode()
         {

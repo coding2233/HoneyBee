@@ -111,14 +111,14 @@ namespace HoneyBee.Diff.Gui
             bool openFolder = !node.IsEmpty && node.IsFolder;
             if (openFolder)
             {
-                openFolder = ImGui.TreeNodeEx(itemName, ImGuiTreeNodeFlags.SpanFullWidth|ImGuiTreeNodeFlags.OpenOnDoubleClick);
+                openFolder = ImGui.TreeNodeEx(itemName, ImGuiTreeNodeFlags.SpanFullWidth);
             }
             else
             {
                 ImGui.TreeNodeEx(itemName, ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanFullWidth);
             }
             ImGui.TableSetColumnIndex(1);
-            ImGui.Text(node.Size.ToString());
+            ImGui.Text(node.SizeString);
             ImGui.TableSetColumnIndex(2);
             ImGui.Text(node.UpdateTime);
 
@@ -137,11 +137,11 @@ namespace HoneyBee.Diff.Gui
         private async void Compare()
         {
             Console.WriteLine(_leftDiffFolder.Path+"\n"+ _rightDiffFolder.Path);
-
-            Task.Run( () => {
+            ImGui.OpenPopup("Compare wait");
+            await Task.Run( () => {
                 _showCompare = _leftDiffFolder.GetDiffFlag(_rightDiffFolder);
              });
-
+            ImGui.CloseCurrentPopup();
         }
 
     }
