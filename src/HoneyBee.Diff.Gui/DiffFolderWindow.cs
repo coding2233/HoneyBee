@@ -75,20 +75,24 @@ namespace HoneyBee.Diff.Gui
                     for (int i = 0; i < diffFolde.DiffNode.ChildrenNodes.Count; i++)
                     {
                         var item = diffFolde.DiffNode.ChildrenNodes[i];
+                        ShowItemColumns(item);
+                        //ImGui.TableNextRow();
 
-                        ImGui.TableNextRow();
+                        //ImGui.TableSetColumnIndex(0);
+                        //string itemName = item.IsEmpty?"---":item.Name;
+                        ////if (ImGui.Selectable(itemName, i == diffFolde.SelectIndex, ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.AllowItemOverlap))
+                        ////{
+                        ////    diffFolde.SelectIndex = i;
+                        ////}
+                        //bool open = ImGui.TreeNodeEx(itemName, ImGuiTreeNodeFlags.SpanFullWidth);
+                        //if (open)
+                        //{
 
-                        ImGui.TableSetColumnIndex(0);
-                        string itemName = item.IsEmpty?"---":item.Name;
-                        if (ImGui.Selectable(itemName, i == diffFolde.SelectIndex, ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.AllowItemOverlap))
-                        {
-                            diffFolde.SelectIndex = i;
-                        }
-
-                        ImGui.TableSetColumnIndex(1);
-                        ImGui.Text(item.Size.ToString());
-                        ImGui.TableSetColumnIndex(2);
-                        ImGui.Text(item.UpdateTime);
+                        //}
+                        //ImGui.TableSetColumnIndex(1);
+                        //ImGui.Text(item.Size.ToString());
+                        //ImGui.TableSetColumnIndex(2);
+                        //ImGui.Text(item.UpdateTime);
                     }
                   
                 }
@@ -96,6 +100,38 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
+
+        private void ShowItemColumns(DiffFolderNode node)
+        {
+            ImGui.TableNextRow();
+
+            ImGui.TableSetColumnIndex(0);
+            string itemName = node.IsEmpty ? "---" : node.Name;
+          
+            bool openFolder = !node.IsEmpty && node.IsFolder;
+            if (openFolder)
+            {
+                openFolder = ImGui.TreeNodeEx(itemName, ImGuiTreeNodeFlags.SpanFullWidth|ImGuiTreeNodeFlags.OpenOnDoubleClick);
+            }
+            else
+            {
+                ImGui.TreeNodeEx(itemName, ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanFullWidth);
+            }
+            ImGui.TableSetColumnIndex(1);
+            ImGui.Text(node.Size.ToString());
+            ImGui.TableSetColumnIndex(2);
+            ImGui.Text(node.UpdateTime);
+
+            if (openFolder)
+            {
+                foreach (var item in node.ChildrenNodes)
+                {
+                    ShowItemColumns(item);
+                }
+                ImGui.TreePop();
+            }
+
+        }
     
 
         private async void Compare()
