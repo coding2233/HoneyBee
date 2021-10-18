@@ -72,6 +72,7 @@ namespace HoneyBee.Diff.Gui
 
             //    ImGui.EndPopup();
             //}
+
         }
 
         protected void OnDrawItem(DiffFolder diffFolde)
