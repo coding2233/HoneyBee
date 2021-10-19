@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -123,20 +124,20 @@ namespace HoneyBee.Diff.Gui
         {
             ImGui.TableNextRow();
 
-            if (node.Status != DiffNodeStatus.Same)
+            if (node.Status != DiffStatus.Same)
             {
                 Vector4 rowBgColor;
                 switch (node.Status)
                 {
-                    case DiffNodeStatus.Same:
+                    case DiffStatus.Same:
                         break;
-                    case DiffNodeStatus.Add:
+                    case DiffStatus.Add:
                         rowBgColor = new Vector4(0.8f, 1, 0.8f, 1);
                         ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(rowBgColor));
                         break;
-                    case DiffNodeStatus.Delete:
+                    case DiffStatus.Delete:
                         break;
-                    case DiffNodeStatus.Modified:
+                    case DiffStatus.Modified:
                         rowBgColor = new Vector4(1, 0.8f, 0.8f, 1);
                         ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(rowBgColor));
                         break;
@@ -160,6 +161,14 @@ namespace HoneyBee.Diff.Gui
             else
             {
                 ImGui.TreeNodeEx(itemName, flag | ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.NoTreePushOnOpen );
+
+                if(!node.IsEmpty && ImGui.IsItemHovered() && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
+                {
+                    Console.WriteLine($"Double click. {node.FullName}");
+                    string leftFilePath = Path.Combine(_leftDiffFolder.FolderPath, node.FullName);
+                    string rightFilePath = Path.Combine(_rightDiffFolder.FolderPath, node.FullName);
+                    mainModel.CreateTab<DiffFileWindow>(leftFilePath, rightFilePath);
+                }
             }
 
             if (!node.IsEmpty && ImGui.IsItemClicked())
@@ -205,7 +214,6 @@ namespace HoneyBee.Diff.Gui
 
         public void Setup(params object[] parameters)
         {
-            throw new NotImplementedException();
         }
 
         public void Dispose()

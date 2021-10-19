@@ -183,12 +183,12 @@ namespace HoneyBee.Diff.Gui
                 var b = otherNode.ChildrenNodes[i];
                 if (!a.IsEmpty && !b.IsEmpty)
                 {
-                    a.Status = b.Status = a.MD5.Equals(b.MD5)? DiffNodeStatus.Same: DiffNodeStatus.Modified;
+                    a.Status = b.Status = a.MD5.Equals(b.MD5)? DiffStatus.Same: DiffStatus.Modified;
                 }
                 else
                 {
-                    a.Status = a.IsEmpty ? DiffNodeStatus.Delete : DiffNodeStatus.Add;
-                    a.Status = b.IsEmpty ? DiffNodeStatus.Delete : DiffNodeStatus.Add;
+                    a.Status = a.IsEmpty ? DiffStatus.Delete : DiffStatus.Add;
+                    a.Status = b.IsEmpty ? DiffStatus.Delete : DiffStatus.Add;
                 }
             }
 
