@@ -8,13 +8,26 @@ using ImGuiNET;
 
 namespace HoneyBee.Diff.Gui
 {
-    public class DiffFolderWindow
+    public class DiffFolderWindow: ITabWindow
     {
         private DiffFolder _leftDiffFolder;
         private DiffFolder _rightDiffFolder;
 
         private bool _showCompare = false;
         private bool _prepare = false;
+
+        private string _name;
+        public string Name 
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_name))
+                {
+                    _name = "Diff Folder Window - " + Guid.NewGuid().ToString().Substring(0,6);
+                }
+                return _name;
+            }
+        }
 
         public DiffFolderWindow()
         {
@@ -176,6 +189,13 @@ namespace HoneyBee.Diff.Gui
             await Task.Run( () => {
                 _showCompare = _leftDiffFolder.GetDiffFlag(_rightDiffFolder);
              });
+
+            if (_showCompare)
+            {
+                string leftName = _leftDiffFolder.DiffNode.Name;
+                string rightName = _rightDiffFolder.DiffNode.Name;
+                _name = leftName.Equals(rightName)? leftName:$"{leftName}/{rightName}";
+            }
         }
 
     }
