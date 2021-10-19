@@ -23,6 +23,9 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
+        public void Dispose()
+        {
+        }
 
         public void OnDraw()
         {
@@ -61,6 +64,10 @@ namespace HoneyBee.Diff.Gui
                 //OnDrawItem(_rightDiffFolder);
             }
             ImGui.EndChild();
+        }
+
+        public void Setup(params object[] parameters)
+        {
         }
     }
 }

@@ -10,7 +10,15 @@ namespace HoneyBee.Diff.Gui
     {
         public string Name => "Home";
 
+        public void Dispose()
+        {
+        }
+
         public void OnDraw()
+        {
+        }
+
+        public void Setup(params object[] parameters)
         {
         }
     }

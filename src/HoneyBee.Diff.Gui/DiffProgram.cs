@@ -1,4 +1,6 @@
 using System;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -24,6 +26,9 @@ namespace HoneyBee.Diff.Gui
         private static Vector3 _clearColor = new Vector3(0.45f, 0.55f, 0.6f);
 
         private static MainWindow _mainWindow;
+
+        private static CompositionContainer _container = null;
+
 
         static void Main(string[] args)
         {
@@ -72,5 +77,17 @@ namespace HoneyBee.Diff.Gui
             _cl.Dispose();
             _gd.Dispose();
         }
+
+
+        public static void ComposeParts(params object[] attributedParts)
+        {
+            if (_container == null)
+            {
+                var catalog = new AssemblyCatalog(Assembly.GetExecutingAssembly());
+                _container = new CompositionContainer(catalog);
+            }
+            _container.ComposeParts(attributedParts);
+        }
+
     }
 }

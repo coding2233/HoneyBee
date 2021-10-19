@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -29,8 +30,13 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
+        [Import]
+        public IMainWindowModel mainModel { get; set; }
+
         public DiffFolderWindow()
         {
+            DiffProgram.ComposeParts(this);
+
             _leftDiffFolder = new DiffFolder();
             _rightDiffFolder = new DiffFolder();
 
@@ -42,7 +48,7 @@ namespace HoneyBee.Diff.Gui
         {
             if (ImGui.BeginChild("Left",new Vector2(ImGui.GetContentRegionAvail().X*0.5f,0),true,ImGuiWindowFlags.HorizontalScrollbar))
             {
-                ImGui.InputText("", _leftDiffFolder.PathBuffer,(uint)_leftDiffFolder.PathBuffer.Length);
+                ImGui.InputText("",ref _leftDiffFolder.FolderPath,500);
                 ImGui.SameLine();
                 if (ImGui.Button("Select"))
                 { 
@@ -52,7 +58,6 @@ namespace HoneyBee.Diff.Gui
                 {
                     Compare();
                 }
-
                 OnDrawItem(_leftDiffFolder);
             }
             ImGui.EndChild();
@@ -62,7 +67,7 @@ namespace HoneyBee.Diff.Gui
             //ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 5.0f);
             if (ImGui.BeginChild("Right",new Vector2(0,0),true))
             {
-                ImGui.InputText("", _rightDiffFolder.PathBuffer, (uint)_rightDiffFolder.PathBuffer.Length);
+                ImGui.InputText("",ref _rightDiffFolder.FolderPath, 500);
                 ImGui.SameLine();
                 if (ImGui.Button("Select"))
                 {
@@ -190,8 +195,21 @@ namespace HoneyBee.Diff.Gui
                 string leftName = _leftDiffFolder.DiffNode.Name;
                 string rightName = _rightDiffFolder.DiffNode.Name;
                 _name = leftName.Equals(rightName)? leftName:$"{leftName}/{rightName}";
+                string oldName = _name;
+                while (mainModel.HasSameWindow(_name,this))
+                {
+                    _name = $"{oldName} - {Guid.NewGuid().ToString().Substring(0, 6)}";
+                }
             }
         }
 
+        public void Setup(params object[] parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Dispose()
+        {
+        }
     }
 }

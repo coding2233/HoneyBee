@@ -13,41 +13,10 @@ namespace HoneyBee.Diff.Gui
         public DiffFolder()
         {
             string userPath = Environment.GetEnvironmentVariable("USERPROFILE");
-            PathBuffer = Encoding.UTF8.GetBytes($"{userPath}\\Downloads");
+            FolderPath = $"{userPath}\\Downloads";
         }
 
-        public string FolderPath 
-        { 
-            get 
-            {
-                int count = PathBuffer.Length;
-                for (int i = 0; i < PathBuffer.Length; i++)
-                {
-                    if (PathBuffer[i] == '\0')
-                    {
-                        count = i;
-                        break;
-                    }
-                }
-                string path = Encoding.UTF8.GetString(PathBuffer, 0, count);
-                return path;
-            }
-            set
-            {
-                byte[] buffer = Encoding.UTF8.GetBytes(value);
-                if (buffer != null&& buffer.Length>0)
-                {
-                    PathBuffer = buffer;
-                    //buffer.CopyTo(PathBuffer,0);
-                    //for (int i = buffer.Length; i < PathBuffer.Length; i++)
-                    //{
-                    //    PathBuffer[i] = (byte)'\0';
-                    //}
-                }
-            }
-        }
-        
-        public byte[] PathBuffer { get; private set; } = new byte[1024];
+        public string FolderPath;
 
         public DiffFolderNode DiffNode { get; private set; }
 

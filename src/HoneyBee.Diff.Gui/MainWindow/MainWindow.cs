@@ -14,24 +14,23 @@ namespace HoneyBee.Diff.Gui
     public class MainWindow : IDisposable
     {
         int _styleIndex = 1;
-        private List<ITabWindow> _tabWindows;
 
         [Import]
-        public IUserSettingsModel UserSettings { get; set; }
+        public IUserSettingsModel userSettings { get; set; }
+
+        [Import]
+        public IMainWindowModel mainModel { get; set; }
 
         public MainWindow()
         {
             //Ioc entrance.
-            var catalog = new AssemblyCatalog(Assembly.GetExecutingAssembly());
-            CompositionContainer container = new CompositionContainer(catalog);
-            container.ComposeParts(this);
+            DiffProgram.ComposeParts(this);
 
             //logic...
-            _styleIndex = UserSettings.StyleColors;
+            _styleIndex = userSettings.StyleColors;
             SetStyleColors();
 
-            _tabWindows = new List<ITabWindow>();
-            _tabWindows.Add(new HomeTabWindow());
+            mainModel.CreateTab<HomeTabWindow>();
         }
 
         public void OnDraw()
@@ -53,14 +52,11 @@ namespace HoneyBee.Diff.Gui
                         {
                             if (ImGui.MenuItem("文件夹比较"))
                             {
-                                var diffFolderWindow = new DiffFolderWindow();
-                                if (_tabWindows.Find(x => x.Name.Equals(diffFolderWindow.Name)) == null)
-                                {   
-                                    _tabWindows.Add(diffFolderWindow);
-                                }
+                                mainModel.CreateTab<DiffFolderWindow>();
                             }
                             if (ImGui.MenuItem("文件比较"))
                             {
+                                mainModel.CreateTab<DiffFileWindow>();
                             }
                             if (ImGui.MenuItem("Git仓库"))
                             {
@@ -86,7 +82,7 @@ namespace HoneyBee.Diff.Gui
                             if (styleIndex != _styleIndex)
                             {
                                 _styleIndex = styleIndex;
-                                UserSettings.StyleColors=_styleIndex;
+                                userSettings.StyleColors=_styleIndex;
                                 SetStyleColors();
                             }
                             ImGui.EndMenu();
@@ -109,23 +105,14 @@ namespace HoneyBee.Diff.Gui
                 if (ImGui.Begin("Compare", ImGuiWindowFlags.NoResize|ImGuiWindowFlags.NoCollapse|ImGuiWindowFlags.NoTitleBar))
                 {
                     //_folderWindow?.OnDraw();
-                    if (_tabWindows.Count > 0)
+                    var tabWindows = mainModel.TabWindows;
+                    if (tabWindows.Count > 0)
                     {
-                        for (int i = 0; i < _tabWindows.Count; i++)
-                        {
-                            var findWindows = _tabWindows.FindAll(x => x.Name.Equals(_tabWindows[i].Name));
-                            if (findWindows != null && findWindows.Count > 1)
-                            {
-                                _tabWindows.RemoveAt(i);
-                                i--;
-                            }
-                        }
-
                         if (ImGui.BeginTabBar("Diff window tabs", ImGuiTabBarFlags.FittingPolicyDefault|ImGuiTabBarFlags.TabListPopupButton|ImGuiTabBarFlags.AutoSelectNewTabs))
                         {
-                            for (int i = 0; i < _tabWindows.Count; i++)
+                            for (int i = 0; i < tabWindows.Count; i++)
                             {
-                                var tabWindow = _tabWindows[i];
+                                var tabWindow = tabWindows[i];
                                 bool showTab = true;
                                 bool visible = ImGui.BeginTabItem(tabWindow.Name,ref showTab,ImGuiTabItemFlags.Trailing);
                                 if (visible)
@@ -135,7 +122,7 @@ namespace HoneyBee.Diff.Gui
                                 }
                                 if (!showTab)
                                 {
-                                    _tabWindows.RemoveAt(i);
+                                    mainModel.RemoveTab(i);
                                     i--;
                                 }
                             }

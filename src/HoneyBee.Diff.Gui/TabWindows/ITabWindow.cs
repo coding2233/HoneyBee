@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace HoneyBee.Diff.Gui
 {
-    public interface ITabWindow
+    public interface ITabWindow:IDisposable
     {
         string Name { get; }
+        void Setup(params object[] parameters);
         void OnDraw();
     }
 }
