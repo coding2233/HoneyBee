@@ -7,6 +7,14 @@ using System.Threading.Tasks;
 
 namespace HoneyBee.Diff.Gui
 {
+    public enum DiffNodeStatus
+    {
+        Same,
+        Add,
+        Delete,
+        Modified
+    }
+
     public class DiffFolderNode
     {
         public string Name;
@@ -19,10 +27,12 @@ namespace HoneyBee.Diff.Gui
         public string SizeString = "0 Byte";
         public string UpdateTime="--";
         public string MD5="";
+        public DiffNodeStatus Status;
 
         public DiffFolderNode()
         {
             IsEmpty = true;
+            Status = DiffNodeStatus.Delete;
         }
 
         public DiffFolderNode(string name,string fullName,bool isFolder = false,bool expansion=false)

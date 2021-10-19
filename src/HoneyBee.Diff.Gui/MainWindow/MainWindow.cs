@@ -31,7 +31,6 @@ namespace HoneyBee.Diff.Gui
             SetStyleColors();
 
             _tabWindows = new List<ITabWindow>();
-
             _tabWindows.Add(new HomeTabWindow());
         }
 
