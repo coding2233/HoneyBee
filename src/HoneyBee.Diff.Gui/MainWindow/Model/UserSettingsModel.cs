@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -7,11 +8,25 @@ using System.Threading.Tasks;
 
 namespace HoneyBee.Diff.Gui
 {
-    public class UserSettings
+    [Export(typeof(IUserSettingsModel))]
+    public class UserSettingsModel : IUserSettingsModel
     {
-        private static string _userSettingsPath 
-        { 
-            get 
+        public int StyleColors 
+        {
+            get
+            {
+                return GetInt("StyleColors",1);
+            }
+            set
+            {
+                SetInt("StyleColors", value);
+            }
+        }
+
+
+        private string _userSettingsPath
+        {
+            get
             {
                 string path = "./.userSettings";
                 if (!Directory.Exists("path"))
@@ -19,20 +34,20 @@ namespace HoneyBee.Diff.Gui
                     Directory.CreateDirectory(path);
                 }
                 return path;
-            } 
+            }
         }
 
-        private static string GetPath(string key)
+        private string GetPath(string key)
         {
             return $"{_userSettingsPath}/{key}";
         }
 
-        public static void SetInt(string key, int value)
+        public void SetInt(string key, int value)
         {
             File.WriteAllText(GetPath(key), value.ToString());
         }
 
-        public static int GetInt(string key, int defaultValue = 0)
+        public int GetInt(string key, int defaultValue = 0)
         {
             var path = GetPath(key);
             if (File.Exists(path))

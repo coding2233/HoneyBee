@@ -8,7 +8,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ImGui.NET\ImGui.NET.csproj" />
-    <PackageReference Include="Microsoft.Composition" Version="1.0.31" />
+    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
+    <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
     <PackageReference Include="Veldrid" Version="4.8.0" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="4.8.0" />
     <ProjectReference Include="..\ImPlot.NET\ImPlot.NET.csproj" />
@@ -33,6 +34,12 @@
     <Content Include="$(RepositoryRootDirectory)/deps/cimgui/win-x64/cimgui.dll" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="$(RepositoryRootDirectory)/deps/cimgui/osx-x64/cimgui.dylib" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="$(RepositoryRootDirectory)/deps/cimgui/linux-x64/cimgui.so" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <Folder Include="TabWindows\DiffFileWindow\Model\" />
+    <Folder Include="TabWindows\HomeWindow\Model\" />
+    <Folder Include="TabWindows\HomeWindow\Service\" />
   </ItemGroup>
 
 </Project>

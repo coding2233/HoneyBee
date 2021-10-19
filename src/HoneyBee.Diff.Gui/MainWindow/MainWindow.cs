@@ -5,17 +5,29 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
+using System.Reflection;
 
 namespace HoneyBee.Diff.Gui
 {
-    public class MainWindow:IDisposable
+    public class MainWindow : IDisposable
     {
         int _styleIndex = 1;
         private List<ITabWindow> _tabWindows;
 
+        [Import]
+        public IUserSettingsModel UserSettings { get; set; }
+
         public MainWindow()
         {
-            _styleIndex = UserSettings.GetInt("StyleColors",1);
+            //Ioc entrance.
+            var catalog = new AssemblyCatalog(Assembly.GetExecutingAssembly());
+            CompositionContainer container = new CompositionContainer(catalog);
+            container.ComposeParts(this);
+
+            //logic...
+            _styleIndex = UserSettings.StyleColors;
             SetStyleColors();
 
             _tabWindows = new List<ITabWindow>();
@@ -75,7 +87,7 @@ namespace HoneyBee.Diff.Gui
                             if (styleIndex != _styleIndex)
                             {
                                 _styleIndex = styleIndex;
-                                UserSettings.SetInt("StyleColors", _styleIndex);
+                                UserSettings.StyleColors=_styleIndex;
                                 SetStyleColors();
                             }
                             ImGui.EndMenu();
