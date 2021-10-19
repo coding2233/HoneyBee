@@ -33,6 +33,9 @@ namespace HoneyBee.Diff.Gui
         {
             _leftDiffFolder = new DiffFolder();
             _rightDiffFolder = new DiffFolder();
+
+            _leftDiffFolder.FolderPath = @"C:\Users\EDY\Desktop\fazai1013\Scripts\FazaiUI";
+            _rightDiffFolder.FolderPath = @"E:\source\HappyMahjongForDeveloper\HappyMahjongForArtist\Assets\Scripts\FazaiUI";
         }
 
         public void OnDraw()
@@ -103,23 +106,6 @@ namespace HoneyBee.Diff.Gui
                     {
                         var item = diffFolde.DiffNode.ChildrenNodes[i];
                         ShowItemColumns(item,ref diffFolde.SelectPath);
-                        //ImGui.TableNextRow();
-
-                        //ImGui.TableSetColumnIndex(0);
-                        //string itemName = item.IsEmpty?"---":item.Name;
-                        ////if (ImGui.Selectable(itemName, i == diffFolde.SelectIndex, ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.AllowItemOverlap))
-                        ////{
-                        ////    diffFolde.SelectIndex = i;
-                        ////}
-                        //bool open = ImGui.TreeNodeEx(itemName, ImGuiTreeNodeFlags.SpanFullWidth);
-                        //if (open)
-                        //{
-
-                        //}
-                        //ImGui.TableSetColumnIndex(1);
-                        //ImGui.Text(item.Size.ToString());
-                        //ImGui.TableSetColumnIndex(2);
-                        //ImGui.Text(item.UpdateTime);
                     }
                   
                 }
@@ -130,8 +116,29 @@ namespace HoneyBee.Diff.Gui
 
         private unsafe void ShowItemColumns(DiffFolderNode node,ref string selectPath)
         {
-            //var rectPos= ImGui.GetCursorScreenPos();
             ImGui.TableNextRow();
+
+            if (node.Status != DiffNodeStatus.Same)
+            {
+                Vector4 rowBgColor;
+                switch (node.Status)
+                {
+                    case DiffNodeStatus.Same:
+                        break;
+                    case DiffNodeStatus.Add:
+                        rowBgColor = new Vector4(0.8f, 1, 0.8f, 1);
+                        ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(rowBgColor));
+                        break;
+                    case DiffNodeStatus.Delete:
+                        break;
+                    case DiffNodeStatus.Modified:
+                        rowBgColor = new Vector4(1, 0.8f, 0.8f, 1);
+                        ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(rowBgColor));
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             ImGui.TableSetColumnIndex(0);
             string itemName = node.IsEmpty ? "---" : node.Name;
@@ -139,7 +146,6 @@ namespace HoneyBee.Diff.Gui
             if (!string.IsNullOrEmpty(selectPath) && selectPath.Equals(node.FullName))
             {
                 flag |= ImGuiTreeNodeFlags.Selected;
-                //ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(*ImGui.GetStyleColorVec4(ImGuiCol.HeaderHovered)));
             }
             bool openFolder = !node.IsEmpty && node.IsFolder;
             if (openFolder)
@@ -154,7 +160,6 @@ namespace HoneyBee.Diff.Gui
             if (!node.IsEmpty && ImGui.IsItemClicked())
             {
                 selectPath = node.FullName;
-                //Console.WriteLine($"Item click: {itemName} {node.FullName}");
             }
 
             ImGui.TableSetColumnIndex(1);
@@ -170,22 +175,12 @@ namespace HoneyBee.Diff.Gui
                 }
                 ImGui.TreePop();
             }
-
-            //var rectSize = ImGui.GetContentRegionAvail();
-            //if (ImGui.IsMouseClicked(ImGuiMouseButton.Left))
-            //{
-            //    Console.WriteLine(rectPos+"--"+rectSize);
-            //    if (ImGui.IsMouseHoveringRect(rectPos, rectPos + rectSize))
-            //    {
-            //        Console.WriteLine(node.FullName);
-            //    }
-            //}
         }
     
 
         private async void Compare()
         {
-            Console.WriteLine(_leftDiffFolder.Path+"\n"+ _rightDiffFolder.Path);
+            Console.WriteLine(_leftDiffFolder.FolderPath+"\n"+ _rightDiffFolder.FolderPath);
             await Task.Run( () => {
                 _showCompare = _leftDiffFolder.GetDiffFlag(_rightDiffFolder);
              });

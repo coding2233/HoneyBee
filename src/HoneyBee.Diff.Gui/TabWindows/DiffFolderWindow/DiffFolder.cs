@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace HoneyBee.Diff.Gui
             PathBuffer = Encoding.UTF8.GetBytes($"{userPath}\\Downloads");
         }
 
-        public string Path 
+        public string FolderPath 
         { 
             get 
             {
@@ -30,7 +31,20 @@ namespace HoneyBee.Diff.Gui
                 }
                 string path = Encoding.UTF8.GetString(PathBuffer, 0, count);
                 return path;
-            } 
+            }
+            set
+            {
+                byte[] buffer = Encoding.UTF8.GetBytes(value);
+                if (buffer != null&& buffer.Length>0)
+                {
+                    PathBuffer = buffer;
+                    //buffer.CopyTo(PathBuffer,0);
+                    //for (int i = buffer.Length; i < PathBuffer.Length; i++)
+                    //{
+                    //    PathBuffer[i] = (byte)'\0';
+                    //}
+                }
+            }
         }
         
         public byte[] PathBuffer { get; private set; } = new byte[1024];
@@ -42,7 +56,7 @@ namespace HoneyBee.Diff.Gui
         public DiffFolderNode GetNode()
         {
             DiffFolderNode node;
-            string dirPath = Path;
+            string dirPath = FolderPath;
             if (Directory.Exists(dirPath))
             {
                 node = GetDirectoryNodes(dirPath,null,true);
