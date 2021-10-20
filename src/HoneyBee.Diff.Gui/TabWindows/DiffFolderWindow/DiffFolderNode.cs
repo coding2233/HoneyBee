@@ -21,6 +21,7 @@ namespace HoneyBee.Diff.Gui
         public string UpdateTime="--";
         public string MD5="";
         public DiffStatus Status;
+        public bool ChildrenHasDiff;
 
         public DiffFolderNode()
         {

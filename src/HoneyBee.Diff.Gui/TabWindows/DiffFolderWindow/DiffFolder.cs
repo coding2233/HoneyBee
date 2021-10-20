@@ -91,6 +91,9 @@ namespace HoneyBee.Diff.Gui
 
             SetDiffNodes(thisNode, otherNode);
 
+            SetChildrenStatus(thisNode);
+            SetChildrenStatus(otherNode);
+
             return true;
         }
 
@@ -194,6 +197,26 @@ namespace HoneyBee.Diff.Gui
 
         }
 
+        public bool SetChildrenStatus(DiffFolderNode node)
+        {
+            foreach (var item in node.ChildrenNodes)
+            {
+                if (item.IsEmpty)
+                {
+                    node.ChildrenHasDiff |= true;
+                }
+                else if (item.IsFolder)
+                {
+                    node.ChildrenHasDiff |= SetChildrenStatus(item);
+                }
+                else
+                {
+                    node.ChildrenHasDiff |= item.Status != DiffStatus.Same;
+                }
+            }
+
+            return node.ChildrenHasDiff || node.Status!=DiffStatus.Same;
+        }
 
         private long GetFileLength(string filePath)
         {

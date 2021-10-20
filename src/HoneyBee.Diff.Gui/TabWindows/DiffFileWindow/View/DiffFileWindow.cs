@@ -37,6 +37,9 @@ namespace HoneyBee.Diff.Gui
         [Import]
         public IMainWindowModel mainModel { get; set; }
 
+        [Import]
+        public IUserSettingsModel userSettings { get; set; }
+
         public DiffFileWindow()
         {
             DiffProgram.ComposeParts(this);
@@ -97,24 +100,21 @@ namespace HoneyBee.Diff.Gui
             {
                 foreach (var item in diffModel.Lines)
                 {
+                    string showText = item.Text;
                     if (item.Text == null)
-                        item.Text = "";
+                        showText = "";
                     switch (item.Type)
                     {
                         case ChangeType.Inserted:
-                            ImGui.TextColored(new Vector4(0.8f, 1.0f, 0.8f, 1.0f), item.Text);
+                            showText = "+\t" + showText;
+                            ImGui.TextColored(userSettings.MarkGreenColor, showText);
                             break;
                         case ChangeType.Deleted:
-                            ImGui.TextColored(new Vector4(1.0f, 0.8f, 0.8f, 1.0f), item.Text);
-                            break;
-                        case ChangeType.Modified:
-                            ImGui.TextColored(new Vector4(0.5f, 0.8f, 0.8f, 1.0f), item.Text);
-                            break;
-                        case ChangeType.Imaginary:
-                            ImGui.TextColored(new Vector4(0.5f, 0.8f, 0.2f, 1.0f), item.Text);
+                            showText = "-\t" + showText;
+                            ImGui.TextColored(userSettings.MarkRedColor, showText);
                             break;
                         default:
-                            ImGui.Text(item.Text);
+                            ImGui.Text(showText);
                             break;
                     }
                 }
