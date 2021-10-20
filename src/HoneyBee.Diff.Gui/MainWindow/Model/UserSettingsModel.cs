@@ -41,7 +41,6 @@ namespace HoneyBee.Diff.Gui
                 SetCustomerData<int>("StyleColors", value);
             }
         }
-
         public uint MarkBgColor
         {
             get
@@ -74,7 +73,6 @@ namespace HoneyBee.Diff.Gui
                 }
             }
         }
-
         public Vector4 MarkGreenColor
         {
             get
@@ -90,8 +88,6 @@ namespace HoneyBee.Diff.Gui
                 }
             }
         }
-
-   
         public void SetCustomerData<T>(string key, T value)
         {
             using (var db = new LiteDatabase(DATABASENAME))
@@ -116,7 +112,6 @@ namespace HoneyBee.Diff.Gui
                 }
             }
         }
-
         public T GetCustomerData<T>(string key,T defaultValue = default(T))
         {
             using (var db = new LiteDatabase(DATABASENAME))
@@ -130,7 +125,6 @@ namespace HoneyBee.Diff.Gui
                 return defaultValue;
             }
         }
-
         private string GetCustomerTableName<T>()
         {
             string tableName = $"CustomerData_{typeof(T).Name}";

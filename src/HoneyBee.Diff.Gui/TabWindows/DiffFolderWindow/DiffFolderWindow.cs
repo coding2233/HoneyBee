@@ -114,7 +114,7 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
-
+        private readonly Dictionary<string, bool> _itemopens = new Dictionary<string, bool>();
         private unsafe void ShowItemColumns(DiffFolderNode node,ref string selectPath)
         {
             ImGui.TableNextRow();
@@ -135,7 +135,12 @@ namespace HoneyBee.Diff.Gui
             bool openFolder = !node.IsEmpty && node.IsFolder;
             if (openFolder)
             {
+                if (_itemopens.TryGetValue(node.FullName, out bool nextOpen))
+                {
+                    ImGui.SetNextItemOpen(nextOpen);
+                }
                 openFolder = ImGui.TreeNodeEx(itemName, flag);
+                _itemopens[node.FullName]=openFolder;
             }
             else
             {
