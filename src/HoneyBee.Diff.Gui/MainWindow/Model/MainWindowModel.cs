@@ -17,7 +17,7 @@ namespace HoneyBee.Diff.Gui
         public void CreateTab<T>(params object[] parameters) where T : ITabWindow, new()
         {
             T t = new T();
-            if (parameters != null)
+            if (parameters != null && parameters.Length>0)
             {
                 t.Setup(parameters);
             }
