@@ -13,6 +13,8 @@ namespace HoneyBee.Diff.Gui
 {
     class CustomerData<T>
     {
+        //litedb必须带id
+        public int Id { get; set; }
         public string Key { get; set; }
         public T Data { get; set; }
     }
@@ -45,7 +47,7 @@ namespace HoneyBee.Diff.Gui
             get
             {
                 uint markBgColor = 0;
-                //lightģʽ
+                //light模式
                 if (_styleColors == 0)
                 {
                     markBgColor = ImGui.GetColorU32(new Vector4(1, 0.8f, 0.8f, 1));
@@ -61,7 +63,7 @@ namespace HoneyBee.Diff.Gui
         {
             get
             {
-                //lightģʽ
+                //light模式
                 if (_styleColors == 0)
                 {
                     return new Vector4(0.8f, 0.2f, 0.2f, 1);
@@ -77,7 +79,7 @@ namespace HoneyBee.Diff.Gui
         {
             get
             {
-                //lightģʽ
+                //light模式
                 if (_styleColors == 0)
                 {
                     return new Vector4(0.2f, 0.8f, 0.2f, 1);
@@ -94,14 +96,24 @@ namespace HoneyBee.Diff.Gui
         {
             using (var db = new LiteDatabase(DATABASENAME))
             {
-                string tableName = $"CustomerData_{typeof(T).Name}";
-                var col = db.GetCollection<CustomerData<T>>(tableName);
-                CustomerData<T> customerData = new CustomerData<T>()
+                var col = db.GetCollection<CustomerData<T>>(GetCustomerTableName<T>());
+                CustomerData<T> customerData;
+                var query = col.Query().Where(x => x.Key.Equals(key));
+                if (query.Count() > 0)
                 {
-                    Key = key,
-                    Data = value
-                };
-                col.Insert(customerData);
+                    customerData = query.First();
+                    customerData.Data = value;
+                    col.Update(customerData);
+                }
+                else
+                {
+                    customerData = new CustomerData<T>()
+                    {
+                        Key = key,
+                        Data = value
+                    };
+                    col.Insert(customerData);
+                }
             }
         }
 
@@ -109,7 +121,7 @@ namespace HoneyBee.Diff.Gui
         {
             using (var db = new LiteDatabase(DATABASENAME))
             {
-                var col = db.GetCollection<CustomerData<T>>(typeof(CustomerData<T>).FullName);
+                var col = db.GetCollection<CustomerData<T>>(GetCustomerTableName<T>());
                 var value = col.Query().Where(x => x.Key.Equals(key));
                 if (value.Count() > 0)
                 {
@@ -119,6 +131,11 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
+        private string GetCustomerTableName<T>()
+        {
+            string tableName = $"CustomerData_{typeof(T).Name}";
+            return tableName;
+        }
 
     }
 }
