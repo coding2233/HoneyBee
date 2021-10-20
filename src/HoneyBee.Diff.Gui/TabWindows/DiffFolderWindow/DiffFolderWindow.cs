@@ -37,6 +37,10 @@ namespace HoneyBee.Diff.Gui
         [Import]
         public IUserSettingsModel userSettings { get; set; }
 
+        //同步打开文件夹
+        private readonly Dictionary<string, bool> _syncOpenFolders = new Dictionary<string, bool>();
+
+
         public DiffFolderWindow()
         {
             DiffProgram.ComposeParts(this);
@@ -46,6 +50,9 @@ namespace HoneyBee.Diff.Gui
 
             _leftDiffFolder.FolderPath = @"C:\Users\EDY\Desktop\fazai1013\Scripts\FazaiUI";
             _rightDiffFolder.FolderPath = @"E:\source\HappyMahjongForDeveloper\HappyMahjongForArtist\Assets\Scripts\FazaiUI";
+
+            _leftDiffFolder.FolderPath = @"D:\source\DesktopHelper";
+            _rightDiffFolder.FolderPath = @"C:\Users\wanderer\Desktop\DesktopHelper";
         }
 
         public void OnDraw()
@@ -95,6 +102,7 @@ namespace HoneyBee.Diff.Gui
 
         protected void OnDrawItem(DiffFolder diffFolde)
         {
+      
             if (ImGui.BeginTable("DiffFolderTable", 3, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders|ImGuiTableFlags.Resizable|ImGuiTableFlags.Reorderable))
             {
                 ImGui.TableSetupColumn("名称", ImGuiTableColumnFlags.WidthStretch);
@@ -112,9 +120,9 @@ namespace HoneyBee.Diff.Gui
                 }
                 ImGui.EndTable();
             }
+
         }
 
-        private readonly Dictionary<string, bool> _itemopens = new Dictionary<string, bool>();
         private unsafe void ShowItemColumns(DiffFolderNode node,ref string selectPath)
         {
             ImGui.TableNextRow();
@@ -135,12 +143,12 @@ namespace HoneyBee.Diff.Gui
             bool openFolder = !node.IsEmpty && node.IsFolder;
             if (openFolder)
             {
-                if (_itemopens.TryGetValue(node.FullName, out bool nextOpen))
+                if (_syncOpenFolders.TryGetValue(node.FullName, out bool nextOpen))
                 {
                     ImGui.SetNextItemOpen(nextOpen);
                 }
                 openFolder = ImGui.TreeNodeEx(itemName, flag);
-                _itemopens[node.FullName]=openFolder;
+                _syncOpenFolders[node.FullName]=openFolder;
             }
             else
             {
