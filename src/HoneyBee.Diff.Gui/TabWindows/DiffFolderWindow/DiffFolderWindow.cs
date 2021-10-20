@@ -122,31 +122,9 @@ namespace HoneyBee.Diff.Gui
         }
 
 
-        private unsafe void ShowItemColumns(DiffFolderNode node,ref string selectPath)
+        private unsafe uint ShowItemColumns(DiffFolderNode node,ref string selectPath)
         {
             ImGui.TableNextRow();
-
-            if (node.Status != DiffStatus.Same)
-            {
-                Vector4 rowBgColor;
-                switch (node.Status)
-                {
-                    case DiffStatus.Same:
-                        break;
-                    case DiffStatus.Add:
-                        rowBgColor = new Vector4(0.8f, 1, 0.8f, 1);
-                        ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(rowBgColor));
-                        break;
-                    case DiffStatus.Delete:
-                        break;
-                    case DiffStatus.Modified:
-                        rowBgColor = new Vector4(1, 0.8f, 0.8f, 1);
-                        ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(rowBgColor));
-                        break;
-                    default:
-                        break;
-                }
-            }
 
             ImGui.TableSetColumnIndex(0);
             string itemName = node.IsEmpty ? "---" : node.Name;
@@ -209,14 +187,45 @@ namespace HoneyBee.Diff.Gui
             ImGui.TableSetColumnIndex(2);
             ImGui.Text(node.UpdateTime);
 
+            uint showRowBgColor = 0;
             if (openFolder)
             {
                 foreach (var item in node.ChildrenNodes)
                 {
-                    ShowItemColumns(item,ref selectPath);
+                    uint childRowBgColor = ShowItemColumns(item,ref selectPath);
+                    if (childRowBgColor > 0)
+                    {
+                        showRowBgColor = childRowBgColor;
+                    }
                 }
                 ImGui.TreePop();
             }
+
+            if (showRowBgColor == 0)
+            {
+                switch (node.Status)
+                {
+                    case DiffStatus.Same:
+                        break;
+                    case DiffStatus.Add:
+                        showRowBgColor = ImGui.GetColorU32(new Vector4(0.8f, 1, 0.8f, 1));
+                        break;
+                    case DiffStatus.Delete:
+                        break;
+                    case DiffStatus.Modified:
+                        showRowBgColor = ImGui.GetColorU32(new Vector4(1, 0.8f, 0.8f, 1));
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if (showRowBgColor > 0)
+            {
+                ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(showRowBgColor));
+            }
+
+            return showRowBgColor;
         }
     
 
