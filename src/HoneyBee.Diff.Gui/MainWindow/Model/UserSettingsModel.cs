@@ -7,12 +7,21 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using LiteDB;
 
 namespace HoneyBee.Diff.Gui
 {
+    class CustomerData<T>
+    {
+        public string Key { get; set; }
+        public T Data { get; set; }
+    }
+
     [Export(typeof(IUserSettingsModel))]
     public class UserSettingsModel : IUserSettingsModel
     {
+        private const string DATABASENAME = ".userSettings.db";
+
         private int _styleColors = -1;
         public int StyleColors 
         {
@@ -20,14 +29,14 @@ namespace HoneyBee.Diff.Gui
             {
                 if (_styleColors == -1)
                 {
-                    _styleColors = GetInt("StyleColors", 1);
+                    _styleColors = GetCustomerData<int>("StyleColors", 0);
                 }
                 return _styleColors;
             }
             set
             {
                 _styleColors = value;
-                SetInt("StyleColors", value);
+                SetCustomerData<int>("StyleColors", value);
             }
         }
 
@@ -80,39 +89,36 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
-
-        private string _userSettingsPath
+   
+        public void SetCustomerData<T>(string key, T value)
         {
-            get
+            using (var db = new LiteDatabase(DATABASENAME))
             {
-                string path = "./.userSettings";
-                if (!Directory.Exists("path"))
+                string tableName = $"CustomerData_{typeof(T).Name}";
+                var col = db.GetCollection<CustomerData<T>>(tableName);
+                CustomerData<T> customerData = new CustomerData<T>()
                 {
-                    Directory.CreateDirectory(path);
-                }
-                return path;
+                    Key = key,
+                    Data = value
+                };
+                col.Insert(customerData);
             }
         }
 
-        private string GetPath(string key)
+        public T GetCustomerData<T>(string key,T defaultValue = default(T))
         {
-            return $"{_userSettingsPath}/{key}";
-        }
-
-        public void SetInt(string key, int value)
-        {
-            File.WriteAllText(GetPath(key), value.ToString());
-        }
-
-        public int GetInt(string key, int defaultValue = 0)
-        {
-            var path = GetPath(key);
-            if (File.Exists(path))
+            using (var db = new LiteDatabase(DATABASENAME))
             {
-                int.TryParse(File.ReadAllText(path), out defaultValue);
+                var col = db.GetCollection<CustomerData<T>>(typeof(CustomerData<T>).FullName);
+                var value = col.Query().Where(x => x.Key.Equals(key));
+                if (value.Count() > 0)
+                {
+                    return value.First().Data;
+                }
+                return defaultValue;
             }
-            return defaultValue;
         }
+
 
     }
 }

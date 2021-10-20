@@ -66,9 +66,10 @@ namespace HoneyBee.Diff.Gui
                 {
                     Compare();
                 }
-
-                if(_sideModel!=null)
-                    OnDrawItem(_sideModel.OldText);
+                ImGui.BeginChild("Left-Content");
+                    if (_sideModel!=null)
+                        OnDrawItem(_sideModel.OldText);
+                ImGui.EndChild();
             }
             ImGui.EndChild();
 
@@ -88,8 +89,10 @@ namespace HoneyBee.Diff.Gui
                     Compare();
                 }
 
+                ImGui.BeginChild("Right-Content");
                 if (_sideModel != null)
                     OnDrawItem(_sideModel.NewText);
+                ImGui.EndChild();
             }
             ImGui.EndChild();
         }

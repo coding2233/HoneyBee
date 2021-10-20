@@ -18,7 +18,6 @@ namespace HoneyBee.Diff.Gui
         private DiffFolder _rightDiffFolder;
 
         private bool _showCompare = false;
-        private bool _prepare = false;
 
         private string _name;
         public string Name 
@@ -63,7 +62,11 @@ namespace HoneyBee.Diff.Gui
                 {
                     Compare();
                 }
-                OnDrawItem(_leftDiffFolder);
+
+                ImGui.BeginChild("Left-Content");
+                    OnDrawItem(_leftDiffFolder);
+                ImGui.EndChild();
+               
             }
             ImGui.EndChild();
 
@@ -82,23 +85,12 @@ namespace HoneyBee.Diff.Gui
                 {
                     Compare();
                 }
-                OnDrawItem(_rightDiffFolder);
+
+                ImGui.BeginChild("Right-Content");
+                 OnDrawItem(_rightDiffFolder);
+                ImGui.EndChild();
             }
             ImGui.EndChild();
-
-            //var center = ImGui.GetMainViewport().GetCenter();
-            //ImGui.SetNextWindowPos(center, ImGuiCond.Appearing,Vector2.One*0.5f);
-            //if (ImGui.BeginPopupModal("Delete"))
-            //{
-            //    ImGui.Text("All those beautiful files will be deleted.\nThis operation cannot be undone!\n\n");
-            //    ImGui.Separator();
-
-            //    //static int unused_i = 0;
-            //    //ImGui::Combo("Combo", &unused_i, "Delete\0Delete harder\0");
-
-            //    ImGui.EndPopup();
-            //}
-
         }
 
         protected void OnDrawItem(DiffFolder diffFolde)
@@ -117,7 +109,6 @@ namespace HoneyBee.Diff.Gui
                         var item = diffFolde.DiffNode.ChildrenNodes[i];
                         ShowItemColumns(item,ref diffFolde.SelectPath);
                     }
-                  
                 }
                 ImGui.EndTable();
             }
@@ -169,8 +160,6 @@ namespace HoneyBee.Diff.Gui
             ImGui.TableSetColumnIndex(2);
             ImGui.Text(node.UpdateTime);
 
-     
-
             if (openFolder)
             {
                 foreach (var item in node.ChildrenNodes)
@@ -179,8 +168,6 @@ namespace HoneyBee.Diff.Gui
                 }
                 ImGui.TreePop();
             }
-
-            
 
         }
     

@@ -13,8 +13,6 @@ namespace HoneyBee.Diff.Gui
 {
     public class MainWindow : IDisposable
     {
-        int _styleIndex = 1;
-
         [Import]
         public IUserSettingsModel userSettings { get; set; }
 
@@ -27,7 +25,6 @@ namespace HoneyBee.Diff.Gui
             DiffProgram.ComposeParts(this);
 
             //logic...
-            _styleIndex = userSettings.StyleColors;
             SetStyleColors();
 
             mainModel.CreateTab<HomeTabWindow>();
@@ -66,23 +63,22 @@ namespace HoneyBee.Diff.Gui
 
                         if (ImGui.BeginMenu("Style"))
                         {
-                            var styleIndex = _styleIndex;
-                            if (ImGui.MenuItem("Light", "", _styleIndex == 0))
+                            var styleIndex = userSettings.StyleColors;
+                            if (ImGui.MenuItem("Light", "", styleIndex == 0))
                             {
                                 styleIndex = 0;
                             }
-                            if (ImGui.MenuItem("Drak", "", _styleIndex == 1))
+                            if (ImGui.MenuItem("Drak", "", styleIndex == 1))
                             {
                                 styleIndex = 1;
                             }
-                            if (ImGui.MenuItem("Classic", "", _styleIndex == 2))
+                            if (ImGui.MenuItem("Classic", "", styleIndex == 2))
                             {
                                 styleIndex = 2;
                             }
-                            if (styleIndex != _styleIndex)
+                            if (styleIndex != userSettings.StyleColors)
                             {
-                                _styleIndex = styleIndex;
-                                userSettings.StyleColors=_styleIndex;
+                                userSettings.StyleColors = styleIndex;
                                 SetStyleColors();
                             }
                             ImGui.EndMenu();
@@ -142,7 +138,7 @@ namespace HoneyBee.Diff.Gui
         //设置
         private void SetStyleColors()
         {
-            switch (_styleIndex)
+            switch (userSettings.StyleColors)
             {
                 case 0:
                     ImGui.StyleColorsLight();
