@@ -1,3 +1,5 @@
+using DiffPlex.DiffBuilder;
+using DiffPlex.DiffBuilder.Model;
 using ImGuiNET;
 using System;
 using System.Collections.Generic;
@@ -25,10 +27,12 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
-        private DiffFile _leftDiffFile;
-        private DiffFile _rightDiffFile;
+        private string _leftDiffFilePath="";
+        private string _rightDiffFilePath ="";
 
         private bool _showCompare;
+
+        private SideBySideDiffModel _sideModel;
 
         [Import]
         public IMainWindowModel mainModel { get; set; }
@@ -36,15 +40,12 @@ namespace HoneyBee.Diff.Gui
         public DiffFileWindow()
         {
             DiffProgram.ComposeParts(this);
-
-            _leftDiffFile = new DiffFile();
-            _rightDiffFile = new DiffFile();
         }
 
         public void Setup(params object[] parameters)
         {
-            _leftDiffFile.FilePath = (string)parameters[0];
-            _rightDiffFile.FilePath = (string)parameters[1];
+            _leftDiffFilePath = (string)parameters[0];
+            _rightDiffFilePath = (string)parameters[1];
             Compare();
         }
 
@@ -52,7 +53,7 @@ namespace HoneyBee.Diff.Gui
         {
             if (ImGui.BeginChild("Left", new Vector2(ImGui.GetContentRegionAvail().X * 0.5f, 0), true, ImGuiWindowFlags.HorizontalScrollbar))
             {
-                ImGui.InputText("", ref _leftDiffFile.FilePath, 500);
+                ImGui.InputText("", ref _leftDiffFilePath, 500);
                 ImGui.SameLine();
                 if (ImGui.Button("Select"))
                 {
@@ -63,7 +64,8 @@ namespace HoneyBee.Diff.Gui
                     Compare();
                 }
 
-                OnDrawItem(_leftDiffFile);
+                if(_sideModel!=null)
+                    OnDrawItem(_sideModel.OldText);
             }
             ImGui.EndChild();
 
@@ -72,7 +74,7 @@ namespace HoneyBee.Diff.Gui
             //ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 5.0f);
             if (ImGui.BeginChild("Right", new Vector2(0, 0), true))
             {
-                ImGui.InputText("", ref _rightDiffFile.FilePath, 500);
+                ImGui.InputText("", ref _rightDiffFilePath, 500);
                 ImGui.SameLine();
                 if (ImGui.Button("Select"))
                 {
@@ -82,35 +84,38 @@ namespace HoneyBee.Diff.Gui
                 {
                     Compare();
                 }
-                OnDrawItem(_rightDiffFile);
+
+                if (_sideModel != null)
+                    OnDrawItem(_sideModel.NewText);
             }
             ImGui.EndChild();
         }
 
-        private void OnDrawItem(DiffFile diffFile)
+        private void OnDrawItem(DiffPaneModel diffModel)
         {
-            if (_showCompare)
+            if (_showCompare&& diffModel != null && diffModel.Lines !=null)
             {
-                foreach (var item in diffFile.Lines)
+                foreach (var item in diffModel.Lines)
                 {
-                    if (item.IsEmpty)
+                    if (item.Text == null)
+                        item.Text = "";
+                    switch (item.Type)
                     {
-                        ImGui.Text("");
-                    }
-                    else
-                    {
-                        switch (item.Status)
-                        {
-                            case DiffStatus.Add:
-                                ImGui.TextColored(new Vector4(0.8f, 1.0f, 0.8f, 1.0f), item.Content);
-                                break;
-                            case DiffStatus.Modified:
-                                ImGui.TextColored(new Vector4(1.0f, 0.8f, 0.8f, 1.0f), item.Content);
-                                break;
-                            default:
-                                ImGui.Text(item.Content);
-                                break;
-                        }
+                        case ChangeType.Inserted:
+                            ImGui.TextColored(new Vector4(0.8f, 1.0f, 0.8f, 1.0f), item.Text);
+                            break;
+                        case ChangeType.Deleted:
+                            ImGui.TextColored(new Vector4(1.0f, 0.8f, 0.8f, 1.0f), item.Text);
+                            break;
+                        case ChangeType.Modified:
+                            ImGui.TextColored(new Vector4(0.5f, 0.8f, 0.8f, 1.0f), item.Text);
+                            break;
+                        case ChangeType.Imaginary:
+                            ImGui.TextColored(new Vector4(0.5f, 0.8f, 0.2f, 1.0f), item.Text);
+                            break;
+                        default:
+                            ImGui.Text(item.Text);
+                            break;
                     }
                 }
             }
@@ -121,13 +126,14 @@ namespace HoneyBee.Diff.Gui
         {
             _showCompare = false;
             await Task.Run(() => {
-                _showCompare = _rightDiffFile.GetDiffFlag(_leftDiffFile);
+                _sideModel = SideBySideDiffBuilder.Diff(File.ReadAllText(_leftDiffFilePath), File.ReadAllText(_rightDiffFilePath));
+                _showCompare = true;
             });
 
             if (_showCompare)
             {
-                string leftName = Path.GetFileName(_leftDiffFile.FilePath);
-                string rightName = Path.GetFileName(_rightDiffFile.FilePath);
+                string leftName = Path.GetFileName(_leftDiffFilePath);
+                string rightName = Path.GetFileName(_rightDiffFilePath);
                 _name = leftName.Equals(rightName) ? leftName : $"{leftName}/{rightName}";
                 string oldName = _name;
                 while (mainModel.HasSameWindow(_name, this))

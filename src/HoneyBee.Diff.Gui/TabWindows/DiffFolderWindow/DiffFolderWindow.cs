@@ -147,33 +147,7 @@ namespace HoneyBee.Diff.Gui
                     Console.WriteLine($"Double click. {node.FullName}");
                     string leftFilePath = Path.Combine(_leftDiffFolder.FolderPath, node.FullName);
                     string rightFilePath = Path.Combine(_rightDiffFolder.FolderPath, node.FullName);
-                    //mainModel.CreateTab<DiffFileWindow>(leftFilePath, rightFilePath);
-
-
-                    var diff = InlineDiffBuilder.Diff(File.ReadAllText(leftFilePath), File.ReadAllText(rightFilePath));
-
-                    var savedColor = Console.ForegroundColor;
-                    foreach (var line in diff.Lines)
-                    {
-                        switch (line.Type)
-                        {
-                            case ChangeType.Inserted:
-                                Console.ForegroundColor = ConsoleColor.Green;
-                                Console.Write("+ ");
-                                break;
-                            case ChangeType.Deleted:
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                Console.Write("- ");
-                                break;
-                            default:
-                                Console.ForegroundColor = ConsoleColor.Gray; // compromise for dark or light background
-                                Console.Write("  ");
-                                break;
-                        }
-
-                        Console.WriteLine(line.Text);
-                    }
-                    Console.ForegroundColor = savedColor;
+                    mainModel.CreateTab<DiffFileWindow>(leftFilePath, rightFilePath);
                 }
             }
 
