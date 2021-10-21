@@ -56,7 +56,7 @@ namespace HoneyBee.Diff.Gui
         /// <summary>
         /// Constructs a new ImGuiController.
         /// </summary>
-        public ImGuiController(GraphicsDevice gd, OutputDescription outputDescription, int width, int height)
+        public unsafe ImGuiController(GraphicsDevice gd, OutputDescription outputDescription, int width, int height)
         {
             _gd = gd;
             _windowWidth = width;
@@ -64,8 +64,11 @@ namespace HoneyBee.Diff.Gui
 
             IntPtr context = ImGui.CreateContext();
             ImGui.SetCurrentContext(context);
-            //var fonts = ImGui.GetIO().Fonts;
+
+            //Load default font.
             //ImGui.GetIO().Fonts.AddFontDefault();
+            //ImFontConfig fontConfig = new ImFontConfig();
+            //fontConfig.MergeMode = 1;
 
             //Load chinese font.
             using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("wqy-microhei.ttc"))
@@ -75,10 +78,22 @@ namespace HoneyBee.Diff.Gui
                     byte[] buffer = new byte[stream.Length];
                     stream.Read(buffer, 0, buffer.Length);
                     var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
-                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, 14, 14.0f, null, ImGui.GetIO().Fonts.GetGlyphRangesChineseSimplifiedCommon());
+                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, 14, 14.0f,null, ImGui.GetIO().Fonts.GetGlyphRangesChineseSimplifiedCommon());
                 }
             }
-
+            //Load Source code pro font.
+            //using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("SourceCodePro-Medium.ttf"))
+            //{
+            //    if (stream.Length > 0)
+            //    {
+            //        byte[] buffer = new byte[stream.Length];
+            //        stream.Read(buffer, 0, buffer.Length);
+            //        var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
+            //        ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, 14, 16.0f,null, ImGui.GetIO().Fonts.GetGlyphRangesDefault());
+            //    }
+            //}
+            //ImGui.GetIO().Fonts.Build();
+            
             CreateDeviceResources(gd, outputDescription);
             SetKeyMappings();
 

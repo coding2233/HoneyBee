@@ -31,7 +31,8 @@
   </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="Fonts/wqy-microhei.ttc" LogicalName="wqy-microhei.ttc" />
+      <EmbeddedResource Include="Fonts/wqy-microhei.ttc" LogicalName="wqy-microhei.ttc" />
+      <EmbeddedResource Include="Fonts/SourceCodePro-Medium.ttf" LogicalName="SourceCodePro-Medium.ttf" />
     </ItemGroup>
 	
   <ItemGroup>

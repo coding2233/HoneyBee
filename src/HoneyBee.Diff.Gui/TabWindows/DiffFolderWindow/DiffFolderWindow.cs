@@ -51,8 +51,8 @@ namespace HoneyBee.Diff.Gui
             _leftDiffFolder.FolderPath = @"C:\Users\EDY\Desktop\fazai1013\Scripts\FazaiUI";
             _rightDiffFolder.FolderPath = @"E:\source\HappyMahjongForDeveloper\HappyMahjongForArtist\Assets\Scripts\FazaiUI";
 
-            //_leftDiffFolder.FolderPath = @"D:\source\DesktopHelper";
-            //_rightDiffFolder.FolderPath = @"C:\Users\wanderer\Desktop\DesktopHelper";
+            _leftDiffFolder.FolderPath = @"D:\source\DesktopHelper";
+            _rightDiffFolder.FolderPath = @"C:\Users\wanderer\Desktop\DesktopHelper";
         }
 
         public void OnDraw()

@@ -48,7 +48,7 @@ namespace HoneyBee.Diff.Gui
             }
             set 
             {
-                igSetPaletteTextEditor(_igTextEditor, _style);
+                igSetPaletteTextEditor(_igTextEditor, value);
             } 
         }
 
@@ -57,6 +57,8 @@ namespace HoneyBee.Diff.Gui
 
         public static void SetStyle(int style)
         {
+            if (style > 1)
+                style = 1;
             foreach (var item in _allTextEditor)
             {
                 item.style = style;
