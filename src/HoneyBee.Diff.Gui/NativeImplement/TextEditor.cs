@@ -19,8 +19,12 @@ namespace HoneyBee.Diff.Gui
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern void igRenderTextEditor(IntPtr textEditor,string title,Vector2 size,bool border=false);
+       
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern void igSetTextEditor(IntPtr textEditor, string text);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void igSetPaletteTextEditor(IntPtr textEditor, int style);
 
         private IntPtr _igTextEditor;
 
@@ -35,9 +39,36 @@ namespace HoneyBee.Diff.Gui
             } 
         }
 
+        private static int _style;
+        public int style
+        { 
+            get 
+            { 
+                return _style; 
+            }
+            set 
+            {
+                igSetPaletteTextEditor(_igTextEditor, _style);
+            } 
+        }
+
+
+        private static HashSet<TextEditor> _allTextEditor = new HashSet<TextEditor>();
+
+        public static void SetStyle(int style)
+        {
+            foreach (var item in _allTextEditor)
+            {
+                item.style = style;
+            }
+            _style = style;
+        }
+
         public TextEditor()
         {
             _igTextEditor = igNewTextEditor();
+            igSetPaletteTextEditor(_igTextEditor, _style);
+            _allTextEditor.Add(this);
         }
 
         public void Render(string title, Vector2 size, bool border = false)
@@ -48,6 +79,7 @@ namespace HoneyBee.Diff.Gui
 
         public void Dispose()
         {
+            _allTextEditor.Remove(this);
             if (_igTextEditor != IntPtr.Zero)
             {
                 igDeleteTextEditor(_igTextEditor);

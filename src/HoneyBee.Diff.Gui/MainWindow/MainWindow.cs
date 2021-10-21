@@ -150,6 +150,8 @@ namespace HoneyBee.Diff.Gui
                     ImGui.StyleColorsClassic();
                     break;
             }
+
+            TextEditor.SetStyle(userSettings.StyleColors);
         }
     }
 }
