@@ -29,6 +29,8 @@ namespace HoneyBee.Diff.Gui
 
         private string _leftDiffFilePath="";
         private string _rightDiffFilePath ="";
+        private TextEditor _leftTextEditor;
+        private TextEditor _rightTextEditor;
 
         private bool _showCompare;
 
@@ -43,6 +45,9 @@ namespace HoneyBee.Diff.Gui
         public DiffFileWindow()
         {
             DiffProgram.ComposeParts(this);
+
+            _leftTextEditor = new TextEditor();
+            _rightTextEditor = new TextEditor();
         }
 
         public void Setup(params object[] parameters)
@@ -66,9 +71,12 @@ namespace HoneyBee.Diff.Gui
                 {
                     Compare();
                 }
-                ImGui.BeginChild("Left-Content");
-                    if (_sideModel!=null)
-                        OnDrawItem(_sideModel.OldText);
+                if (ImGui.BeginChild("Left-Content"))
+                {
+                    _leftTextEditor?.Render("Left-TextEditor",ImGui.GetWindowSize());
+                    //if (_sideModel != null)
+                    //    OnDrawItem(_sideModel.OldText);
+                }
                 ImGui.EndChild();
             }
             ImGui.EndChild();
@@ -88,10 +96,13 @@ namespace HoneyBee.Diff.Gui
                 {
                     Compare();
                 }
-
-                ImGui.BeginChild("Right-Content");
-                if (_sideModel != null)
-                    OnDrawItem(_sideModel.NewText);
+                
+                if (ImGui.BeginChild("Right-Content"))
+                {
+                    //if (_sideModel != null)
+                    //    OnDrawItem(_sideModel.NewText);
+                    _rightTextEditor?.Render("Right-TextEditor", ImGui.GetWindowSize());
+                }
                 ImGui.EndChild();
             }
             ImGui.EndChild();
@@ -143,11 +154,48 @@ namespace HoneyBee.Diff.Gui
                 {
                     _name = $"{oldName} - {Guid.NewGuid().ToString().Substring(0, 6)}";
                 }
+
+                _leftTextEditor.text=BuilderShowText(_sideModel.OldText);
+                _rightTextEditor.text = BuilderShowText(_sideModel.NewText);
             }
+        }
+
+
+        private string BuilderShowText(DiffPaneModel diffModel)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            if (_showCompare && diffModel != null && diffModel.Lines != null)
+            {
+                foreach (var item in diffModel.Lines)
+                {
+                    string showText = item.Text;
+                    if (item.Text == null)
+                        showText = "";
+                    switch (item.Type)
+                    {
+                        case ChangeType.Inserted:
+                            showText = "+\t" + showText;
+                            //ImGui.TextColored(userSettings.MarkGreenColor, showText);
+                            break;
+                        case ChangeType.Deleted:
+                            showText = "-\t" + showText;
+                            //ImGui.TextColored(userSettings.MarkRedColor, showText);
+                            break;
+                        default:
+                            //ImGui.Text(showText);
+                            break;
+                    }
+
+                    stringBuilder.AppendLine(showText);
+                }
+            }
+            return stringBuilder.ToString();
         }
 
         public void Dispose()
         {
+            _leftTextEditor?.Dispose();
+            _rightTextEditor?.Dispose();
         }
 
 
