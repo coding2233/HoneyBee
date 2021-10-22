@@ -66,9 +66,16 @@ namespace HoneyBee.Diff.Gui
             ImGui.SetCurrentContext(context);
 
             //Load default font.
-            //ImGui.GetIO().Fonts.AddFontDefault();
-            //ImFontConfig fontConfig = new ImFontConfig();
-            //fontConfig.MergeMode = 1;
+            var defaultFont = ImGui.GetIO().Fonts.AddFontDefault();
+            ImFontConfigPtr imFontConfigPtr = new ImFontConfigPtr(ImGuiNative.ImFontConfig_ImFontConfig())
+            {
+                OversampleH = 2,
+                OversampleV = 1,
+                RasterizerMultiply = 1f,
+                MergeMode = true
+            };
+
+           
 
             //Load chinese font.
             using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("wqy-microhei.ttc"))
@@ -78,22 +85,24 @@ namespace HoneyBee.Diff.Gui
                     byte[] buffer = new byte[stream.Length];
                     stream.Read(buffer, 0, buffer.Length);
                     var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
-                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, 14, 14.0f,null, ImGui.GetIO().Fonts.GetGlyphRangesChineseSimplifiedCommon());
+                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, 14, 14.0f, imFontConfigPtr, ImGui.GetIO().Fonts.GetGlyphRangesChineseSimplifiedCommon());
                 }
             }
+
             //Load Source code pro font.
-            //using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("SourceCodePro-Medium.ttf"))
-            //{
-            //    if (stream.Length > 0)
-            //    {
-            //        byte[] buffer = new byte[stream.Length];
-            //        stream.Read(buffer, 0, buffer.Length);
-            //        var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
-            //        ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, 14, 16.0f,null, ImGui.GetIO().Fonts.GetGlyphRangesDefault());
-            //    }
-            //}
-            //ImGui.GetIO().Fonts.Build();
-            
+            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("SourceCodePro-Black.ttf"))
+            {
+                if (stream.Length > 0)
+                {
+                    byte[] buffer = new byte[stream.Length];
+                    stream.Read(buffer, 0, buffer.Length);
+                    var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
+                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, 14, 14.0f, imFontConfigPtr, ImGui.GetIO().Fonts.GetGlyphRangesDefault());
+                }
+            }
+
+            ImGui.GetIO().Fonts.Build();
+
             CreateDeviceResources(gd, outputDescription);
             SetKeyMappings();
 

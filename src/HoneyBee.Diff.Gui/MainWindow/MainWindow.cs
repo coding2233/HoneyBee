@@ -85,7 +85,9 @@ namespace HoneyBee.Diff.Gui
                             ImGui.EndMenu();
                         }
                         ImGui.Separator();
-                        ImGui.MenuItem("xxx");
+                        if (ImGui.MenuItem("退出"))
+                        {
+                        }
                     }
                     ImGui.EndMenu();
 
