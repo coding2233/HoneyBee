@@ -195,16 +195,16 @@ namespace HoneyBee.Diff.Gui
 
         public string Serialize()
         {
-            string path = $"{_leftDiffFilePath}|{_rightDiffFilePath}";
+            string path = $"{_name}|{_leftDiffFilePath}|{_rightDiffFilePath}";
             return path;
         }
 
         public void Deserialize(string data)
         {
-            string[] agrs = data.Split('|');
-            _leftDiffFilePath = agrs[0];
-            _rightDiffFilePath = agrs[1];
-
+            string[] args = data.Split('|');
+            _name = args[0];
+            _leftDiffFilePath = args[1];
+            _rightDiffFilePath = args[2];
             Compare();
         }
 

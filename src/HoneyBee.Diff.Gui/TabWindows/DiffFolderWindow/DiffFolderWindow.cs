@@ -211,15 +211,16 @@ namespace HoneyBee.Diff.Gui
 
         public string Serialize()
         {
-            string path = $"{_leftDiffFolder.FolderPath}|{_rightDiffFolder.FolderPath}";
+            string path = $"{_name}|{_leftDiffFolder.FolderPath}|{_rightDiffFolder.FolderPath}";
             return path;
         }
 
         public void Deserialize(string data)
         {
-            string[] agrs = data.Split('|');
-            _leftDiffFolder.FolderPath = agrs[0];
-            _rightDiffFolder.FolderPath = agrs[1];
+            string[] args = data.Split('|');
+            _name = args[0];
+            _leftDiffFolder.FolderPath = args[1];
+            _rightDiffFolder.FolderPath = args[2];
 
             Compare();
         }

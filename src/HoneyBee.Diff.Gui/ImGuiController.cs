@@ -101,17 +101,17 @@ namespace HoneyBee.Diff.Gui
             //    }
             //}
 
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MaterialIcons - Regular.ttf"))
-            {
-                if (stream.Length > 0)
-                {
-                    byte[] buffer = new byte[stream.Length];
-                    stream.Read(buffer, 0, buffer.Length);
-                    var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
+            //using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MaterialIcons - Regular.ttf"))
+            //{
+            //    if (stream.Length > 0)
+            //    {
+            //        byte[] buffer = new byte[stream.Length];
+            //        stream.Read(buffer, 0, buffer.Length);
+            //        var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
                     
-                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, 14, 14.0f, imFontConfigPtr, ImGui.GetIO().Fonts.GetGlyphRangesDefault());
-                }
-            }
+            //        ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, 14, 14.0f, imFontConfigPtr, ImGui.GetIO().Fonts.GetGlyphRangesDefault());
+            //    }
+            //}
            
             ImGui.GetIO().Fonts.Build();
 

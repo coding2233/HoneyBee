@@ -36,6 +36,7 @@ namespace HoneyBee.Diff.Gui
             VeldridStartup.CreateWindowAndGraphicsDevice(
                 new WindowCreateInfo(50, 50, 1280, 720, WindowState.Normal, "Honey Bee - Diff"),
                 new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true),
+                GraphicsBackend.OpenGL,
                 out _window,
                 out _gd);
             _window.Resized += () =>
