@@ -102,9 +102,12 @@ namespace HoneyBee.Diff.Gui
             ImGui.EndChild();
         }
 
+        private Vector2 _scrollValue = Vector2.Zero;
         protected void OnDrawItem(DiffFolder diffFolde)
         {
-      
+            ImGui.SetScrollX(_scrollValue.X);
+            ImGui.SetScrollY(_scrollValue.Y);
+
             if (ImGui.BeginTable("DiffFolderTable", 3, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders|ImGuiTableFlags.Resizable|ImGuiTableFlags.Reorderable))
             {
                 ImGui.TableSetupColumn("名称", ImGuiTableColumnFlags.WidthStretch);
@@ -123,6 +126,7 @@ namespace HoneyBee.Diff.Gui
                 ImGui.EndTable();
             }
 
+            _scrollValue = new Vector2(ImGui.GetScrollX(),ImGui.GetScrollY());
         }
 
         private unsafe void ShowItemColumns(DiffFolderNode node,ref string selectPath)

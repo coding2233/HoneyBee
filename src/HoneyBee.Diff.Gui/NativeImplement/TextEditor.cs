@@ -26,6 +26,12 @@ namespace HoneyBee.Diff.Gui
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern void igSetPaletteTextEditor(IntPtr textEditor, int style);
 
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void igSetReadOnlyTextEditor(IntPtr textEditor, bool readOnly);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void igSetShowWhitespacesTextEditor(IntPtr textEditor, bool show);
+
         private IntPtr _igTextEditor;
 
         private string _text;
@@ -70,6 +76,9 @@ namespace HoneyBee.Diff.Gui
         {
             _igTextEditor = igNewTextEditor();
             igSetPaletteTextEditor(_igTextEditor, _style);
+            igSetReadOnlyTextEditor(_igTextEditor, true);
+            igSetReadOnlyTextEditor(_igTextEditor, true);
+            igSetShowWhitespacesTextEditor(_igTextEditor, false);
             _allTextEditor.Add(this);
         }
 

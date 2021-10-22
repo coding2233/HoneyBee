@@ -59,6 +59,7 @@ namespace HoneyBee.Diff.Gui
             Compare();
         }
 
+
         public void OnDraw()
         {
             if (ImGui.BeginChild("Left", new Vector2(ImGui.GetContentRegionAvail().X * 0.5f, 0), true, ImGuiWindowFlags.HorizontalScrollbar))

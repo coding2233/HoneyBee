@@ -75,7 +75,9 @@ namespace HoneyBee.Diff.Gui
                 MergeMode = true,
                 PixelSnapH = true,
             };
-            //
+            
+            //字体大小
+            int fontSize = 15;
 
             //Load chinese font.
             using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("wqy-microhei.ttc"))
@@ -85,22 +87,23 @@ namespace HoneyBee.Diff.Gui
                     byte[] buffer = new byte[stream.Length];
                     stream.Read(buffer, 0, buffer.Length);
                     var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
-                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, 14, 14.0f, imFontConfigPtr, ImGui.GetIO().Fonts.GetGlyphRangesChineseSimplifiedCommon());
+                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, fontSize, fontSize, imFontConfigPtr, ImGui.GetIO().Fonts.GetGlyphRangesChineseSimplifiedCommon());
                 }
             }
 
             //Load Source code pro font.
-            //using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("SourceCodePro-Black.ttf"))
-            //{
-            //    if (stream.Length > 0)
-            //    {
-            //        byte[] buffer = new byte[stream.Length];
-            //        stream.Read(buffer, 0, buffer.Length);
-            //        var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
-            //        ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, 14, 14.0f, imFontConfigPtr, ImGui.GetIO().Fonts.GetGlyphRangesDefault());
-            //    }
-            //}
+            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CenturyGothic.ttf"))
+            {
+                if (stream.Length > 0)
+                {
+                    byte[] buffer = new byte[stream.Length];
+                    stream.Read(buffer, 0, buffer.Length);
+                    var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
+                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, fontSize, fontSize, imFontConfigPtr, ImGui.GetIO().Fonts.GetGlyphRangesDefault());
+                }
+            }
 
+            //Load icon.
             using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MaterialIcons-Regular.ttf"))
             {
                 if (stream.Length > 0)
@@ -116,7 +119,7 @@ namespace HoneyBee.Diff.Gui
                      }, GCHandleType.Pinned); //0xeb4c
                     var glyphOffset = imFontConfigPtr.GlyphOffset;
                     imFontConfigPtr.GlyphOffset = glyphOffset + new Vector2(0.0f, 3.0f);
-                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, 14, 14.0f, imFontConfigPtr, rangeHandle.AddrOfPinnedObject());
+                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, fontSize, fontSize, imFontConfigPtr, rangeHandle.AddrOfPinnedObject());
                     //if (rangeHandle.IsAllocated)
                     //{
                     //    rangeHandle.Free();
