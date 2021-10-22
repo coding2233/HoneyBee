@@ -11,5 +11,9 @@ namespace HoneyBee.Diff.Gui
         string Name { get; }
         void Setup(params object[] parameters);
         void OnDraw();
+
+        string Serialize();
+
+        void Deserialize(string data);
     }
 }

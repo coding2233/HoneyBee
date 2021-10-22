@@ -192,7 +192,23 @@ namespace HoneyBee.Diff.Gui
             return stringBuilder.ToString();
         }
 
-        public void Dispose()
+
+        public string Serialize()
+        {
+            string path = $"{_leftDiffFilePath}|{_rightDiffFilePath}";
+            return path;
+        }
+
+        public void Deserialize(string data)
+        {
+            string[] agrs = data.Split('|');
+            _leftDiffFilePath = agrs[0];
+            _rightDiffFilePath = agrs[1];
+
+            Compare();
+        }
+
+    public void Dispose()
         {
             _leftTextEditor?.Dispose();
             _rightTextEditor?.Dispose();

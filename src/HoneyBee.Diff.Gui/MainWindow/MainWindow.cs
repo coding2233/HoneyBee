@@ -27,7 +27,8 @@ namespace HoneyBee.Diff.Gui
             //logic...
             SetStyleColors();
 
-            mainModel.CreateTab<HomeTabWindow>();
+            //初始化
+            mainModel.Init();
         }
 
         public void OnDraw()

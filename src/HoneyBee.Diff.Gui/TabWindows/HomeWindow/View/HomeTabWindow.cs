@@ -10,7 +10,8 @@ namespace HoneyBee.Diff.Gui
     {
         public string Name => "Home";
 
-        public void Dispose()
+
+        public void Setup(params object[] parameters)
         {
         }
 
@@ -18,8 +19,20 @@ namespace HoneyBee.Diff.Gui
         {
         }
 
-        public void Setup(params object[] parameters)
+        public string Serialize()
+        {
+            return "@";
+        }
+
+        public void Deserialize(string data)
         {
         }
+
+ 
+
+        public void Dispose()
+        {
+        }
+
     }
 }

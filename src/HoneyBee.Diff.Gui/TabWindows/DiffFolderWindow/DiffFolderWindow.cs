@@ -51,8 +51,8 @@ namespace HoneyBee.Diff.Gui
             _leftDiffFolder.FolderPath = @"C:\Users\EDY\Desktop\fazai1013\Scripts\FazaiUI";
             _rightDiffFolder.FolderPath = @"E:\source\HappyMahjongForDeveloper\HappyMahjongForArtist\Assets\Scripts\FazaiUI";
 
-            _leftDiffFolder.FolderPath = @"D:\source\DesktopHelper";
-            _rightDiffFolder.FolderPath = @"C:\Users\wanderer\Desktop\DesktopHelper";
+            //_leftDiffFolder.FolderPath = @"D:\source\DesktopHelper";
+            //_rightDiffFolder.FolderPath = @"C:\Users\wanderer\Desktop\DesktopHelper";
         }
 
         public void OnDraw()
@@ -209,8 +209,24 @@ namespace HoneyBee.Diff.Gui
         {
         }
 
+        public string Serialize()
+        {
+            string path = $"{_leftDiffFolder.FolderPath}|{_rightDiffFolder.FolderPath}";
+            return path;
+        }
+
+        public void Deserialize(string data)
+        {
+            string[] agrs = data.Split('|');
+            _leftDiffFolder.FolderPath = agrs[0];
+            _rightDiffFolder.FolderPath = agrs[1];
+
+            Compare();
+        }
+
         public void Dispose()
         {
         }
+    
     }
 }
