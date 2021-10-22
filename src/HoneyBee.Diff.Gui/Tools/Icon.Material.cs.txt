@@ -1,0 +1,18 @@
+//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Text;
+//using System.Threading.Tasks;
+
+//namespace HoneyBee.Diff.Gui
+//{
+//    public class Icon
+//    {
+//{template}
+//        public static string Get(int codePoint)
+//        {
+//            return char.ConvertFromUtf32(codePoint);
+//        }
+//    }
+    
+//}

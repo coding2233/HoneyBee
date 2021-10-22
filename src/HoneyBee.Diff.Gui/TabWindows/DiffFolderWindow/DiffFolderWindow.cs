@@ -28,9 +28,11 @@ namespace HoneyBee.Diff.Gui
                 {
                     _name = "Diff Folder Window - " + Guid.NewGuid().ToString().Substring(0,6);
                 }
-                return _name;
+                return $"{_name}";
             }
         }
+
+        public string IconName => Icon.Get(Icon.Material_folder_special);
 
         [Import]
         public IMainWindowModel mainModel { get; set; }
@@ -147,12 +149,13 @@ namespace HoneyBee.Diff.Gui
                 {
                     ImGui.SetNextItemOpen(nextOpen);
                 }
-                openFolder = ImGui.TreeNodeEx(itemName, flag);
+                string folderIcon = openFolder ? Icon.Get(Icon.Material_folder_open) : Icon.Get(Icon.Material_folder) ;
+                openFolder = ImGui.TreeNodeEx(folderIcon+itemName, flag);
                 _syncOpenFolders[node.FullName]=openFolder;
             }
             else
             {
-                ImGui.TreeNodeEx(itemName, flag | ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.NoTreePushOnOpen );
+                ImGui.TreeNodeEx(Icon.Get(Icon.Material_file_copy)+itemName, flag | ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.NoTreePushOnOpen );
 
                 if(!node.IsEmpty && ImGui.IsItemHovered() && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
                 {

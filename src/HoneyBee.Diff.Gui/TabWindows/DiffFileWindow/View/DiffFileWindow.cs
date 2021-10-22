@@ -23,9 +23,11 @@ namespace HoneyBee.Diff.Gui
                 {
                     _name = "Diff File Window - " + Guid.NewGuid().ToString().Substring(0, 6);
                 }
-                return _name;
+                return $"{_name}";
             }
         }
+
+        public string IconName =>Icon.Get(Icon.Material_file_copy);
 
         private string _leftDiffFilePath="";
         private string _rightDiffFilePath ="";

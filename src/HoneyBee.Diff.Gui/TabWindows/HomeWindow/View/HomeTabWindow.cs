@@ -10,6 +10,7 @@ namespace HoneyBee.Diff.Gui
     {
         public string Name => "Home";
 
+        public string IconName => Icon.Get(Icon.Material_home);
 
         public void Setup(params object[] parameters)
         {

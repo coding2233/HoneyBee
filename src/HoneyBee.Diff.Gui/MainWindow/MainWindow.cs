@@ -44,9 +44,9 @@ namespace HoneyBee.Diff.Gui
             {
                 if (ImGui.BeginMainMenuBar())
                 {
-                    if (ImGui.BeginMenu("File"))
+                    if (ImGui.BeginMenu(Icon.Get(Icon.Material_file_present)+"File"))
                     {
-                        if (ImGui.BeginMenu("新建"))
+                        if (ImGui.BeginMenu(Icon.Get(Icon.Material_create_new_folder)+"新建"))
                         {
                             if (ImGui.MenuItem("文件夹比较"))
                             {
@@ -62,7 +62,7 @@ namespace HoneyBee.Diff.Gui
                             ImGui.EndMenu();
                         }
 
-                        if (ImGui.BeginMenu("Style"))
+                        if (ImGui.BeginMenu(Icon.Get(Icon.Material_style)+"Style"))
                         {
                             var styleIndex = userSettings.StyleColors;
                             if (ImGui.MenuItem("Light", "", styleIndex == 0))
@@ -85,7 +85,7 @@ namespace HoneyBee.Diff.Gui
                             ImGui.EndMenu();
                         }
                         ImGui.Separator();
-                        if (ImGui.MenuItem("退出"))
+                        if (ImGui.MenuItem(Icon.Get(Icon.Material_exit_to_app) +"退出"))
                         {
                         }
                     }
@@ -113,7 +113,7 @@ namespace HoneyBee.Diff.Gui
                             {
                                 var tabWindow = tabWindows[i];
                                 bool showTab = true;
-                                bool visible = ImGui.BeginTabItem(tabWindow.Name,ref showTab,ImGuiTabItemFlags.Trailing);
+                                bool visible = ImGui.BeginTabItem(tabWindow.IconName+tabWindow.Name,ref showTab,ImGuiTabItemFlags.Trailing);
                                 if (visible)
                                 {
                                     tabWindow.OnDraw();

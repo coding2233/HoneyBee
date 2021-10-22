@@ -72,10 +72,10 @@ namespace HoneyBee.Diff.Gui
                 OversampleH = 2,
                 OversampleV = 1,
                 RasterizerMultiply = 1f,
-                MergeMode = true
+                MergeMode = true,
+                PixelSnapH = true,
             };
-
-           
+            //
 
             //Load chinese font.
             using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("wqy-microhei.ttc"))
@@ -101,18 +101,30 @@ namespace HoneyBee.Diff.Gui
             //    }
             //}
 
-            //using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MaterialIcons - Regular.ttf"))
-            //{
-            //    if (stream.Length > 0)
-            //    {
-            //        byte[] buffer = new byte[stream.Length];
-            //        stream.Read(buffer, 0, buffer.Length);
-            //        var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
-                    
-            //        ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, 14, 14.0f, imFontConfigPtr, ImGui.GetIO().Fonts.GetGlyphRangesDefault());
-            //    }
-            //}
-           
+            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MaterialIcons-Regular.ttf"))
+            {
+                if (stream.Length > 0)
+                {
+                    byte[] buffer = new byte[stream.Length];
+                    stream.Read(buffer, 0, buffer.Length);
+                    var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
+                    GCHandle rangeHandle = GCHandle.Alloc(new ushort[]
+                     {
+                            0xe000,
+                            0xffff,
+                            0
+                     }, GCHandleType.Pinned); //0xeb4c
+                    var glyphOffset = imFontConfigPtr.GlyphOffset;
+                    imFontConfigPtr.GlyphOffset = glyphOffset + new Vector2(0.0f, 3.0f);
+                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, 14, 14.0f, imFontConfigPtr, rangeHandle.AddrOfPinnedObject());
+                    //if (rangeHandle.IsAllocated)
+                    //{
+                    //    rangeHandle.Free();
+                    //}
+                    imFontConfigPtr.GlyphOffset = glyphOffset;
+                }
+            }
+
             ImGui.GetIO().Fonts.Build();
 
             CreateDeviceResources(gd, outputDescription);
