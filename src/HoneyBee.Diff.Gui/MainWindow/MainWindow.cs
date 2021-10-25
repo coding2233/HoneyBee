@@ -145,16 +145,10 @@ namespace HoneyBee.Diff.Gui
 
                     //Text style colors settings.
                     _textStyleModal.Draw();
-
                     ImGui.End();
                 }
-
-       
-
-
                 ImGui.End();
             }
-
         }
 
         public void Dispose()

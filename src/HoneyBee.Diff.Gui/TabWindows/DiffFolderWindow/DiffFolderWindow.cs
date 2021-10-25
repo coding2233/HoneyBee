@@ -42,6 +42,7 @@ namespace HoneyBee.Diff.Gui
         //同步打开文件夹
         private readonly Dictionary<string, bool> _syncOpenFolders = new Dictionary<string, bool>();
 
+        private float _scrollValue = 0.0f;
 
         public DiffFolderWindow()
         {
@@ -102,17 +103,15 @@ namespace HoneyBee.Diff.Gui
             ImGui.EndChild();
         }
 
-        private Vector2 _scrollValue = Vector2.Zero;
         protected void OnDrawItem(DiffFolder diffFolde)
         {
-            ImGui.SetScrollX(_scrollValue.X);
-            ImGui.SetScrollY(_scrollValue.Y);
+            ImGui.SetScrollY(_scrollValue);
 
             if (ImGui.BeginTable("DiffFolderTable", 3, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders|ImGuiTableFlags.Resizable|ImGuiTableFlags.Reorderable))
             {
-                ImGui.TableSetupColumn("名称", ImGuiTableColumnFlags.WidthStretch);
-                ImGui.TableSetupColumn("大小", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize);
-                ImGui.TableSetupColumn("修改时间", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize);
+                ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableSetupColumn("Size", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize);
+                ImGui.TableSetupColumn("Update Time", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize);
                 ImGui.TableHeadersRow();
 
                 if (_showCompare)
@@ -125,8 +124,8 @@ namespace HoneyBee.Diff.Gui
                 }
                 ImGui.EndTable();
             }
-
-            _scrollValue = new Vector2(ImGui.GetScrollX(),ImGui.GetScrollY());
+            
+            _scrollValue = ImGui.GetScrollY();
         }
 
         private unsafe void ShowItemColumns(DiffFolderNode node,ref string selectPath)
