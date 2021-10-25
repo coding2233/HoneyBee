@@ -25,6 +25,7 @@ namespace HoneyBee.Diff.Gui
 
 		private const string _popueModalName = "TextStyleSettingModal";
 
+		private bool _show;
 		public TextStyleSettingModal()
 		{
 			DiffProgram.ComposeParts(this);
@@ -38,29 +39,28 @@ namespace HoneyBee.Diff.Gui
 			{
 				_customColors[i] = ImGui.ColorConvertU32ToFloat4(customColors[i]);
 			}
-
-			ImGui.OpenPopup(_popueModalName);
+			_show = true;
 		}
 
 		public void Draw()
 		{
-			if (ImGui.BeginPopupModal(_popueModalName))
+			if (_show)
 			{
-				if (ImGui.Button("Save"))
+				ImGui.OpenPopup(_popueModalName);
+				if (ImGui.BeginPopupModal(_popueModalName,ref _show,ImGuiWindowFlags.NoResize))
 				{
-					userSettings.TextStyleColors = GetCustomColors();
+					if (ImGui.Button("Save"))
+					{
+						userSettings.TextStyleColors = GetCustomColors();
+						_show = false;
+					}
+					
+					for (int i = 0; i < _colorNames.Length; i++)
+					{
+						ImGui.ColorEdit4(_colorNames[i], ref _customColors[i]);
+					}
+					ImGui.EndPopup();
 				}
-				ImGui.SameLine();
-				if (ImGui.Button("Close"))
-				{
-					ImGui.CloseCurrentPopup();
-				}
-
-				for (int i = 0; i < _colorNames.Length; i++)
-				{
-					ImGui.ColorEdit4(_colorNames[i], ref _customColors[i]);
-				}
-				ImGui.EndPopup();
 			}
 		}
 
