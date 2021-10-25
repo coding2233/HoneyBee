@@ -34,7 +34,7 @@ namespace HoneyBee.Diff.Gui
         {
             // Create window, GraphicsDevice, and all resources necessary for the demo.
             VeldridStartup.CreateWindowAndGraphicsDevice(
-                new WindowCreateInfo(50, 50, 1280, 720, WindowState.Normal, "Honey Bee - Diff"),
+                new WindowCreateInfo(50, 50, 1280, 720, WindowState.Maximized, "Honey Bee - Diff"),
                 new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true),
                 GraphicsBackend.OpenGL,
                 out _window,

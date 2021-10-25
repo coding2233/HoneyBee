@@ -49,25 +49,26 @@ namespace HoneyBee.Diff.Gui
                 {
                     if (ImGui.BeginMenu(Icon.Get(Icon.Material_file_present)+"File"))
                     {
-                        if (ImGui.BeginMenu(Icon.Get(Icon.Material_create_new_folder)+"新建"))
+                        if (ImGui.BeginMenu(Icon.Get(Icon.Material_create_new_folder)+"New"))
                         {
-                            if (ImGui.MenuItem("文件夹比较"))
+                            if (ImGui.MenuItem("Folder Diff"))
                             {
                                 mainModel.CreateTab<DiffFolderWindow>();
                             }
-                            if (ImGui.MenuItem("文件比较"))
+                            if (ImGui.MenuItem("File Diff"))
                             {
                                 mainModel.CreateTab<DiffFileWindow>();
                             }
-                            if (ImGui.MenuItem("Git仓库"))
+                            if (ImGui.MenuItem("Git Repository"))
                             {
                             }
                             ImGui.EndMenu();
                         }
 
                         ImGui.Separator();
-                        if (ImGui.MenuItem(Icon.Get(Icon.Material_exit_to_app) +"退出"))
+                        if (ImGui.MenuItem(Icon.Get(Icon.Material_exit_to_app) +"Exit"))
                         {
+                            Environment.Exit(0);
                         }
                         ImGui.EndMenu();
                     }
@@ -107,8 +108,6 @@ namespace HoneyBee.Diff.Gui
                     ImGui.EndMainMenuBar();
                 }
 
-               
-
                 Vector2 contentSize = viewport.WorkSize;
                 contentSize.Y -= 20;
                 Vector2 contentPos = new Vector2(0,20);
@@ -116,7 +115,7 @@ namespace HoneyBee.Diff.Gui
                 ImGui.SetNextWindowPos(contentPos);
                 ImGui.SetNextWindowSize(contentSize);
 
-                if (ImGui.Begin("Compare", ImGuiWindowFlags.NoResize|ImGuiWindowFlags.NoCollapse|ImGuiWindowFlags.NoTitleBar))
+                if (ImGui.Begin("Compare", ImGuiWindowFlags.NoResize|ImGuiWindowFlags.NoCollapse|ImGuiWindowFlags.NoTitleBar|ImGuiWindowFlags.AlwaysVerticalScrollbar))
                 {
                     //_folderWindow?.OnDraw();
                     var tabWindows = mainModel.TabWindows;
@@ -178,7 +177,7 @@ namespace HoneyBee.Diff.Gui
                     break;
             }
 
-            TextEditor.SetStyle(userSettings.StyleColors);
+            TextEditor.SetStyle(userSettings.TextStyleColors);
         }
     }
 }

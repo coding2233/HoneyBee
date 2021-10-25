@@ -35,6 +35,10 @@ namespace HoneyBee.Diff.Gui
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern void igSetFlagLinesTextEditor(IntPtr textEditor, int[] flagLines, int length);
 
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void igCustomPaletteTextEditor(IntPtr textEditor, uint[] colors, int length);
+
         private IntPtr _igTextEditor;
 
         private string _text;
@@ -48,16 +52,30 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
-        private static int _style;
-        public int style
+        //private static int _style;
+        //public int style
+        //{
+        //    get
+        //    {
+        //        return _style;
+        //    }
+        //    set
+        //    {
+        //        igSetPaletteTextEditor(_igTextEditor, value);
+        //    }
+        //}
+
+        private static uint[] _styleColors;
+
+        public uint[] styleColors
         {
             get
             {
-                return _style;
+                return _styleColors;
             }
             set
             {
-                igSetPaletteTextEditor(_igTextEditor, value);
+                igCustomPaletteTextEditor(_igTextEditor, value, value.Length);
             }
         }
 
@@ -82,22 +100,31 @@ namespace HoneyBee.Diff.Gui
 
         private static HashSet<TextEditor> _allTextEditor = new HashSet<TextEditor>();
 
-        public static void SetStyle(int style)
+        //public static void SetStyle(int style)
+        //{
+        //    if (style > 1)
+        //        style = 1;
+        //    foreach (var item in _allTextEditor)
+        //    {
+        //        item.style = style;
+        //    }
+        //    _style = style;
+        //}
+
+        public static void SetStyle(uint[] colors)
         {
-            if (style > 1)
-                style = 1;
             foreach (var item in _allTextEditor)
             {
-                item.style = style;
+                item.styleColors = colors;
             }
-            _style = style;
+            _styleColors = colors;
         }
 
         public TextEditor()
         {
             _igTextEditor = igNewTextEditor();
-            igSetPaletteTextEditor(_igTextEditor, _style);
-            igSetReadOnlyTextEditor(_igTextEditor, true);
+            //igSetPaletteTextEditor(_igTextEditor, _style);
+            igCustomPaletteTextEditor(_igTextEditor, _styleColors,_styleColors.Length);
             igSetReadOnlyTextEditor(_igTextEditor, true);
             igSetShowWhitespacesTextEditor(_igTextEditor, false);
             _allTextEditor.Add(this);
