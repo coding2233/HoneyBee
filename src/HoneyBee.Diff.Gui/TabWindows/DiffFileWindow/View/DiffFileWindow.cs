@@ -111,32 +111,32 @@ namespace HoneyBee.Diff.Gui
             ImGui.EndChild();
         }
 
-        private void OnDrawItem(DiffPaneModel diffModel)
-        {
-            if (_showCompare&& diffModel != null && diffModel.Lines !=null)
-            {
-                foreach (var item in diffModel.Lines)
-                {
-                    string showText = item.Text;
-                    if (item.Text == null)
-                        showText = "";
-                    switch (item.Type)
-                    {
-                        case ChangeType.Inserted:
-                            showText = "+\t" + showText;
-                            ImGui.TextColored(userSettings.MarkGreenColor, showText);
-                            break;
-                        case ChangeType.Deleted:
-                            showText = "-\t" + showText;
-                            ImGui.TextColored(userSettings.MarkRedColor, showText);
-                            break;
-                        default:
-                            ImGui.Text(showText);
-                            break;
-                    }
-                }
-            }
-        }
+        //private void OnDrawItem(DiffPaneModel diffModel)
+        //{
+        //    if (_showCompare&& diffModel != null && diffModel.Lines !=null)
+        //    {
+        //        foreach (var item in diffModel.Lines)
+        //        {
+        //            string showText = item.Text;
+        //            if (item.Text == null)
+        //                showText = "";
+        //            switch (item.Type)
+        //            {
+        //                case ChangeType.Inserted:
+        //                    //showText = "+\t" + showText;
+        //                    ImGui.TextColored(userSettings.MarkGreenColor, showText);
+        //                    break;
+        //                case ChangeType.Deleted:
+        //                    //showText = "-\t" + showText;
+        //                    ImGui.TextColored(userSettings.MarkRedColor, showText);
+        //                    break;
+        //                default:
+        //                    ImGui.Text(showText);
+        //                    break;
+        //            }
+        //        }
+        //    }
+        //}
 
   
         private async void Compare()
@@ -158,41 +158,63 @@ namespace HoneyBee.Diff.Gui
                     _name = $"{oldName} - {Guid.NewGuid().ToString().Substring(0, 6)}";
                 }
 
-                _leftTextEditor.text=BuilderShowText(_sideModel.OldText);
-                _rightTextEditor.text = BuilderShowText(_sideModel.NewText);
+
+                var leftResult = BuilderShowText(_sideModel.OldText);
+                _leftTextEditor.text = leftResult.Text;
+                _leftTextEditor.flagLines = leftResult.FlagLines;
+
+                var rightResult = BuilderShowText(_sideModel.NewText);
+                _rightTextEditor.text = rightResult.Text;
+                _rightTextEditor.flagLines = rightResult.FlagLines;
             }
         }
 
-
-        private string BuilderShowText(DiffPaneModel diffModel)
+        private struct SideModelTextResult
         {
+            public string Text;
+            public int[] FlagLines;
+        }
+
+        private SideModelTextResult BuilderShowText(DiffPaneModel diffModel)
+        {
+            SideModelTextResult result = new SideModelTextResult();
+            List<int> flagLines = new List<int>();
             StringBuilder stringBuilder = new StringBuilder();
             if (_showCompare && diffModel != null && diffModel.Lines != null)
             {
-                foreach (var item in diffModel.Lines)
+                for (int i = 0; i < diffModel.Lines.Count; i++)
                 {
+                    var item = diffModel.Lines[i];
                     string showText = item.Text;
                     if (item.Text == null)
                         showText = "";
-                    switch (item.Type)
-                    {
-                        case ChangeType.Inserted:
-                            showText = "+\t" + showText;
-                            //ImGui.TextColored(userSettings.MarkGreenColor, showText);
-                            break;
-                        case ChangeType.Deleted:
-                            showText = "-\t" + showText;
-                            //ImGui.TextColored(userSettings.MarkRedColor, showText);
-                            break;
-                        default:
-                            //ImGui.Text(showText);
-                            break;
-                    }
 
+                    if (item.Type != ChangeType.Unchanged)
+                    {
+                        flagLines.Add(i);
+                    }
+                    //switch (item.Type)
+                    //{
+                    //    case ChangeType.Inserted:
+                    //        //showText = "+\t" + showText;
+                    //        flagLines.Add(i);
+                    //        //ImGui.TextColored(userSettings.MarkGreenColor, showText);
+                    //        break;
+                    //    case ChangeType.Deleted:
+                    //        //showText = "-\t" + showText;
+                    //        flagLines.Add(i);
+                    //        //ImGui.TextColored(userSettings.MarkRedColor, showText);
+                    //        break;
+                    //    default:
+                    //        //ImGui.Text(showText);
+                    //        break;
+                    //}
                     stringBuilder.AppendLine(showText);
                 }
             }
-            return stringBuilder.ToString();
+            result.Text = stringBuilder.ToString();
+            result.FlagLines = flagLines.ToArray();
+            return result;
         }
 
 

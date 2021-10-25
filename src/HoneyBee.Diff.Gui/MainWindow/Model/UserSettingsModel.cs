@@ -79,7 +79,20 @@ namespace HoneyBee.Diff.Gui
                 }
             }
         }
-        
+
+
+        public uint[] TextStyleColors 
+        {
+            get
+            {
+                return GetCustomerData<uint[]>($"{_styleColors}_TextStyleColors",null);
+            }
+            set
+            {
+                SetCustomerData<uint[]>($"{_styleColors}_TextStyleColors", value);
+            }
+        }
+
 
     }
 }

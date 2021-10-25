@@ -13,6 +13,6 @@ namespace HoneyBee.Diff.Gui
         public uint MarkBgColor { get; }
         public Vector4 MarkRedColor { get; }
         public Vector4 MarkGreenColor { get; }
-
+        public uint[] TextStyleColors { get; set; }
     }
 }

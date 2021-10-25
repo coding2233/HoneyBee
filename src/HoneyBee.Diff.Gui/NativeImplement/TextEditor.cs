@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace HoneyBee.Diff.Gui
 {
 
-    public class TextEditor:IDisposable
+    public class TextEditor : IDisposable
     {
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr igNewTextEditor();
@@ -18,8 +18,8 @@ namespace HoneyBee.Diff.Gui
         private static extern void igDeleteTextEditor(IntPtr textEditor);
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void igRenderTextEditor(IntPtr textEditor,string title,Vector2 size,bool border=false);
-       
+        private static extern void igRenderTextEditor(IntPtr textEditor, string title, Vector2 size, bool border = false);
+
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern void igSetTextEditor(IntPtr textEditor, string text);
 
@@ -32,32 +32,53 @@ namespace HoneyBee.Diff.Gui
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern void igSetShowWhitespacesTextEditor(IntPtr textEditor, bool show);
 
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void igSetFlagLinesTextEditor(IntPtr textEditor, int[] flagLines, int length);
+
         private IntPtr _igTextEditor;
 
         private string _text;
-        public string text 
-        { 
-            get { return _text;} 
-            set 
-            { 
+        public string text
+        {
+            get { return _text; }
+            set
+            {
                 _text = value;
                 igSetTextEditor(_igTextEditor, _text);
-            } 
+            }
         }
 
         private static int _style;
         public int style
-        { 
-            get 
-            { 
-                return _style; 
+        {
+            get
+            {
+                return _style;
             }
-            set 
+            set
             {
                 igSetPaletteTextEditor(_igTextEditor, value);
-            } 
+            }
         }
 
+
+        private int[] _flagLines;
+
+        public int[] flagLines
+        {
+            get
+            {
+                return _flagLines;
+            }
+            set
+            {
+                _flagLines = value;
+                if (_flagLines != null && _flagLines.Length > 0)
+                {
+                    igSetFlagLinesTextEditor(_igTextEditor, _flagLines, _flagLines.Length);
+                }
+            }
+        }
 
         private static HashSet<TextEditor> _allTextEditor = new HashSet<TextEditor>();
 
@@ -84,9 +105,10 @@ namespace HoneyBee.Diff.Gui
 
         public void Render(string title, Vector2 size, bool border = false)
         {
-            if(_igTextEditor!=IntPtr.Zero)
+            if (_igTextEditor != IntPtr.Zero)
                 igRenderTextEditor(_igTextEditor, title, size, border);
         }
+
 
         public void Dispose()
         {

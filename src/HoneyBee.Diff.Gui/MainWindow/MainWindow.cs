@@ -19,6 +19,7 @@ namespace HoneyBee.Diff.Gui
         [Import]
         public IMainWindowModel mainModel { get; set; }
 
+        private TextStyleSettingModal _textStyleModal;
         public MainWindow()
         {
             //Ioc entrance.
@@ -29,6 +30,8 @@ namespace HoneyBee.Diff.Gui
 
             //初始化
             mainModel.Init();
+
+            _textStyleModal = new TextStyleSettingModal();
         }
 
         public void OnDraw()
@@ -62,7 +65,16 @@ namespace HoneyBee.Diff.Gui
                             ImGui.EndMenu();
                         }
 
-                        if (ImGui.BeginMenu(Icon.Get(Icon.Material_style)+"Style"))
+                        ImGui.Separator();
+                        if (ImGui.MenuItem(Icon.Get(Icon.Material_exit_to_app) +"退出"))
+                        {
+                        }
+                        ImGui.EndMenu();
+                    }
+
+                    if (ImGui.BeginMenu(Icon.Get(Icon.Material_edit) + "Edit"))
+                    {
+                        if (ImGui.BeginMenu(Icon.Get(Icon.Material_style) + "Style"))
                         {
                             var styleIndex = userSettings.StyleColors;
                             if (ImGui.MenuItem("Light", "", styleIndex == 0))
@@ -84,15 +96,18 @@ namespace HoneyBee.Diff.Gui
                             }
                             ImGui.EndMenu();
                         }
-                        ImGui.Separator();
-                        if (ImGui.MenuItem(Icon.Get(Icon.Material_exit_to_app) +"退出"))
-                        {
-                        }
-                    }
-                    ImGui.EndMenu();
 
+                        if (ImGui.MenuItem(Icon.Get(Icon.Material_format_color_text) + "Text Style"))
+                        {
+                            _textStyleModal.Popup();
+                        }
+                        ImGui.EndMenu();
+                    }
+
+                    ImGui.EndMainMenuBar();
                 }
-                ImGui.EndMainMenuBar();
+
+               
 
                 Vector2 contentSize = viewport.WorkSize;
                 contentSize.Y -= 20;
@@ -128,10 +143,19 @@ namespace HoneyBee.Diff.Gui
                             ImGui.EndTabBar();
                         }
                     }
+
+                    //Text style colors settings.
+                    _textStyleModal.Draw();
+
+                    ImGui.End();
                 }
+
+       
+
+
                 ImGui.End();
             }
-            ImGui.End();
+
         }
 
         public void Dispose()
