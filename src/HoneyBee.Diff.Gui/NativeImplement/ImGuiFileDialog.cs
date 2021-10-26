@@ -91,10 +91,14 @@ namespace HoneyBee.Diff.Gui
                         string selectPath = string.Empty;
                         if (ImGuiFileDialog.IsOK())
                         {
-                            selectPath = IGFD_GetCurrentPath(dialogContext);
-                            _selectFolderCallBack?.Invoke(selectPath);
-                            if (_selectFilePathCallback != null)
+                            if (_selectFolderCallBack != null)
                             {
+                                selectPath=IGFD_GetFilePathName(dialogContext);
+                                _selectFolderCallBack.Invoke(selectPath);
+                            }
+                            else if (_selectFilePathCallback != null)
+                            {
+                                selectPath = IGFD_GetCurrentPath(dialogContext);
                                 selectPath = Path.Combine(selectPath, IGFD_SelectionFilePath(dialogContext));
                                 _selectFilePathCallback.Invoke(selectPath);
                             }

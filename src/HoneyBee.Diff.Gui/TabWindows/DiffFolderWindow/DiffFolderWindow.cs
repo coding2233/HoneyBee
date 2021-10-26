@@ -199,6 +199,9 @@ namespace HoneyBee.Diff.Gui
 
         private async void Compare()
         {
+            if (mainModel.ShowLoading)
+                return;
+
             mainModel.ShowLoading = true;
             Console.WriteLine(_leftDiffFolder.FolderPath+"\n"+ _rightDiffFolder.FolderPath);
             await Task.Run( () => {

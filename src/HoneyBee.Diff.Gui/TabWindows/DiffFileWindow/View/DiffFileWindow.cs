@@ -122,6 +122,10 @@ namespace HoneyBee.Diff.Gui
   
         private async void Compare()
         {
+            if (string.IsNullOrEmpty(_leftDiffFilePath) || string.IsNullOrEmpty(_rightDiffFilePath)
+                || !File.Exists(_leftDiffFilePath) || !File.Exists(_rightDiffFilePath))
+                return;
+
             _showCompare = false;
             await Task.Run(() => {
                 _sideModel = SideBySideDiffBuilder.Diff(File.ReadAllText(_leftDiffFilePath), File.ReadAllText(_rightDiffFilePath));
