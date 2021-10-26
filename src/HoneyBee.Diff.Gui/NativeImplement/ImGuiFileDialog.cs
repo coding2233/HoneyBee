@@ -84,24 +84,31 @@ namespace HoneyBee.Diff.Gui
             {
                 Vector2 maxSize = ImGui.GetWindowSize();
                 Vector2 minSize = maxSize * 0.3f;
-                if (Display(_displayKey, ImGuiWindowFlags.None, minSize, maxSize))
+                try
                 {
-                    string selectPath = string.Empty;
-                    if (ImGuiFileDialog.IsOK())
+                    if (Display(_displayKey, ImGuiWindowFlags.None, minSize, maxSize))
                     {
-                        selectPath = IGFD_GetCurrentPath(dialogContext);
-                        _selectFolderCallBack?.Invoke(selectPath);
-                        if (_selectFilePathCallback != null)
+                        string selectPath = string.Empty;
+                        if (ImGuiFileDialog.IsOK())
                         {
-                            selectPath = Path.Combine(selectPath, IGFD_SelectionFilePath(dialogContext));
-                            _selectFilePathCallback.Invoke(selectPath);
+                            selectPath = IGFD_GetCurrentPath(dialogContext);
+                            _selectFolderCallBack?.Invoke(selectPath);
+                            if (_selectFilePathCallback != null)
+                            {
+                                selectPath = Path.Combine(selectPath, IGFD_SelectionFilePath(dialogContext));
+                                _selectFilePathCallback.Invoke(selectPath);
+                            }
+                            Console.WriteLine(selectPath);
                         }
-                        Console.WriteLine(selectPath);
+                        _selectFilePathCallback = null;
+                        _selectFolderCallBack = null;
+                        _displayKey = string.Empty;
+                        ImGuiFileDialog.Close();
                     }
-                    _selectFilePathCallback = null;
-                    _selectFolderCallBack = null;
-                    _displayKey = string.Empty;
-                    ImGuiFileDialog.Close();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Unconventional path: {e.ToString()}");
                 }
             }
         }
