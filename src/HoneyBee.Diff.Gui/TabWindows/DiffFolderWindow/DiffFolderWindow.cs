@@ -42,8 +42,6 @@ namespace HoneyBee.Diff.Gui
         //同步打开文件夹
         private readonly Dictionary<string, bool> _syncOpenFolders = new Dictionary<string, bool>();
 
-        private float _scrollValue = 0.0f;
-
         public DiffFolderWindow()
         {
             DiffProgram.ComposeParts(this);
@@ -58,8 +56,18 @@ namespace HoneyBee.Diff.Gui
             //_rightDiffFolder.FolderPath = @"C:\Users\wanderer\Desktop\DesktopHelper";
         }
 
+        private void OnDrawTitle()
+        {
+            if (ImGui.Button(Icon.Get(Icon.Material_compare)+"Compare"))
+            {
+                Compare();
+            }
+        }
+
         public void OnDraw()
         {
+            OnDrawTitle();
+
             if (ImGui.BeginChild("Left",new Vector2(ImGui.GetContentRegionAvail().X*0.5f,0),true,ImGuiWindowFlags.HorizontalScrollbar))
             {
                 ImGui.InputText("",ref _leftDiffFolder.FolderPath,500);
@@ -67,18 +75,13 @@ namespace HoneyBee.Diff.Gui
                 if (ImGui.Button("Select"))
                 { 
                 }
-                ImGui.SameLine();
-                if (ImGui.Button("OK"))
+                if (ImGui.BeginChild("Left-Content"))
                 {
-                    Compare();
-                }
-
-                ImGui.BeginChild("Left-Content");
                     OnDrawItem(_leftDiffFolder);
+                    ImGui.EndChild();
+                }
                 ImGui.EndChild();
-               
             }
-            ImGui.EndChild();
 
             ImGui.SameLine();
 
@@ -90,23 +93,18 @@ namespace HoneyBee.Diff.Gui
                 if (ImGui.Button("Select"))
                 {
                 }
-                ImGui.SameLine();
-                if (ImGui.Button("OK"))
+                if (ImGui.BeginChild("Right-Content"))
                 {
-                    Compare();
+                    OnDrawItem(_rightDiffFolder);
+                    ImGui.EndChild();
                 }
-
-                ImGui.BeginChild("Right-Content");
-                 OnDrawItem(_rightDiffFolder);
                 ImGui.EndChild();
+
             }
-            ImGui.EndChild();
         }
 
         protected void OnDrawItem(DiffFolder diffFolde)
         {
-            ImGui.SetScrollY(_scrollValue);
-
             if (ImGui.BeginTable("DiffFolderTable", 3, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders|ImGuiTableFlags.Resizable|ImGuiTableFlags.Reorderable))
             {
                 ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
@@ -124,8 +122,6 @@ namespace HoneyBee.Diff.Gui
                 }
                 ImGui.EndTable();
             }
-            
-            _scrollValue = ImGui.GetScrollY();
         }
 
         private unsafe void ShowItemColumns(DiffFolderNode node,ref string selectPath)

@@ -59,9 +59,17 @@ namespace HoneyBee.Diff.Gui
             Compare();
         }
 
+        private void OnDrawTitle()
+        {
+            if (ImGui.Button(Icon.Get(Icon.Material_compare) + "Compare"))
+            {
+                Compare();
+            }
+        }
 
         public void OnDraw()
         {
+            OnDrawTitle();
             if (ImGui.BeginChild("Left", new Vector2(ImGui.GetContentRegionAvail().X * 0.5f, 0), true, ImGuiWindowFlags.HorizontalScrollbar))
             {
                 ImGui.InputText("", ref _leftDiffFilePath, 500);
@@ -69,16 +77,10 @@ namespace HoneyBee.Diff.Gui
                 if (ImGui.Button("Select"))
                 {
                 }
-                ImGui.SameLine();
-                if (ImGui.Button("OK"))
-                {
-                    Compare();
-                }
+             
                 if (ImGui.BeginChild("Left-Content"))
                 {
                     _leftTextEditor?.Render("Left-TextEditor",ImGui.GetWindowSize());
-                    //if (_sideModel != null)
-                    //    OnDrawItem(_sideModel.OldText);
                 }
                 ImGui.EndChild();
             }
@@ -94,50 +96,16 @@ namespace HoneyBee.Diff.Gui
                 if (ImGui.Button("Select"))
                 {
                 }
-                ImGui.SameLine();
-                if (ImGui.Button("OK"))
-                {
-                    Compare();
-                }
-                
+
                 if (ImGui.BeginChild("Right-Content"))
                 {
-                    //if (_sideModel != null)
-                    //    OnDrawItem(_sideModel.NewText);
+        
                     _rightTextEditor?.Render("Right-TextEditor", ImGui.GetWindowSize());
                 }
                 ImGui.EndChild();
             }
             ImGui.EndChild();
         }
-
-        //private void OnDrawItem(DiffPaneModel diffModel)
-        //{
-        //    if (_showCompare&& diffModel != null && diffModel.Lines !=null)
-        //    {
-        //        foreach (var item in diffModel.Lines)
-        //        {
-        //            string showText = item.Text;
-        //            if (item.Text == null)
-        //                showText = "";
-        //            switch (item.Type)
-        //            {
-        //                case ChangeType.Inserted:
-        //                    //showText = "+\t" + showText;
-        //                    ImGui.TextColored(userSettings.MarkGreenColor, showText);
-        //                    break;
-        //                case ChangeType.Deleted:
-        //                    //showText = "-\t" + showText;
-        //                    ImGui.TextColored(userSettings.MarkRedColor, showText);
-        //                    break;
-        //                default:
-        //                    ImGui.Text(showText);
-        //                    break;
-        //            }
-        //        }
-        //    }
-        //}
-
   
         private async void Compare()
         {
