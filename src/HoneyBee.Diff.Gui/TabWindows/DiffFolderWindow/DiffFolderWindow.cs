@@ -56,7 +56,7 @@ namespace HoneyBee.Diff.Gui
             //_rightDiffFolder.FolderPath = @"C:\Users\wanderer\Desktop\DesktopHelper";
         }
 
-        private void OnDrawTitle()
+        private void OnDrawToolBar()
         {
             if (ImGui.Button(Icon.Get(Icon.Material_compare)+"Compare"))
             {
@@ -66,7 +66,7 @@ namespace HoneyBee.Diff.Gui
 
         public void OnDraw()
         {
-            OnDrawTitle();
+            OnDrawToolBar();
 
             if (ImGui.BeginChild("Left",new Vector2(ImGui.GetContentRegionAvail().X*0.5f,0),true,ImGuiWindowFlags.HorizontalScrollbar))
             {
@@ -98,9 +98,10 @@ namespace HoneyBee.Diff.Gui
                     OnDrawItem(_rightDiffFolder);
                     ImGui.EndChild();
                 }
-                ImGui.EndChild();
 
+                ImGui.EndChild();
             }
+
         }
 
         protected void OnDrawItem(DiffFolder diffFolde)
@@ -189,6 +190,7 @@ namespace HoneyBee.Diff.Gui
 
         private async void Compare()
         {
+            mainModel.ShowLoading = true;
             Console.WriteLine(_leftDiffFolder.FolderPath+"\n"+ _rightDiffFolder.FolderPath);
             await Task.Run( () => {
                 _showCompare = _leftDiffFolder.GetDiffFlag(_rightDiffFolder);
@@ -205,6 +207,7 @@ namespace HoneyBee.Diff.Gui
                     _name = $"{oldName} - {Guid.NewGuid().ToString().Substring(0, 6)}";
                 }
             }
+           mainModel.ShowLoading = false;
         }
 
         public void Setup(params object[] parameters)

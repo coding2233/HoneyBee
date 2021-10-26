@@ -145,6 +145,8 @@ namespace HoneyBee.Diff.Gui
 
                     //Text style colors settings.
                     _textStyleModal.Draw();
+                    LoadingModal.Draw(mainModel.ShowLoading);
+
                     ImGui.End();
                 }
                 ImGui.End();

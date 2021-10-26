@@ -59,7 +59,7 @@ namespace HoneyBee.Diff.Gui
             Compare();
         }
 
-        private void OnDrawTitle()
+        private void OnDrawToolBar ()
         {
             if (ImGui.Button(Icon.Get(Icon.Material_compare) + "Compare"))
             {
@@ -69,7 +69,7 @@ namespace HoneyBee.Diff.Gui
 
         public void OnDraw()
         {
-            OnDrawTitle();
+            OnDrawToolBar();
             if (ImGui.BeginChild("Left", new Vector2(ImGui.GetContentRegionAvail().X * 0.5f, 0), true, ImGuiWindowFlags.HorizontalScrollbar))
             {
                 ImGui.InputText("", ref _leftDiffFilePath, 500);
