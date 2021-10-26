@@ -69,12 +69,13 @@ namespace HoneyBee.Diff.Gui
                 ImGui.SameLine();
                 if (ImGui.Button("Select"))
                 {
+                    string openPath = string.IsNullOrEmpty(_rightDiffFolder.FolderPath) ? "./" : _rightDiffFolder.FolderPath;
                     ImGuiFileDialog.OpenFolder((selectPath) => {
                         if (!string.IsNullOrEmpty(selectPath))
                         {
                             _leftDiffFolder.FolderPath = selectPath;
                         }
-                    });
+                    }, openPath);
                 }
                 if (ImGui.BeginChild("Left-Content"))
                 {
@@ -93,12 +94,13 @@ namespace HoneyBee.Diff.Gui
                 ImGui.SameLine();
                 if (ImGui.Button("Select"))
                 {
+                    string openPath = string.IsNullOrEmpty(_rightDiffFolder.FolderPath) ? "./" : _rightDiffFolder.FolderPath;
                     ImGuiFileDialog.OpenFolder((selectPath)=> {
                         if (!string.IsNullOrEmpty(selectPath))
                         {
                             _rightDiffFolder.FolderPath = selectPath;
                         }
-                    });
+                    }, openPath);
                 }
                 if (ImGui.BeginChild("Right-Content"))
                 {

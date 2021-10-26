@@ -59,17 +59,17 @@ namespace HoneyBee.Diff.Gui
             IGFD_OpenModal(dialogContext, key, title, filter, path, fileName, countSelectionMax, userData, (int)flag);
         }
 
-        public static void OpenFolder(Action<string> selectCallback)
+        public static void OpenFolder(Action<string> selectCallback,string path="./")
         {
             _selectFolderCallBack = selectCallback;
-            OpenFile(selectCallback,null);
+            OpenFile(selectCallback, path,null);
         }
 
-        public static void OpenFile(Action<string> selectCallback,string filter= ".*")//".cs,.txt,.c,.cpp,.h,.meta,.prefab"
+        public static void OpenFile(Action<string> selectCallback,string path="./",string filter= ".*")//".cs,.txt,.c,.cpp,.h,.meta,.prefab"
         {
             _displayKey = _dialogKey;
             _selectFilePathCallback = selectCallback;
-            OpenModal(_displayKey, _displayKey, filter, "./");
+            OpenModal(_displayKey, _displayKey, filter, path);
         }
 
         public static bool Display(string key,ImGuiWindowFlags flag,Vector2 minSize,Vector2 maxSize)
