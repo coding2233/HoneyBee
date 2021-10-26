@@ -139,14 +139,15 @@ namespace HoneyBee.Diff.Gui
                                     i--;
                                 }
                             }
+
+                            //Text style colors settings.
+                            _textStyleModal.Draw();
+                            LoadingModal.Draw(mainModel.ShowLoading);
+                            ImGuiFileDialog.Display();
+
                             ImGui.EndTabBar();
                         }
                     }
-
-                    //Text style colors settings.
-                    _textStyleModal.Draw();
-                    LoadingModal.Draw(mainModel.ShowLoading);
-
                     ImGui.End();
                 }
                 ImGui.End();

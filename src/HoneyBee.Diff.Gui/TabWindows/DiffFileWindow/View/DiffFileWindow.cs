@@ -76,6 +76,12 @@ namespace HoneyBee.Diff.Gui
                 ImGui.SameLine();
                 if (ImGui.Button("Select"))
                 {
+                    ImGuiFileDialog.OpenFile((selectPath) => {
+                        if (!string.IsNullOrEmpty(selectPath))
+                        {
+                            _leftDiffFilePath = selectPath;
+                        }
+                    });
                 }
              
                 if (ImGui.BeginChild("Left-Content"))
@@ -95,11 +101,16 @@ namespace HoneyBee.Diff.Gui
                 ImGui.SameLine();
                 if (ImGui.Button("Select"))
                 {
+                    ImGuiFileDialog.OpenFile((selectPath) => {
+                        if (!string.IsNullOrEmpty(selectPath))
+                        {
+                            _rightDiffFilePath = selectPath;
+                        }
+                    });
                 }
 
                 if (ImGui.BeginChild("Right-Content"))
                 {
-        
                     _rightTextEditor?.Render("Right-TextEditor", ImGui.GetWindowSize());
                 }
                 ImGui.EndChild();

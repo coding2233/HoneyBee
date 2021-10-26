@@ -42,18 +42,13 @@ namespace HoneyBee.Diff.Gui
         //同步打开文件夹
         private readonly Dictionary<string, bool> _syncOpenFolders = new Dictionary<string, bool>();
 
+
         public DiffFolderWindow()
         {
             DiffProgram.ComposeParts(this);
 
             _leftDiffFolder = new DiffFolder();
             _rightDiffFolder = new DiffFolder();
-
-            _leftDiffFolder.FolderPath = @"C:\Users\EDY\Desktop\fazai1013\Scripts\FazaiUI";
-            _rightDiffFolder.FolderPath = @"E:\source\HappyMahjongForDeveloper\HappyMahjongForArtist\Assets\Scripts\FazaiUI";
-
-            //_leftDiffFolder.FolderPath = @"D:\source\DesktopHelper";
-            //_rightDiffFolder.FolderPath = @"C:\Users\wanderer\Desktop\DesktopHelper";
         }
 
         private void OnDrawToolBar()
@@ -73,7 +68,13 @@ namespace HoneyBee.Diff.Gui
                 ImGui.InputText("",ref _leftDiffFolder.FolderPath,500);
                 ImGui.SameLine();
                 if (ImGui.Button("Select"))
-                { 
+                {
+                    ImGuiFileDialog.OpenFolder((selectPath) => {
+                        if (!string.IsNullOrEmpty(selectPath))
+                        {
+                            _leftDiffFolder.FolderPath = selectPath;
+                        }
+                    });
                 }
                 if (ImGui.BeginChild("Left-Content"))
                 {
@@ -92,6 +93,12 @@ namespace HoneyBee.Diff.Gui
                 ImGui.SameLine();
                 if (ImGui.Button("Select"))
                 {
+                    ImGuiFileDialog.OpenFolder((selectPath)=> {
+                        if (!string.IsNullOrEmpty(selectPath))
+                        {
+                            _rightDiffFolder.FolderPath = selectPath;
+                        }
+                    });
                 }
                 if (ImGui.BeginChild("Right-Content"))
                 {
