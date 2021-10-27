@@ -26,7 +26,7 @@ namespace HoneyBee.Diff.Gui
         ImGuiFileDialogFlags_Default = ImGuiFileDialogFlags_ConfirmOverwrite
     };
 
-    public class ImGuiFileDialog
+    public unsafe class ImGuiFileDialog
     {
 
        
@@ -93,13 +93,14 @@ namespace HoneyBee.Diff.Gui
                         {
                             if (_selectFolderCallBack != null)
                             {
-                                selectPath=IGFD_GetFilePathName(dialogContext);
+                                selectPath= GetFilePathName();
                                 _selectFolderCallBack.Invoke(selectPath);
                             }
                             else if (_selectFilePathCallback != null)
                             {
-                                selectPath = IGFD_GetCurrentPath(dialogContext);
-                                selectPath = Path.Combine(selectPath, IGFD_SelectionFilePath(dialogContext));
+                                selectPath = GetCurrentPath();
+                                string fileName = SelectionFilePath();
+                                selectPath = Path.Combine(selectPath, fileName);
                                 _selectFilePathCallback.Invoke(selectPath);
                             }
                             Console.WriteLine(selectPath);
@@ -116,7 +117,7 @@ namespace HoneyBee.Diff.Gui
                 }
             }
         }
-
+  
         public static void Close()
         {
             IGFD_CloseDialog(dialogContext);
@@ -129,24 +130,27 @@ namespace HoneyBee.Diff.Gui
 
         public static string GetFilePathName()
         {
-            return IGFD_GetFilePathName(dialogContext);
+            return Util.StringFromPtr(IGFD_GetFilePathName(dialogContext));
+        }
+
+        public static string GetCurrentFileName()
+        {
+            return Util.StringFromPtr(IGFD_GetCurrentFileName(dialogContext));
         }
 
         public static string GetCurrentPath()
         {
-            return IGFD_GetCurrentFileName(dialogContext);
+            return Util.StringFromPtr(IGFD_GetCurrentPath(dialogContext));
         }
 
-        struct IGFD_Selection_Pair
+        public static string GetCurrentFilter()
         {
-            public string fileName;
-            public string filePathName;
+            return Util.StringFromPtr(IGFD_GetCurrentFilter(dialogContext));
         }
 
-        struct IGFD_Selection
+        public static string SelectionFilePath()
         {
-            public IGFD_Selection_Pair[] table;
-            public int count;
+            return Util.StringFromPtr(IGFD_SelectionFilePath(dialogContext));
         }
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
@@ -171,19 +175,19 @@ namespace HoneyBee.Diff.Gui
         private static extern bool IGFD_IsOk(IntPtr vContext);
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern string IGFD_GetFilePathName(IntPtr vContext);
+        private static extern byte* IGFD_GetFilePathName(IntPtr vContext);
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern string IGFD_GetCurrentFileName(IntPtr vContext);
+        private static extern byte* IGFD_GetCurrentFileName(IntPtr vContext);
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern string IGFD_GetCurrentPath(IntPtr vContext);
+        private static extern byte* IGFD_GetCurrentPath(IntPtr vContext);
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern string IGFD_GetCurrentFilter(IntPtr vContext);
+        private static extern byte* IGFD_GetCurrentFilter(IntPtr vContext);
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern string IGFD_SelectionFilePath(IntPtr vContext);
+        private static extern byte* IGFD_SelectionFilePath(IntPtr vContext);
 
         
 

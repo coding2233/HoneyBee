@@ -91,17 +91,17 @@ namespace HoneyBee.Diff.Gui
                 }
             }
 
-            //Load Source code pro font.
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CenturyGothic.ttf"))
-            {
-                if (stream.Length > 0)
-                {
-                    byte[] buffer = new byte[stream.Length];
-                    stream.Read(buffer, 0, buffer.Length);
-                    var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
-                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, fontSize, fontSize, imFontConfigPtr, ImGui.GetIO().Fonts.GetGlyphRangesDefault());
-                }
-            }
+            ////Load Source code pro font.
+            //using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CenturyGothic.ttf"))
+            //{
+            //    if (stream.Length > 0)
+            //    {
+            //        byte[] buffer = new byte[stream.Length];
+            //        stream.Read(buffer, 0, buffer.Length);
+            //        var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
+            //        ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, fontSize, fontSize, imFontConfigPtr, ImGui.GetIO().Fonts.GetGlyphRangesDefault());
+            //    }
+            //}
 
             //Load icon.
             using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MaterialIcons-Regular.ttf"))
@@ -129,7 +129,7 @@ namespace HoneyBee.Diff.Gui
             }
 
             ImGui.GetIO().Fonts.Build();
-
+            
             CreateDeviceResources(gd, outputDescription);
             SetKeyMappings();
 

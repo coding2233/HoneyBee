@@ -47,8 +47,14 @@ namespace HoneyBee.Diff.Gui
         {
             DiffProgram.ComposeParts(this);
 
+            string userPath = Environment.GetEnvironmentVariable("USERPROFILE");
+            string folderPath = $"{userPath}\\Documents";
+
             _leftDiffFolder = new DiffFolder();
             _rightDiffFolder = new DiffFolder();
+
+            _leftDiffFolder.FolderPath = folderPath;
+            _rightDiffFolder.FolderPath = folderPath;
         }
         protected override void OnLeftToolbarDraw()
         {

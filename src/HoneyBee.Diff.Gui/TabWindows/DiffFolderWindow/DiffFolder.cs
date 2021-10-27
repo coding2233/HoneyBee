@@ -12,8 +12,7 @@ namespace HoneyBee.Diff.Gui
     {
         public DiffFolder()
         {
-            string userPath = Environment.GetEnvironmentVariable("USERPROFILE");
-            FolderPath = $"{userPath}\\Downloads";
+        
         }
 
         public string FolderPath;

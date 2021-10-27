@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace HoneyBee.Diff.Gui
 {
 
-    public class TextEditor : IDisposable
+    public unsafe class TextEditor : IDisposable
     {
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr igNewTextEditor();
@@ -21,7 +21,7 @@ namespace HoneyBee.Diff.Gui
         private static extern void igRenderTextEditor(IntPtr textEditor, string title, Vector2 size, bool border = false);
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void igSetTextEditor(IntPtr textEditor, string text);
+        private static extern void igSetTextEditor(IntPtr textEditor, byte* text);
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern void igSetPaletteTextEditor(IntPtr textEditor, int style);
@@ -51,22 +51,33 @@ namespace HoneyBee.Diff.Gui
             set
             {
                 _text = value;
-                igSetTextEditor(_igTextEditor, _text);
+
+                byte* native_label;
+                int label_byteCount = 0;
+                if (!string.IsNullOrEmpty(_text))
+                {
+                    label_byteCount = Encoding.UTF8.GetByteCount(_text);
+                    if (label_byteCount > Util.StackAllocationSizeLimit)
+                    {
+                        native_label = Util.Allocate(label_byteCount + 1);
+                    }
+                    else
+                    {
+                        byte* native_label_stackBytes = stackalloc byte[label_byteCount + 1];
+                        native_label = native_label_stackBytes;
+                    }
+                    int native_label_offset = Util.GetUtf8(_text, native_label, label_byteCount);
+                    native_label[native_label_offset] = 0;
+                    igSetTextEditor(_igTextEditor, native_label);
+                }
+                else { native_label = null; }
+                Util.Free(native_label);
+                //if (label_byteCount > Util.StackAllocationSizeLimit)
+                //{
+                //    Util.Free(native_label);
+                //}
             }
         }
-
-        //private static int _style;
-        //public int style
-        //{
-        //    get
-        //    {
-        //        return _style;
-        //    }
-        //    set
-        //    {
-        //        igSetPaletteTextEditor(_igTextEditor, value);
-        //    }
-        //}
 
         private static uint[] _styleColors;
 
@@ -154,7 +165,9 @@ namespace HoneyBee.Diff.Gui
         public void Render(string title, Vector2 size, bool border = false)
         {
             if (_igTextEditor != IntPtr.Zero)
+            {
                 igRenderTextEditor(_igTextEditor, title, size, border);
+            }
         }
 
 

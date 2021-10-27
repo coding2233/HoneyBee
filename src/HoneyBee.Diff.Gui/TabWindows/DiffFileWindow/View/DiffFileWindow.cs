@@ -49,6 +49,11 @@ namespace HoneyBee.Diff.Gui
         {
             DiffProgram.ComposeParts(this);
 
+            string userPath = Environment.GetEnvironmentVariable("USERPROFILE");
+            string folderPath = $"{userPath}\\Documents";
+
+            _leftDiffFilePath = _rightDiffFilePath = folderPath;
+
             _leftTextEditor = new TextEditor();
             _leftTextEditor.ignoreChildWindow = true;
 
@@ -139,16 +144,17 @@ namespace HoneyBee.Diff.Gui
 
         protected override async void OnCompare()
         {
+            if (_loading)
+                return;
+
             if (string.IsNullOrEmpty(_leftDiffFilePath) || string.IsNullOrEmpty(_rightDiffFilePath)
                 || !File.Exists(_leftDiffFilePath) || !File.Exists(_rightDiffFilePath))
                 return;
-
+            _loading = true;
             _showCompare = false;
             await Task.Run(() => {
-                var leftEncoding = GetEncoding(_leftDiffFilePath);
-                var rightEncoding = GetEncoding(_leftDiffFilePath);
-                _sideModel = SideBySideDiffBuilder.Diff(File.ReadAllText(_leftDiffFilePath, leftEncoding), File.ReadAllText(_rightDiffFilePath, rightEncoding));
-                _showCompare = true;
+                _sideModel = SideBySideDiffBuilder.Diff(File.ReadAllText(_leftDiffFilePath), File.ReadAllText(_rightDiffFilePath));
+                _showCompare = _sideModel!=null;
             });
 
             if (_showCompare)
@@ -170,6 +176,7 @@ namespace HoneyBee.Diff.Gui
                 _rightTextEditor.text = rightResult.Text;
                 _rightTextEditor.flagLines = rightResult.FlagLines;
             }
+            _loading = false;
         }
 
         private struct SideModelTextResult
@@ -243,6 +250,27 @@ namespace HoneyBee.Diff.Gui
                 file.Read(bom, 0, 4);
             }
 
+            // Analyze the BOM
+            if (bom[0] == 0x2b && bom[1] == 0x2f && bom[2] == 0x76) return Encoding.UTF7;
+            if (bom[0] == 0xef && bom[1] == 0xbb && bom[2] == 0xbf) return Encoding.UTF8;
+            if (bom[0] == 0xff && bom[1] == 0xfe && bom[2] == 0 && bom[3] == 0) return Encoding.UTF32; //UTF-32LE
+            if (bom[0] == 0xff && bom[1] == 0xfe) return Encoding.Unicode; //UTF-16LE
+            if (bom[0] == 0xfe && bom[1] == 0xff) return Encoding.BigEndianUnicode; //UTF-16BE
+            if (bom[0] == 0 && bom[1] == 0 && bom[2] == 0xfe && bom[3] == 0xff) return new UTF32Encoding(true, true);  //UTF-32BE
+
+            // We actually have no idea what the encoding is if we reach this point, so
+            // you may wish to return null instead of defaulting to ASCII
+            return Encoding.ASCII;
+        }
+
+        /// <summary>
+        /// Determines a text file's encoding by analyzing its byte order mark (BOM).
+        /// Defaults to ASCII when detection of the text file's endianness fails.
+        /// </summary>
+        /// <param name="filename">The text file to analyze.</param>
+        /// <returns>The detected encoding.</returns>
+        public static Encoding GetEncoding(byte[] bom)
+        {
             // Analyze the BOM
             if (bom[0] == 0x2b && bom[1] == 0x2f && bom[2] == 0x76) return Encoding.UTF7;
             if (bom[0] == 0xef && bom[1] == 0xbb && bom[2] == 0xbf) return Encoding.UTF8;
