@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 
 namespace HoneyBee.Diff.Gui
 {
-    public class DiffFileWindow : ITabWindow
+    public class DiffFileWindow : DiffTabWindow
     {
         private string _name;
-        public string Name
+        public override string Name
         {
             get
             {
@@ -27,7 +27,7 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
-        public string IconName =>Icon.Get(Icon.Material_file_copy);
+        public override string IconName =>Icon.Get(Icon.Material_file_copy);
 
         private string _leftDiffFilePath="";
         private string _rightDiffFilePath ="";
@@ -35,6 +35,7 @@ namespace HoneyBee.Diff.Gui
         private TextEditor _rightTextEditor;
 
         private bool _showCompare;
+        private bool _readOnly=true;
 
         private SideBySideDiffModel _sideModel;
 
@@ -49,78 +50,94 @@ namespace HoneyBee.Diff.Gui
             DiffProgram.ComposeParts(this);
 
             _leftTextEditor = new TextEditor();
+            _leftTextEditor.ignoreChildWindow = true;
+
             _rightTextEditor = new TextEditor();
+            _rightTextEditor.ignoreChildWindow = true;
         }
 
-        public void Setup(params object[] parameters)
+        public override void Setup(params object[] parameters)
         {
             _leftDiffFilePath = (string)parameters[0];
             _rightDiffFilePath = (string)parameters[1];
-            Compare();
+            OnCompare();
         }
 
-        private void OnDrawToolBar ()
+        public override string Serialize()
         {
-            if (ImGui.Button(Icon.Get(Icon.Material_compare) + "Compare"))
-            {
-                Compare();
-            }
+            string path = $"{_name}|{_leftDiffFilePath}|{_rightDiffFilePath}|{_readOnly}";
+            return path;
         }
 
-        public void OnDraw()
+        public override void Deserialize(string data)
         {
-            OnDrawToolBar();
-            if (ImGui.BeginChild("Left", new Vector2(ImGui.GetContentRegionAvail().X * 0.5f, 0), true, ImGuiWindowFlags.HorizontalScrollbar))
+            string[] args = data.Split('|');
+            _name = args[0];
+            _leftDiffFilePath = args[1];
+            _rightDiffFilePath = args[2];
+            if (args.Length == 4)
             {
-                ImGui.InputText("", ref _leftDiffFilePath, 500);
-                ImGui.SameLine();
-                if (ImGui.Button("Select"))
-                {
-                    string openPath = string.IsNullOrEmpty(_leftDiffFilePath) ? "./" : Path.GetDirectoryName(_leftDiffFilePath);
-                    ImGuiFileDialog.OpenFile((selectPath) => {
-                        if (!string.IsNullOrEmpty(selectPath))
-                        {
-                            _leftDiffFilePath = selectPath;
-                        }
-                    }, openPath);
-                }
-             
-                if (ImGui.BeginChild("Left-Content"))
-                {
-                    _leftTextEditor?.Render("Left-TextEditor",ImGui.GetWindowSize());
-                }
-                ImGui.EndChild();
+                _readOnly = bool.Parse(args[3]);
+                SetTextEditorStatus();
             }
-            ImGui.EndChild();
+            OnCompare();
+        }
 
+        protected override void OnToolbarDraw()
+        {
+            base.OnToolbarDraw();
             ImGui.SameLine();
-
-            //ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 5.0f);
-            if (ImGui.BeginChild("Right", new Vector2(0, 0), true))
+            if (ImGui.Checkbox("Read Only",ref _readOnly))
             {
-                ImGui.InputText("", ref _rightDiffFilePath, 500);
-                ImGui.SameLine();
-                if (ImGui.Button("Select"))
-                {
-                    string openPath = string.IsNullOrEmpty(_rightDiffFilePath) ? "./" : Path.GetDirectoryName(_rightDiffFilePath);
-                    ImGuiFileDialog.OpenFile((selectPath) => {
-                        if (!string.IsNullOrEmpty(selectPath))
-                        {
-                            _rightDiffFilePath = selectPath;
-                        }
-                    }, openPath);
-                }
-
-                if (ImGui.BeginChild("Right-Content"))
-                {
-                    _rightTextEditor?.Render("Right-TextEditor", ImGui.GetWindowSize());
-                }
-                ImGui.EndChild();
+                SetTextEditorStatus();
             }
-            ImGui.EndChild();
         }
-  
-        private async void Compare()
+
+
+        protected override void OnLeftToolbarDraw()
+        {
+            ImGui.InputText("", ref _leftDiffFilePath, 500);
+            ImGui.SameLine();
+            if (ImGui.Button("Select"))
+            {
+                string openPath = string.IsNullOrEmpty(_leftDiffFilePath) ? "./" : Path.GetDirectoryName(_leftDiffFilePath);
+                ImGuiFileDialog.OpenFile((selectPath) => {
+                    if (!string.IsNullOrEmpty(selectPath))
+                    {
+                        _leftDiffFilePath = selectPath;
+                    }
+                }, openPath);
+            }
+        }
+
+        protected override void OnRightToolbarDraw()
+        {
+            ImGui.InputText("", ref _rightDiffFilePath, 500);
+            ImGui.SameLine();
+            if (ImGui.Button("Select"))
+            {
+                string openPath = string.IsNullOrEmpty(_rightDiffFilePath) ? "./" : Path.GetDirectoryName(_rightDiffFilePath);
+                ImGuiFileDialog.OpenFile((selectPath) => {
+                    if (!string.IsNullOrEmpty(selectPath))
+                    {
+                        _rightDiffFilePath = selectPath;
+                    }
+                }, openPath);
+            }
+        }
+
+        protected override void OnLeftContentDraw()
+        {
+            _leftTextEditor?.Render("Left-TextEditor", ImGui.GetWindowSize());
+        }
+
+        protected override void OnRightContentDraw()
+        {
+            _rightTextEditor?.Render("Right-TextEditor", ImGui.GetWindowSize());
+        }
+
+
+        protected override async void OnCompare()
         {
             if (string.IsNullOrEmpty(_leftDiffFilePath) || string.IsNullOrEmpty(_rightDiffFilePath)
                 || !File.Exists(_leftDiffFilePath) || !File.Exists(_rightDiffFilePath))
@@ -128,7 +145,9 @@ namespace HoneyBee.Diff.Gui
 
             _showCompare = false;
             await Task.Run(() => {
-                _sideModel = SideBySideDiffBuilder.Diff(File.ReadAllText(_leftDiffFilePath), File.ReadAllText(_rightDiffFilePath));
+                var leftEncoding = GetEncoding(_leftDiffFilePath);
+                var rightEncoding = GetEncoding(_leftDiffFilePath);
+                _sideModel = SideBySideDiffBuilder.Diff(File.ReadAllText(_leftDiffFilePath, leftEncoding), File.ReadAllText(_rightDiffFilePath, rightEncoding));
                 _showCompare = true;
             });
 
@@ -142,7 +161,6 @@ namespace HoneyBee.Diff.Gui
                 {
                     _name = $"{oldName} - {Guid.NewGuid().ToString().Substring(0, 6)}";
                 }
-
 
                 var leftResult = BuilderShowText(_sideModel.OldText);
                 _leftTextEditor.text = leftResult.Text;
@@ -202,23 +220,43 @@ namespace HoneyBee.Diff.Gui
             return result;
         }
 
-
-        public string Serialize()
+        //设置文本的状态
+        private void SetTextEditorStatus()
         {
-            string path = $"{_name}|{_leftDiffFilePath}|{_rightDiffFilePath}";
-            return path;
+            _leftTextEditor.readOnly = _readOnly;
+            _rightTextEditor.readOnly = _readOnly;
         }
 
-        public void Deserialize(string data)
+
+        /// <summary>
+        /// Determines a text file's encoding by analyzing its byte order mark (BOM).
+        /// Defaults to ASCII when detection of the text file's endianness fails.
+        /// </summary>
+        /// <param name="filename">The text file to analyze.</param>
+        /// <returns>The detected encoding.</returns>
+        public static Encoding GetEncoding(string filename)
         {
-            string[] args = data.Split('|');
-            _name = args[0];
-            _leftDiffFilePath = args[1];
-            _rightDiffFilePath = args[2];
-            Compare();
+            // Read the BOM
+            var bom = new byte[4];
+            using (var file = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            {
+                file.Read(bom, 0, 4);
+            }
+
+            // Analyze the BOM
+            if (bom[0] == 0x2b && bom[1] == 0x2f && bom[2] == 0x76) return Encoding.UTF7;
+            if (bom[0] == 0xef && bom[1] == 0xbb && bom[2] == 0xbf) return Encoding.UTF8;
+            if (bom[0] == 0xff && bom[1] == 0xfe && bom[2] == 0 && bom[3] == 0) return Encoding.UTF32; //UTF-32LE
+            if (bom[0] == 0xff && bom[1] == 0xfe) return Encoding.Unicode; //UTF-16LE
+            if (bom[0] == 0xfe && bom[1] == 0xff) return Encoding.BigEndianUnicode; //UTF-16BE
+            if (bom[0] == 0 && bom[1] == 0 && bom[2] == 0xfe && bom[3] == 0xff) return new UTF32Encoding(true, true);  //UTF-32BE
+
+            // We actually have no idea what the encoding is if we reach this point, so
+            // you may wish to return null instead of defaulting to ASCII
+            return Encoding.ASCII;
         }
 
-    public void Dispose()
+        public override void Dispose()
         {
             _leftTextEditor?.Dispose();
             _rightTextEditor?.Dispose();

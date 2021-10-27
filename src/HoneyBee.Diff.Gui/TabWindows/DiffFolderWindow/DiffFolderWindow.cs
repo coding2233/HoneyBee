@@ -12,7 +12,7 @@ using ImGuiNET;
 
 namespace HoneyBee.Diff.Gui
 {
-    public class DiffFolderWindow: ITabWindow
+    public class DiffFolderWindow: DiffTabWindow
     {
         private DiffFolder _leftDiffFolder;
         private DiffFolder _rightDiffFolder;
@@ -20,7 +20,7 @@ namespace HoneyBee.Diff.Gui
         private bool _showCompare = false;
 
         private string _name;
-        public string Name 
+        public override string Name 
         {
             get
             {
@@ -32,7 +32,7 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
-        public string IconName => Icon.Get(Icon.Material_folder_special);
+        public override string IconName => Icon.Get(Icon.Material_folder_special);
 
         [Import]
         public IMainWindowModel mainModel { get; set; }
@@ -50,67 +50,46 @@ namespace HoneyBee.Diff.Gui
             _leftDiffFolder = new DiffFolder();
             _rightDiffFolder = new DiffFolder();
         }
-
-        private void OnDrawToolBar()
+        protected override void OnLeftToolbarDraw()
         {
-            if (ImGui.Button(Icon.Get(Icon.Material_compare)+"Compare"))
+            ImGui.InputText("", ref _leftDiffFolder.FolderPath, 500);
+            ImGui.SameLine();
+            if (ImGui.Button("Select"))
             {
-                Compare();
+                string openPath = string.IsNullOrEmpty(_rightDiffFolder.FolderPath) ? "./" : _rightDiffFolder.FolderPath;
+                ImGuiFileDialog.OpenFolder((selectPath) => {
+                    if (!string.IsNullOrEmpty(selectPath))
+                    {
+                        _leftDiffFolder.FolderPath = selectPath;
+                    }
+                }, openPath);
             }
         }
 
-        public void OnDraw()
+        protected override void OnRightToolbarDraw()
         {
-            OnDrawToolBar();
-
-            if (ImGui.BeginChild("Left",new Vector2(ImGui.GetContentRegionAvail().X*0.5f,0),true,ImGuiWindowFlags.HorizontalScrollbar))
-            {
-                ImGui.InputText("",ref _leftDiffFolder.FolderPath,500);
-                ImGui.SameLine();
-                if (ImGui.Button("Select"))
-                {
-                    string openPath = string.IsNullOrEmpty(_rightDiffFolder.FolderPath) ? "./" : _rightDiffFolder.FolderPath;
-                    ImGuiFileDialog.OpenFolder((selectPath) => {
-                        if (!string.IsNullOrEmpty(selectPath))
-                        {
-                            _leftDiffFolder.FolderPath = selectPath;
-                        }
-                    }, openPath);
-                }
-                if (ImGui.BeginChild("Left-Content"))
-                {
-                    OnDrawItem(_leftDiffFolder);
-                    ImGui.EndChild();
-                }
-                ImGui.EndChild();
-            }
-
+            ImGui.InputText("", ref _rightDiffFolder.FolderPath, 500);
             ImGui.SameLine();
-
-            //ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 5.0f);
-            if (ImGui.BeginChild("Right",new Vector2(0,0),true))
+            if (ImGui.Button("Select"))
             {
-                ImGui.InputText("",ref _rightDiffFolder.FolderPath, 500);
-                ImGui.SameLine();
-                if (ImGui.Button("Select"))
-                {
-                    string openPath = string.IsNullOrEmpty(_rightDiffFolder.FolderPath) ? "./" : _rightDiffFolder.FolderPath;
-                    ImGuiFileDialog.OpenFolder((selectPath)=> {
-                        if (!string.IsNullOrEmpty(selectPath))
-                        {
-                            _rightDiffFolder.FolderPath = selectPath;
-                        }
-                    }, openPath);
-                }
-                if (ImGui.BeginChild("Right-Content"))
-                {
-                    OnDrawItem(_rightDiffFolder);
-                    ImGui.EndChild();
-                }
-
-                ImGui.EndChild();
+                string openPath = string.IsNullOrEmpty(_rightDiffFolder.FolderPath) ? "./" : _rightDiffFolder.FolderPath;
+                ImGuiFileDialog.OpenFolder((selectPath) => {
+                    if (!string.IsNullOrEmpty(selectPath))
+                    {
+                        _rightDiffFolder.FolderPath = selectPath;
+                    }
+                }, openPath);
             }
+        }
 
+        protected override void OnLeftContentDraw()
+        {
+            OnDrawItem(_leftDiffFolder);
+        }
+
+        protected override void OnRightContentDraw()
+        {
+            OnDrawItem(_rightDiffFolder);
         }
 
         protected void OnDrawItem(DiffFolder diffFolde)
@@ -197,12 +176,9 @@ namespace HoneyBee.Diff.Gui
         }
     
 
-        private async void Compare()
+        protected override async void OnCompare()
         {
-            if (mainModel.ShowLoading)
-                return;
-
-            mainModel.ShowLoading = true;
+            mainModel.ShowLoading.Add(Name);
             Console.WriteLine(_leftDiffFolder.FolderPath+"\n"+ _rightDiffFolder.FolderPath);
             await Task.Run( () => {
                 _showCompare = _leftDiffFolder.GetDiffFlag(_rightDiffFolder);
@@ -219,30 +195,27 @@ namespace HoneyBee.Diff.Gui
                     _name = $"{oldName} - {Guid.NewGuid().ToString().Substring(0, 6)}";
                 }
             }
-           mainModel.ShowLoading = false;
+            mainModel.ShowLoading.Remove(Name);
         }
 
-        public void Setup(params object[] parameters)
-        {
-        }
 
-        public string Serialize()
+        public override string Serialize()
         {
             string path = $"{_name}|{_leftDiffFolder.FolderPath}|{_rightDiffFolder.FolderPath}";
             return path;
         }
 
-        public void Deserialize(string data)
+        public override void Deserialize(string data)
         {
             string[] args = data.Split('|');
             _name = args[0];
             _leftDiffFolder.FolderPath = args[1];
             _rightDiffFolder.FolderPath = args[2];
 
-            Compare();
+            OnCompare();
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
         }
     

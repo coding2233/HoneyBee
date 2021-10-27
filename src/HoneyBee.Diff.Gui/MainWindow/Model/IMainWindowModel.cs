@@ -8,7 +8,7 @@ namespace HoneyBee.Diff.Gui
 {
     public interface IMainWindowModel
     {
-        public bool ShowLoading { get; set; }
+        public HashSet<string> ShowLoading { get; set; }
 
         List<ITabWindow> TabWindows {get;}
 

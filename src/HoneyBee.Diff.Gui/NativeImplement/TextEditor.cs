@@ -35,9 +35,12 @@ namespace HoneyBee.Diff.Gui
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern void igSetFlagLinesTextEditor(IntPtr textEditor, int[] flagLines, int length);
 
-
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern void igCustomPaletteTextEditor(IntPtr textEditor, uint[] colors, int length);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void igIgnoreChildTextEditor(IntPtr textEditor, bool ignoreChild);
+
 
         private IntPtr _igTextEditor;
 
@@ -98,19 +101,37 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
+        private bool _ignoreChildWindow;
+        public bool ignoreChildWindow
+        {
+            get
+            {
+                return _ignoreChildWindow;
+            }
+            set
+            {
+                _ignoreChildWindow = value;
+                igIgnoreChildTextEditor(_igTextEditor, _ignoreChildWindow);
+            }
+        }
+
+        private bool _readOnly;
+        public bool readOnly
+        {
+            get
+            {
+                return _readOnly;
+            }
+            set
+            {
+                _readOnly = value;
+                igSetReadOnlyTextEditor(_igTextEditor, _readOnly);
+            }
+        }
+
         private static HashSet<TextEditor> _allTextEditor = new HashSet<TextEditor>();
 
-        //public static void SetStyle(int style)
-        //{
-        //    if (style > 1)
-        //        style = 1;
-        //    foreach (var item in _allTextEditor)
-        //    {
-        //        item.style = style;
-        //    }
-        //    _style = style;
-        //}
-
+ 
         public static void SetStyle(uint[] colors)
         {
             foreach (var item in _allTextEditor)
@@ -125,7 +146,7 @@ namespace HoneyBee.Diff.Gui
             _igTextEditor = igNewTextEditor();
             //igSetPaletteTextEditor(_igTextEditor, _style);
             igCustomPaletteTextEditor(_igTextEditor, _styleColors,_styleColors.Length);
-            igSetReadOnlyTextEditor(_igTextEditor, true);
+            readOnly = true;
             igSetShowWhitespacesTextEditor(_igTextEditor, false);
             _allTextEditor.Add(this);
         }

@@ -15,7 +15,7 @@ namespace HoneyBee.Diff.Gui
         private List<ITabWindow> _tabWindows = new List<ITabWindow>();
         public List<ITabWindow> TabWindows => _tabWindows;
 
-        public bool ShowLoading { get; set; }
+        public HashSet<string> ShowLoading { get; set; } = new HashSet<string>();
 
         public MainWindowModel()
         {

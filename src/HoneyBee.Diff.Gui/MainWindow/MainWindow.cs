@@ -20,6 +20,8 @@ namespace HoneyBee.Diff.Gui
         public IMainWindowModel mainModel { get; set; }
 
         private TextStyleSettingModal _textStyleModal;
+
+        private ImGuiWindowFlags _defaultWindowFlag;
         public MainWindow()
         {
             //Ioc entrance.
@@ -32,6 +34,9 @@ namespace HoneyBee.Diff.Gui
             mainModel.Init();
 
             _textStyleModal = new TextStyleSettingModal();
+
+            _defaultWindowFlag = ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize 
+                | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse ;
         }
 
         public void OnDraw()
@@ -43,7 +48,7 @@ namespace HoneyBee.Diff.Gui
             ImGui.SetNextWindowSize(viewport.WorkSize);
             ImGui.SetNextWindowViewport(viewport.ID);
           
-            if (ImGui.Begin("Diff", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize))
+            if (ImGui.Begin("Diff", _defaultWindowFlag))
             {
                 if (ImGui.BeginMainMenuBar())
                 {
@@ -115,7 +120,7 @@ namespace HoneyBee.Diff.Gui
                 ImGui.SetNextWindowPos(contentPos);
                 ImGui.SetNextWindowSize(contentSize);
 
-                if (ImGui.Begin("Compare", ImGuiWindowFlags.NoResize|ImGuiWindowFlags.NoCollapse|ImGuiWindowFlags.NoTitleBar|ImGuiWindowFlags.AlwaysVerticalScrollbar))
+                if (ImGui.Begin("Compare", _defaultWindowFlag))
                 {
                     //_folderWindow?.OnDraw();
                     var tabWindows = mainModel.TabWindows;
@@ -142,7 +147,7 @@ namespace HoneyBee.Diff.Gui
 
                             //Text style colors settings.
                             _textStyleModal.Draw();
-                            LoadingModal.Draw(mainModel.ShowLoading);
+                            LoadingModal.Draw(mainModel.ShowLoading.Count>0);
                             ImGuiFileDialog.Display();
 
                             ImGui.EndTabBar();
