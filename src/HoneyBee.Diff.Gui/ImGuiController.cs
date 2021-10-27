@@ -87,7 +87,7 @@ namespace HoneyBee.Diff.Gui
                     byte[] buffer = new byte[stream.Length];
                     stream.Read(buffer, 0, buffer.Length);
                     var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
-                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, fontSize, fontSize, imFontConfigPtr, ImGui.GetIO().Fonts.GetGlyphRangesChineseSimplifiedCommon());
+                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, fontSize, fontSize, imFontConfigPtr, ImGui.GetIO().Fonts.GetGlyphRangesChineseFull());
                 }
             }
 
@@ -120,10 +120,10 @@ namespace HoneyBee.Diff.Gui
                     var glyphOffset = imFontConfigPtr.GlyphOffset;
                     imFontConfigPtr.GlyphOffset = glyphOffset + new Vector2(0.0f, 3.0f);
                     ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, fontSize, fontSize, imFontConfigPtr, rangeHandle.AddrOfPinnedObject());
-                    //if (rangeHandle.IsAllocated)
-                    //{
-                    //    rangeHandle.Free();
-                    //}
+                    if (rangeHandle.IsAllocated)
+                    {
+                        rangeHandle.Free();
+                    }
                     imFontConfigPtr.GlyphOffset = glyphOffset;
                 }
             }

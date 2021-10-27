@@ -18,7 +18,7 @@ namespace HoneyBee.Diff.Gui
 
         private float _contentScrollY = 0;
 
-        protected float _contentScrollYSpeed = 10.0f;
+        protected float _contentScrollYSpeed = 25.0f;
 
         protected bool _loading;
 
@@ -91,6 +91,9 @@ namespace HoneyBee.Diff.Gui
             if (ImGui.BeginChild($"Diff_Content_{Name}"))
             {
                 float scrollMaxY = 0.0f;
+                bool hoverLeftChild = false;
+                bool hoverRightChild = false;
+
                 ImGuiWindowFlags contentChildFlag = ImGuiWindowFlags.NoScrollWithMouse| ImGuiWindowFlags.NoCollapse;
                 //ImGuiWindowFlags contentChildFlag = ImGuiWindowFlags.None;
                 if (ImGui.BeginChild($"Diff_Left_Content_{Name}", new Vector2(halfWidth, 0), true, contentChildFlag))
@@ -104,6 +107,7 @@ namespace HoneyBee.Diff.Gui
                     scrollMaxY = ImGui.GetScrollMaxY();
                     ImGui.EndChild();
                 }
+                hoverLeftChild = ImGui.IsItemHovered();
 
                 ImGui.SameLine();
 
@@ -119,17 +123,20 @@ namespace HoneyBee.Diff.Gui
                     scrollMaxY = Math.Max(scrollMaxY, ImGui.GetScrollMaxY());
                     ImGui.EndChild();
                 }
+                hoverRightChild = ImGui.IsItemHovered();
 
-                var mouseWheel = ImGui.GetIO().MouseWheel;
-                if (mouseWheel != 0.0f)
+                if (hoverLeftChild || hoverRightChild)
                 {
-                    _contentScrollY -= mouseWheel * _contentScrollYSpeed;
-                    _contentScrollY = Math.Clamp(_contentScrollY, 0, scrollMaxY);
+                    var mouseWheel = ImGui.GetIO().MouseWheel;
+                    if (mouseWheel != 0.0f)
+                    {
+                        _contentScrollY -= mouseWheel * _contentScrollYSpeed;
+                        _contentScrollY = Math.Clamp(_contentScrollY, 0, scrollMaxY);
+                    }
                 }
 
                 ImGui.EndChild();
             }
-
         }
 
         protected abstract void OnCompare();
