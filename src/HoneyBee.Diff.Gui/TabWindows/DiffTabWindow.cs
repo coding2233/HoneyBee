@@ -20,6 +20,8 @@ namespace HoneyBee.Diff.Gui
 
         protected float _contentScrollYSpeed = 10.0f;
 
+        protected bool _loading;
+
         public virtual void Setup(params object[] parameters)
         {
         }
@@ -63,6 +65,13 @@ namespace HoneyBee.Diff.Gui
 
             float halfWidth = ImGui.GetContentRegionAvail().X * 0.5f;
             float contentHeight = ImGui.GetContentRegionAvail().Y - _toolbarHeight;
+
+            if (_loading)
+            {
+                string symbols = "|/-\\";
+                int index = (int)(ImGui.GetTime() / 0.05f) & 3;
+                ImGui.Text($"Loading {symbols[index]}");
+            }
 
             if (ImGui.BeginChild($"Diff_Toolbar_{Name}", new Vector2(0, _toolbarHeight)))
             {

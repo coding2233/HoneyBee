@@ -178,7 +178,10 @@ namespace HoneyBee.Diff.Gui
 
         protected override async void OnCompare()
         {
-            mainModel.ShowLoading.Add(Name);
+            if (_loading)
+                return;
+
+            _loading = true;
             Console.WriteLine(_leftDiffFolder.FolderPath+"\n"+ _rightDiffFolder.FolderPath);
             await Task.Run( () => {
                 _showCompare = _leftDiffFolder.GetDiffFlag(_rightDiffFolder);
@@ -195,7 +198,7 @@ namespace HoneyBee.Diff.Gui
                     _name = $"{oldName} - {Guid.NewGuid().ToString().Substring(0, 6)}";
                 }
             }
-            mainModel.ShowLoading.Remove(Name);
+            _loading = false;
         }
 
 

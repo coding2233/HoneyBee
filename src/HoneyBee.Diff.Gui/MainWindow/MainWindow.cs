@@ -48,7 +48,7 @@ namespace HoneyBee.Diff.Gui
             ImGui.SetNextWindowSize(viewport.WorkSize);
             ImGui.SetNextWindowViewport(viewport.ID);
           
-            if (ImGui.Begin("Diff", _defaultWindowFlag))
+            if (ImGui.Begin("Diff", _defaultWindowFlag|ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
                 if (ImGui.BeginMainMenuBar())
                 {
@@ -147,7 +147,7 @@ namespace HoneyBee.Diff.Gui
 
                             //Text style colors settings.
                             _textStyleModal.Draw();
-                            LoadingModal.Draw(mainModel.ShowLoading.Count>0);
+                            //LoadingModal.Draw(mainModel.ShowLoading.Count>0);
                             ImGuiFileDialog.Display();
 
                             ImGui.EndTabBar();
