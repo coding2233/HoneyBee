@@ -81,8 +81,10 @@ namespace HoneyBee.Diff.Gui
         }
 
         private uint[] _textStyleDrakColors = new uint[] {
-            0xff7f7f7f,	// Default
-			0xffd69c56,	// Keyword	
+   //         0xff7f7f7f,	// Default
+			//0xffd69c56,	// Keyword	
+            0xffb0b0b0,	// Default
+			0xffd69c56,	// Keyword
 			0xff00ff00,	// Number
 			0xff7070e0,	// String
 			0xff70a0e0, // Char literal
@@ -106,7 +108,8 @@ namespace HoneyBee.Diff.Gui
         };
 
         private uint[] _textStyleLightColors = new uint[] {
-            0xff7f7f7f,	// None
+            //0xff7f7f7f,	// None
+            0xff404040,	// None
 			0xffff0c06,	// Keyword	
 			0xff008000,	// Number
 			0xff2020a0,	// String
@@ -120,7 +123,8 @@ namespace HoneyBee.Diff.Gui
 			0xff405020, // Comment (multi line)
 			0xffffffff, // Background
 			0xff000000, // Cursor
-			0x80600000, // Selection
+			//0x80600000, // Selection
+            0x40600000, // Selection
 			0xa00010ff, // ErrorMarker
 			0x80f08000, // Breakpoint
 			0xff505000, // Line number

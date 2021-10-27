@@ -29,7 +29,6 @@ namespace HoneyBee.Diff.Gui
 
         private static CompositionContainer _container = null;
 
-
         static void Main(string[] args)
         {
             // Create window, GraphicsDevice, and all resources necessary for the demo.

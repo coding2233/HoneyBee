@@ -109,6 +109,15 @@ namespace HoneyBee.Diff.Gui
                         }
                         ImGui.EndMenu();
                     }
+                    
+                    if (ImGui.BeginMenu(Icon.Get(Icon.Material_edit) + "Help"))
+                    {
+                        if (ImGui.MenuItem(Icon.Get(Icon.Material_format_color_text) + "About"))
+                        {
+                            mainModel.CreateTab<AboutTabWindow>();
+                        }
+                        ImGui.EndMenu();
+                    }
 
                     ImGui.EndMainMenuBar();
                 }

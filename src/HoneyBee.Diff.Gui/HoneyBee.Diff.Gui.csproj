@@ -55,8 +55,8 @@
 	
   <ItemGroup>
     <Folder Include="TabWindows\DiffFileWindow\Model\" />
-    <Folder Include="TabWindows\HomeWindow\Model\" />
-    <Folder Include="TabWindows\HomeWindow\Service\" />
+    <Folder Include="TabWindows\AboutTabWindow\Model\" />
+    <Folder Include="TabWindows\AboutTabWindow\Service\" />
   </ItemGroup>
 
 </Project>

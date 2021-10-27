@@ -42,7 +42,6 @@ namespace HoneyBee.Diff.Gui
         //同步打开文件夹
         private readonly Dictionary<string, bool> _syncOpenFolders = new Dictionary<string, bool>();
 
-
         public DiffFolderWindow()
         {
             DiffProgram.ComposeParts(this);

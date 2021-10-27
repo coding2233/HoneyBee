@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace HoneyBee.Diff.Gui
 {
-    public class HomeTabWindow : ITabWindow
+    public class AboutTabWindow : ITabWindow
     {
-        public string Name => "Home";
+        public string Name => "About";
 
         public string IconName => Icon.Get(Icon.Material_home);
 
        
-        public HomeTabWindow()
+        public AboutTabWindow()
         {
 			DiffProgram.ComposeParts(this);
 

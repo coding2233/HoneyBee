@@ -40,7 +40,7 @@ namespace HoneyBee.Diff.Gui
             }
             else
             {
-                CreateTab<HomeTabWindow>();
+                CreateTab<AboutTabWindow>();
             }
         }
 
