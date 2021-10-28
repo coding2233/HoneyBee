@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.IO;
@@ -9,6 +10,7 @@ using System.Runtime.InteropServices;
 using ImGuiNET;
 using ImPlotNET;
 using Veldrid;
+using Veldrid.ImageSharp;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
 
@@ -29,6 +31,8 @@ namespace HoneyBee.Diff.Gui
 
         private static CompositionContainer _container = null;
 
+        private static Dictionary<string, IntPtr> _textureChache = new Dictionary<string, IntPtr>();
+
         static void Main(string[] args)
         {
             // Create window, GraphicsDevice, and all resources necessary for the demo.
@@ -45,7 +49,7 @@ namespace HoneyBee.Diff.Gui
             };
             _cl = _gd.ResourceFactory.CreateCommandList();
             _controller = new ImGuiController(_gd, _gd.MainSwapchain.Framebuffer.OutputDescription, _window.Width, _window.Height);
-
+            
             //ImGui.StyleColorsLight();
 
             _mainWindow = new MainWindow();
@@ -87,6 +91,52 @@ namespace HoneyBee.Diff.Gui
                 _container = new CompositionContainer(catalog);
             }
             _container.ComposeParts(attributedParts);
+        }
+
+        public static IntPtr GetOrCreateTexture(string path)
+        {
+            IntPtr textureIntPtr = IntPtr.Zero;
+            if (!_textureChache.TryGetValue(path, out textureIntPtr))
+            {
+                if (File.Exists(path))
+                {
+                    using (var stream = new FileStream(path, FileMode.Open))
+                    {
+                        textureIntPtr = GetOrCreateTexture(stream);
+                    }
+                }
+                else
+                {
+                    using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path))
+                    {
+                        if (stream.Length > 0)
+                        {
+                            textureIntPtr = GetOrCreateTexture(stream);
+                        }
+                    }
+                }
+                if (textureIntPtr != IntPtr.Zero)
+                {
+                    _textureChache.Add(path, textureIntPtr);
+                }
+            }
+            return textureIntPtr;
+        }
+
+        private static IntPtr GetOrCreateTexture(Stream imageStream)
+        {
+            var img = new ImageSharpTexture(imageStream);
+            return GetOrCreateTexture(img);
+        }
+
+        private static IntPtr GetOrCreateTexture(ImageSharpTexture img)
+        {
+            var dimg = img.CreateDeviceTexture(_gd, _gd.ResourceFactory);
+            var viewDesc = new TextureViewDescription(dimg, PixelFormat.R8_G8_B8_A8_UNorm); //Pixel Format needed may change, I found UNorm looks closer to the image src then UnormSRGB does 
+            var textureView = _gd.ResourceFactory.CreateTextureView(viewDesc);
+
+            IntPtr textureInptr = _controller.GetOrCreateImGuiBinding(_gd.ResourceFactory, textureView); //This returns the intPtr need for Imgui.Image()
+            return textureInptr;
         }
 
     }

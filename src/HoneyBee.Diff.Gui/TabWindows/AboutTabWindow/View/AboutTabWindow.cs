@@ -20,18 +20,16 @@ namespace HoneyBee.Diff.Gui
         public AboutTabWindow()
         {
 			DiffProgram.ComposeParts(this);
-
-			
 		}
 
         public void Setup(params object[] parameters)
         {
         }
 
-
         public void OnDraw()
         {
-			
+            var tptr = DiffProgram.GetOrCreateTexture("bee.png");
+            ImGui.Image(tptr, Vector2.One * 128);
 		}
         public string Serialize()
         {

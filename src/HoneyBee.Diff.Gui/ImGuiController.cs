@@ -42,7 +42,6 @@ namespace HoneyBee.Diff.Gui
         private int _windowWidth;
         private int _windowHeight;
         private Vector2 _scaleFactor = Vector2.One;
-        public static Vector2 ScreenSize { get; private set; }
 
         // Image trackers
         private readonly Dictionary<TextureView, ResourceSetInfo> _setsByView
@@ -142,8 +141,6 @@ namespace HoneyBee.Diff.Gui
         {
             _windowWidth = width;
             _windowHeight = height;
-
-            ScreenSize = new Vector2(width, height);
         }
 
         public void DestroyDeviceObjects()
