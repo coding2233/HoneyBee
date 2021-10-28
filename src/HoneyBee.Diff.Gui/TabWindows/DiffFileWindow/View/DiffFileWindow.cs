@@ -52,6 +52,8 @@ namespace HoneyBee.Diff.Gui
             string userPath = Environment.GetEnvironmentVariable("USERPROFILE");
             string folderPath = $"{userPath}\\Documents";
 
+            _toolbarHeight = 55.0f;
+
             _leftDiffFilePath = _rightDiffFilePath = folderPath;
 
             _leftTextEditor = new TextEditor();
@@ -88,6 +90,13 @@ namespace HoneyBee.Diff.Gui
             OnCompare();
         }
 
+        public override void OnDraw()
+        {
+            base.OnDraw();
+
+            Unsave = _leftTextEditor.IsTextChanged || _rightTextEditor.IsTextChanged;
+        }
+
         protected override void OnToolbarDraw()
         {
             base.OnToolbarDraw();
@@ -113,6 +122,12 @@ namespace HoneyBee.Diff.Gui
                     }
                 }, openPath);
             }
+
+            var cpos = _leftTextEditor.CursorPosition;
+            string overWrite = _leftTextEditor.IsOverwrite ? "Over" : "Ins";
+            string canUndo = _leftTextEditor.CanUndo ? "*" : " ";
+            ImGui.Text($"{cpos.X + 1}/{cpos.Y + 1} lines {_leftTextEditor.TotalLines} | {overWrite} | {canUndo} | {_leftTextEditor.IsTextChanged} ");
+
         }
 
         protected override void OnRightToolbarDraw()
@@ -129,6 +144,12 @@ namespace HoneyBee.Diff.Gui
                     }
                 }, openPath);
             }
+
+            var cpos = _rightTextEditor.CursorPosition;
+            string overWrite = _rightTextEditor.IsOverwrite ? "Over" : "Ins";
+            string canUndo = _rightTextEditor.CanUndo ? "*" : " ";
+            ImGui.Text($"{cpos.X + 1}/{cpos.Y + 1} lines {_rightTextEditor.TotalLines} | {overWrite} | {canUndo} | {_rightTextEditor.IsTextChanged} ");
+
         }
 
         protected override void OnLeftContentDraw()
@@ -144,39 +165,47 @@ namespace HoneyBee.Diff.Gui
 
         protected override async void OnCompare()
         {
-            if (_loading)
-                return;
-
-            if (string.IsNullOrEmpty(_leftDiffFilePath) || string.IsNullOrEmpty(_rightDiffFilePath)
-                || !File.Exists(_leftDiffFilePath) || !File.Exists(_rightDiffFilePath))
-                return;
-            _loading = true;
-            _showCompare = false;
-            await Task.Run(() => {
-                _sideModel = SideBySideDiffBuilder.Diff(File.ReadAllText(_leftDiffFilePath), File.ReadAllText(_rightDiffFilePath));
-                _showCompare = _sideModel!=null;
-            });
-
-            if (_showCompare)
+            try
             {
-                string leftName = Path.GetFileName(_leftDiffFilePath);
-                string rightName = Path.GetFileName(_rightDiffFilePath);
-                _name = leftName.Equals(rightName) ? leftName : $"{leftName}/{rightName}";
-                string oldName = _name;
-                while (mainModel.HasSameWindow(_name, this))
+                if (_loading)
+                return;
+          
+                if (string.IsNullOrEmpty(_leftDiffFilePath) || string.IsNullOrEmpty(_rightDiffFilePath)
+                    || !File.Exists(_leftDiffFilePath) || !File.Exists(_rightDiffFilePath))
+                    return;
+                _loading = true;
+                _showCompare = false;
+                await Task.Run(() => {
+                    _sideModel = SideBySideDiffBuilder.Diff(File.ReadAllText(_leftDiffFilePath), File.ReadAllText(_rightDiffFilePath));
+                    _showCompare = _sideModel!=null;
+                });
+
+                if (_showCompare)
                 {
-                    _name = $"{oldName} - {Guid.NewGuid().ToString().Substring(0, 6)}";
+                    string leftName = Path.GetFileName(_leftDiffFilePath);
+                    string rightName = Path.GetFileName(_rightDiffFilePath);
+                    _name = leftName.Equals(rightName) ? leftName : $"{leftName}/{rightName}";
+                    string oldName = _name;
+                    while (mainModel.HasSameWindow(_name, this))
+                    {
+                        _name = $"{oldName} - {Guid.NewGuid().ToString().Substring(0, 6)}";
+                    }
+
+                    var leftResult = BuilderShowText(_sideModel.OldText);
+                    _leftTextEditor.text = leftResult.Text;
+                    _leftTextEditor.flagLines = leftResult.FlagLines;
+
+                    var rightResult = BuilderShowText(_sideModel.NewText);
+                    _rightTextEditor.text = rightResult.Text;
+                    _rightTextEditor.flagLines = rightResult.FlagLines;
                 }
-
-                var leftResult = BuilderShowText(_sideModel.OldText);
-                _leftTextEditor.text = leftResult.Text;
-                _leftTextEditor.flagLines = leftResult.FlagLines;
-
-                var rightResult = BuilderShowText(_sideModel.NewText);
-                _rightTextEditor.text = rightResult.Text;
-                _rightTextEditor.flagLines = rightResult.FlagLines;
+                _loading = false;
             }
-            _loading = false;
+            catch (System.Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                mainModel.RemoveTab(this);
+            }
         }
 
         private struct SideModelTextResult

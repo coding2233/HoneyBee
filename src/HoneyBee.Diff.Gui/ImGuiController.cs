@@ -75,7 +75,6 @@ namespace HoneyBee.Diff.Gui
                 MergeMode = true,
                 PixelSnapH = true,
             };
-            
             //字体大小
             int fontSize = 15;
 

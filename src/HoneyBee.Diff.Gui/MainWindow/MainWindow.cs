@@ -141,7 +141,12 @@ namespace HoneyBee.Diff.Gui
                             {
                                 var tabWindow = tabWindows[i];
                                 bool showTab = true;
-                                bool visible = ImGui.BeginTabItem(tabWindow.IconName+tabWindow.Name,ref showTab,ImGuiTabItemFlags.Trailing);
+                                ImGuiTabItemFlags tabItemFlag = ImGuiTabItemFlags.Trailing;
+                                if (tabWindow.Unsave)
+                                {
+                                    tabItemFlag |= ImGuiTabItemFlags.UnsavedDocument;
+                                }
+                                bool visible = ImGui.BeginTabItem(tabWindow.IconName+tabWindow.Name,ref showTab, tabItemFlag);
                                 if (visible)
                                 {
                                     tabWindow.OnDraw();

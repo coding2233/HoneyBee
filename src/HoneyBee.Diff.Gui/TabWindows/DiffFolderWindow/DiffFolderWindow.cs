@@ -183,27 +183,36 @@ namespace HoneyBee.Diff.Gui
 
         protected override async void OnCompare()
         {
-            if (_loading)
-                return;
-
-            _loading = true;
-            Console.WriteLine(_leftDiffFolder.FolderPath+"\n"+ _rightDiffFolder.FolderPath);
-            await Task.Run( () => {
-                _showCompare = _leftDiffFolder.GetDiffFlag(_rightDiffFolder);
-             });
-
-            if (_showCompare)
+            try
             {
-                string leftName = _leftDiffFolder.DiffNode.Name;
-                string rightName = _rightDiffFolder.DiffNode.Name;
-                _name = leftName.Equals(rightName)? leftName:$"{leftName}/{rightName}";
-                string oldName = _name;
-                while (mainModel.HasSameWindow(_name,this))
+                if (_loading)
+                    return;
+
+                _loading = true;
+                Console.WriteLine(_leftDiffFolder.FolderPath + "\n" + _rightDiffFolder.FolderPath);
+                await Task.Run(() =>
                 {
-                    _name = $"{oldName} - {Guid.NewGuid().ToString().Substring(0, 6)}";
+                    _showCompare = _leftDiffFolder.GetDiffFlag(_rightDiffFolder);
+                });
+
+                if (_showCompare)
+                {
+                    string leftName = _leftDiffFolder.DiffNode.Name;
+                    string rightName = _rightDiffFolder.DiffNode.Name;
+                    _name = leftName.Equals(rightName) ? leftName : $"{leftName}/{rightName}";
+                    string oldName = _name;
+                    while (mainModel.HasSameWindow(_name, this))
+                    {
+                        _name = $"{oldName} - {Guid.NewGuid().ToString().Substring(0, 6)}";
+                    }
                 }
+                _loading = false;
             }
-            _loading = false;
+            catch (System.Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                mainModel.RemoveTab(this);
+            }
         }
 
 

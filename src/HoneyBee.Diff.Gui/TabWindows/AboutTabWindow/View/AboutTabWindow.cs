@@ -15,7 +15,8 @@ namespace HoneyBee.Diff.Gui
 
         public string IconName => Icon.Get(Icon.Material_home);
 
-       
+        public bool Unsave => false;
+
         public AboutTabWindow()
         {
 			DiffProgram.ComposeParts(this);

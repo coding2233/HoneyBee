@@ -24,6 +24,9 @@ namespace HoneyBee.Diff.Gui
         private static extern void igSetTextEditor(IntPtr textEditor, byte* text);
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern byte* igGetTextEditor(IntPtr textEditor);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern void igSetPaletteTextEditor(IntPtr textEditor, int style);
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
@@ -41,22 +44,48 @@ namespace HoneyBee.Diff.Gui
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern void igIgnoreChildTextEditor(IntPtr textEditor, bool ignoreChild);
 
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int* igGetCursorPositionTextEditor(IntPtr textEditor);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int igGetTotalLinesTextEditor(IntPtr textEditor);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern bool igIsOverwriteTextEditor(IntPtr textEditor);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern bool igCanUndoTextEditor(IntPtr textEditor);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern bool igIsTextChangedTextEditor(IntPtr textEditor);
 
         private IntPtr _igTextEditor;
+
+        private string nativeText
+        {
+            get
+            {
+                byte* igTextPtr = igGetTextEditor(_igTextEditor);
+                string igText = Util.StringFromPtr(igTextPtr);
+                return igText;
+            }
+        }
 
         private string _text;
         public string text
         {
-            get { return _text; }
+            get 
+            {
+                return _text; 
+            }
             set
             {
-                _text = value;
 
                 byte* native_label;
                 int label_byteCount = 0;
-                if (!string.IsNullOrEmpty(_text))
+                if (!string.IsNullOrEmpty(value))
                 {
-                    label_byteCount = Encoding.UTF8.GetByteCount(_text);
+                    label_byteCount = Encoding.UTF8.GetByteCount(value);
                     if (label_byteCount > Util.StackAllocationSizeLimit)
                     {
                         native_label = Util.Allocate(label_byteCount + 1);
@@ -66,18 +95,51 @@ namespace HoneyBee.Diff.Gui
                         byte* native_label_stackBytes = stackalloc byte[label_byteCount + 1];
                         native_label = native_label_stackBytes;
                     }
-                    int native_label_offset = Util.GetUtf8(_text, native_label, label_byteCount);
+                    int native_label_offset = Util.GetUtf8(value, native_label, label_byteCount);
                     native_label[native_label_offset] = 0;
                     igSetTextEditor(_igTextEditor, native_label);
                 }
                 else { native_label = null; }
                 Util.Free(native_label);
-                //if (label_byteCount > Util.StackAllocationSizeLimit)
-                //{
-                //    Util.Free(native_label);
-                //}
+                _text = nativeText;
             }
         }
+
+        public Vector2 CursorPosition
+        {
+            get
+            {
+               int* igPos = igGetCursorPositionTextEditor(_igTextEditor);
+               return new Vector2(igPos[0],igPos[1]);
+            }
+        }
+        public int TotalLines => igGetTotalLinesTextEditor(_igTextEditor);
+        public bool IsOverwrite => igIsOverwriteTextEditor(_igTextEditor);
+        public bool CanUndo => igCanUndoTextEditor(_igTextEditor);
+
+        private bool _isTextChanged=false;
+        private bool _lastTextChanged=false;
+        public bool IsTextChanged
+        {
+            get
+            {
+                var textChanged = igIsTextChangedTextEditor(_igTextEditor);
+                if (_lastTextChanged!=textChanged)
+                {
+                    _isTextChanged=false;
+                    if (!string.IsNullOrEmpty(_text))
+                    {
+                        _isTextChanged=!_text.Equals(nativeText);
+                    }
+                    _lastTextChanged = textChanged;
+                }
+                return _isTextChanged;
+            }
+            set 
+            {
+                _isTextChanged = value;
+            }
+        } 
 
         private static uint[] _styleColors;
 

@@ -10,11 +10,13 @@ namespace HoneyBee.Diff.Gui
 {
     public abstract class DiffTabWindow : ITabWindow
     {
-        private float _toolbarHeight = 35.0f;
+        protected float _toolbarHeight = 35.0f;
         
         public abstract string Name { get; }
 
         public abstract string IconName { get; }
+
+        public virtual bool Unsave { get; protected set; }=false;
 
         private float _contentScrollY = 0;
 

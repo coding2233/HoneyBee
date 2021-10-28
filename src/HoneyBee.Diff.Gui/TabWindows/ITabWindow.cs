@@ -10,6 +10,9 @@ namespace HoneyBee.Diff.Gui
     {
         string Name { get; }
         public  string IconName {get;}
+
+        public bool Unsave { get; }
+
         void Setup(params object[] parameters);
 
         void OnDraw();
