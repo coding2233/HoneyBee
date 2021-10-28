@@ -194,10 +194,12 @@ namespace HoneyBee.Diff.Gui
                     var leftResult = BuilderShowText(_sideModel.OldText);
                     _leftTextEditor.text = leftResult.Text;
                     _leftTextEditor.flagLines = leftResult.FlagLines;
+                    _leftTextEditor.SetFlagPoints(leftResult.FlagPoints, "->", "Copy the section to the right.");
 
                     var rightResult = BuilderShowText(_sideModel.NewText);
                     _rightTextEditor.text = rightResult.Text;
                     _rightTextEditor.flagLines = rightResult.FlagLines;
+                    _rightTextEditor.SetFlagPoints(rightResult.FlagPoints, "<-", "Copy the section to the left.");
                 }
                 _loading = false;
             }
@@ -212,12 +214,14 @@ namespace HoneyBee.Diff.Gui
         {
             public string Text;
             public int[] FlagLines;
+            public int[] FlagPoints;
         }
 
         private SideModelTextResult BuilderShowText(DiffPaneModel diffModel)
         {
             SideModelTextResult result = new SideModelTextResult();
             List<int> flagLines = new List<int>();
+            List<int> flagPoints = new List<int>();
             StringBuilder stringBuilder = new StringBuilder();
             if (_showCompare && diffModel != null && diffModel.Lines != null)
             {
@@ -253,8 +257,21 @@ namespace HoneyBee.Diff.Gui
             }
             result.Text = stringBuilder.ToString();
             result.FlagLines = flagLines.ToArray();
+
+            foreach (var item in flagLines)
+            {
+                if (flagPoints.Count > 0 && flagPoints[flagPoints.Count - 1] + 1 == item)
+                {
+                    continue;
+                }
+                flagPoints.Add(item);
+            }
+            result.FlagPoints = flagPoints.ToArray();
+
             return result;
         }
+
+
 
         //设置文本的状态
         private void SetTextEditorStatus()

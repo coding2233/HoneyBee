@@ -11,54 +11,6 @@ namespace HoneyBee.Diff.Gui
 
     public unsafe class TextEditor : IDisposable
     {
-        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr igNewTextEditor();
-
-        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void igDeleteTextEditor(IntPtr textEditor);
-
-        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void igRenderTextEditor(IntPtr textEditor, string title, Vector2 size, bool border = false);
-
-        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void igSetTextEditor(IntPtr textEditor, byte* text);
-
-        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern byte* igGetTextEditor(IntPtr textEditor);
-
-        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void igSetPaletteTextEditor(IntPtr textEditor, int style);
-
-        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void igSetReadOnlyTextEditor(IntPtr textEditor, bool readOnly);
-
-        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void igSetShowWhitespacesTextEditor(IntPtr textEditor, bool show);
-
-        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void igSetFlagLinesTextEditor(IntPtr textEditor, int[] flagLines, int length);
-
-        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void igCustomPaletteTextEditor(IntPtr textEditor, uint[] colors, int length);
-
-        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void igIgnoreChildTextEditor(IntPtr textEditor, bool ignoreChild);
-
-        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int* igGetCursorPositionTextEditor(IntPtr textEditor);
-
-        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int igGetTotalLinesTextEditor(IntPtr textEditor);
-
-        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern bool igIsOverwriteTextEditor(IntPtr textEditor);
-
-        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern bool igCanUndoTextEditor(IntPtr textEditor);
-
-        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern bool igIsTextChangedTextEditor(IntPtr textEditor);
-
         private IntPtr _igTextEditor;
 
         private string nativeText
@@ -232,6 +184,15 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
+        public void SetFlagPoints(int[] points,string iconText,string tipText)
+        {
+            //var iconTextPointer = ToImguiCharPointer(iconText);
+            //var tipTextPointer = ToImguiCharPointer(iconText);
+            igSetFlagPointsTextEditor(_igTextEditor, points, points.Length, iconText, tipText);
+            //Util.Free(iconTextPointer);
+            //Util.Free(tipTextPointer);
+        }
+
 
         public void Dispose()
         {
@@ -241,6 +202,83 @@ namespace HoneyBee.Diff.Gui
                 igDeleteTextEditor(_igTextEditor);
             }
         }
+
+
+        private byte* ToImguiCharPointer(string value)
+        {
+            byte* native_label;
+            int label_byteCount = 0;
+            if (!string.IsNullOrEmpty(value))
+            {
+                label_byteCount = Encoding.UTF8.GetByteCount(value);
+                if (label_byteCount > Util.StackAllocationSizeLimit)
+                {
+                    native_label = Util.Allocate(label_byteCount + 1);
+                }
+                else
+                {
+                    byte* native_label_stackBytes = stackalloc byte[label_byteCount + 1];
+                    native_label = native_label_stackBytes;
+                }
+                int native_label_offset = Util.GetUtf8(value, native_label, label_byteCount);
+                native_label[native_label_offset] = 0;
+            }
+            else { native_label = null; }
+            return native_label;
+        }
+
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr igNewTextEditor();
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void igDeleteTextEditor(IntPtr textEditor);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void igRenderTextEditor(IntPtr textEditor, string title, Vector2 size, bool border = false);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void igSetTextEditor(IntPtr textEditor, byte* text);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern byte* igGetTextEditor(IntPtr textEditor);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void igSetPaletteTextEditor(IntPtr textEditor, int style);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void igSetReadOnlyTextEditor(IntPtr textEditor, bool readOnly);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void igSetShowWhitespacesTextEditor(IntPtr textEditor, bool show);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void igSetFlagLinesTextEditor(IntPtr textEditor, int[] flagLines, int length);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void igSetFlagPointsTextEditor(IntPtr textEditor, int[] points, int length, string flagPointText, string flagPointTipText);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void igCustomPaletteTextEditor(IntPtr textEditor, uint[] colors, int length);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void igIgnoreChildTextEditor(IntPtr textEditor, bool ignoreChild);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int* igGetCursorPositionTextEditor(IntPtr textEditor);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int igGetTotalLinesTextEditor(IntPtr textEditor);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern bool igIsOverwriteTextEditor(IntPtr textEditor);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern bool igCanUndoTextEditor(IntPtr textEditor);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern bool igIsTextChangedTextEditor(IntPtr textEditor);
+
 
     }
 }
