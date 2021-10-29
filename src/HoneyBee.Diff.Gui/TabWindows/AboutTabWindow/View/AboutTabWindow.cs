@@ -17,6 +17,8 @@ namespace HoneyBee.Diff.Gui
 
         public bool Unsave => false;
 
+        public const string Version = "0.1.0";
+
         public AboutTabWindow()
         {
 			DiffProgram.ComposeParts(this);
@@ -28,6 +30,7 @@ namespace HoneyBee.Diff.Gui
 
         public void OnDraw()
         {
+            ImGui.Text($"Version: {Version}");
             var tptr = DiffProgram.GetOrCreateTexture("bee.png");
             ImGui.Image(tptr, Vector2.One * 128);
 		}

@@ -22,8 +22,13 @@ namespace HoneyBee.Diff.Gui
         private TextStyleSettingModal _textStyleModal;
 
         private ImGuiWindowFlags _defaultWindowFlag;
-        public MainWindow()
+
+        private bool _isLaunchWindow;
+
+        public MainWindow(bool isLaunchWindow)
         {
+            _isLaunchWindow = isLaunchWindow;
+
             //Ioc entrance.
             DiffProgram.ComposeParts(this);
 

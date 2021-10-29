@@ -35,6 +35,20 @@ namespace HoneyBee.Diff.Gui
 
         static void Main(string[] args)
         {
+            bool isLaunchWindow = false;
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i].StartsWith("WindowType="))
+                {
+                    var splitArgs = args[i].Split('=');
+                    if (splitArgs != null && splitArgs.Length == 2
+                        && splitArgs[1].Equals("Launch"))
+                    {
+                        isLaunchWindow = true;
+                    }
+                }
+            }
+
             // Create window, GraphicsDevice, and all resources necessary for the demo.
             VeldridStartup.CreateWindowAndGraphicsDevice(
                 new WindowCreateInfo(50, 50, 1280, 720, WindowState.Maximized, "Honey Bee - Diff"),
@@ -49,10 +63,10 @@ namespace HoneyBee.Diff.Gui
             };
             _cl = _gd.ResourceFactory.CreateCommandList();
             _controller = new ImGuiController(_gd, _gd.MainSwapchain.Framebuffer.OutputDescription, _window.Width, _window.Height);
-            
+
             //ImGui.StyleColorsLight();
 
-            _mainWindow = new MainWindow();
+            _mainWindow = new MainWindow(isLaunchWindow);
 
             // Main application loop
             while (_window.Exists)
