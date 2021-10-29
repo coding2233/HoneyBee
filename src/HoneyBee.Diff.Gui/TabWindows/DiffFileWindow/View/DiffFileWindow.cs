@@ -251,9 +251,7 @@ namespace HoneyBee.Diff.Gui
                 var srcLines = srcDiffFile.GetSectionLines(lineNo);
                 if (targetDiffFile.SetSectionLines(lineNo, srcLines))
                 {
-                    _leftDiffFile.Setup(_sideModel.OldText);
-                    _rightDiffFile.Setup(_sideModel.NewText);
-                    //CompareTextContent(_leftDiffFile.TextResult.ToString(), _rightDiffFile.TextResult.ToString());
+                    CompareTextContent(_leftDiffFile.BuildString(), _rightDiffFile.BuildString());
                 }
             });
         }
