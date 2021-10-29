@@ -89,7 +89,12 @@ namespace HoneyBee.Diff.Gui
         {
             base.OnToolbarDraw();
             ImGui.SameLine();
-            if (ImGui.Checkbox("Read Only",ref _readOnly))
+            if (DrawToolItem(Icon.Get(Icon.Material_restore), "Reset"))
+            {
+                OnCompare();
+            }
+            ImGui.SameLine();
+            if (DrawToolItem(Icon.Get(Icon.Material_edit_off), "Edit Off"))
             {
                 _readOnly = true;
                 SetTextEditorStatus();

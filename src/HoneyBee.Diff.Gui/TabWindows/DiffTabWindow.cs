@@ -46,12 +46,12 @@ namespace HoneyBee.Diff.Gui
 
         protected virtual void OnToolbarDraw()
         {
-            if (ImGui.Button(Icon.Get(Icon.Material_compare) + "Compare"))
+            if (DrawToolItem(Icon.Get(Icon.Material_compare), "Compare"))
             {
                 OnCompare();
                 //动态保存信息
                 mainModel.SaveWindow(this);
-            }
+            };
         }
 
         protected virtual void OnLeftToolbarDraw()
@@ -74,6 +74,19 @@ namespace HoneyBee.Diff.Gui
 
         }
 
+        protected bool DrawToolItem(string icon,string tip)
+        {
+            bool buttonClick = ImGui.Button(icon);
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                ImGui.PushTextWrapPos(ImGui.GetFontSize() * 35.0f);
+                ImGui.TextUnformatted(tip);
+                ImGui.PopTextWrapPos();
+                ImGui.EndTooltip();
+            }
+            return buttonClick;
+        }
 
         public virtual void OnDraw()
         {
