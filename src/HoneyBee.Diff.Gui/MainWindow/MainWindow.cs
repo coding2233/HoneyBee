@@ -71,7 +71,7 @@ namespace HoneyBee.Diff.Gui
                         }
 
                         ImGui.Separator();
-                        if (ImGui.MenuItem(Icon.Get(Icon.Material_exit_to_app) +"Exit"))
+                        if (ImGui.MenuItem("Exit"))
                         {
                             Environment.Exit(0);
                         }

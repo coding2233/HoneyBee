@@ -131,10 +131,13 @@ namespace HoneyBee.Diff.Gui
                     }
                 }, openPath);
             }
-            ImGui.SameLine();
-            if (ImGui.Button(Icon.Get(Icon.Material_save)))
+            if (diffFile.IsTextChanged)
             {
-                //diffFile.SaveFile();
+                ImGui.SameLine();
+                if (ImGui.Button(Icon.Get(Icon.Material_save)))
+                {
+                    diffFile.SaveFile();
+                }
             }
 
             var cpos = diffFile.TextEditor.CursorPosition;
