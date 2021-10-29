@@ -124,7 +124,7 @@ namespace HoneyBee.Diff.Gui
             set
             {
                 _flagLines = value;
-                if (_flagLines != null && _flagLines.Length > 0)
+                if (_flagLines != null)
                 {
                     igSetFlagLinesTextEditor(_igTextEditor, _flagLines, _flagLines.Length);
                 }
@@ -191,7 +191,7 @@ namespace HoneyBee.Diff.Gui
 
         public void SetFlagPoints(int[] points)
         {
-            if (points != null && points.Length > 0)
+            if (points != null)
             {
                 igSetFlagPointsTextEditor(_igTextEditor, points, points.Length);
             }

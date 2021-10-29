@@ -135,7 +135,7 @@ namespace HoneyBee.Diff.Gui
                 ImGui.SameLine();
                 if (ImGui.Button(Icon.Get(Icon.Material_save)))
                 {
-
+                    diffFile.SaveFile();
                 }
             }
 
@@ -194,30 +194,18 @@ namespace HoneyBee.Diff.Gui
                 string leftContent = _leftDiffFile.ReadFromFile();
                 string rightContent = _rightDiffFile.ReadFromFile();
 
-                if (string.IsNullOrEmpty(leftContent) || string.IsNullOrEmpty(rightContent))
-                    return;
-
-                _loading = true;
-                _showCompare = false;
-                await Task.Run(() => {
-                    _sideModel = SideBySideDiffBuilder.Diff(leftContent, rightContent);
-                    _showCompare = _sideModel!=null;
-                    if (_showCompare)
+                bool result=  await CompareTextContent(leftContent, rightContent);
+                if (result)
+                {
+                    string leftName = Path.GetFileName(leftPath);
+                    string rightName = Path.GetFileName(rightPath);
+                    _name = leftName.Equals(rightName) ? leftName : $"{leftName}/{rightName}";
+                    string oldName = _name;
+                    while (mainModel.HasSameWindow(_name, this))
                     {
-                        string leftName = Path.GetFileName(leftPath);
-                        string rightName = Path.GetFileName(rightPath);
-                        _name = leftName.Equals(rightName) ? leftName : $"{leftName}/{rightName}";
-                        string oldName = _name;
-                        while (mainModel.HasSameWindow(_name, this))
-                        {
-                            _name = $"{oldName} - {Guid.NewGuid().ToString().Substring(0, 6)}";
-                        }
-
-                        _leftDiffFile.Setup(_sideModel.OldText);
-                        _rightDiffFile.Setup(_sideModel.NewText);
+                        _name = $"{oldName} - {Guid.NewGuid().ToString().Substring(0, 6)}";
                     }
-                });
-                _loading = false;
+                }
             }
             catch (System.Exception e)
             {
@@ -226,11 +214,40 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
+        //对比文本
+        private Task<bool> CompareTextContent(string leftContent, string rightContent)
+        {
+            var taskResult = new TaskCompletionSource<bool>();
+
+            Task.Run(() => {
+                _loading = true;
+                _showCompare = false;
+                if (!string.IsNullOrEmpty(leftContent) && !string.IsNullOrEmpty(rightContent))
+                {
+                    _sideModel = SideBySideDiffBuilder.Diff(leftContent, rightContent);
+                    _showCompare = _sideModel != null;
+                    if (_showCompare)
+                    {
+                        _leftDiffFile.Setup(_sideModel.OldText);
+                        _rightDiffFile.Setup(_sideModel.NewText);
+                    }
+                }
+                _loading = false;
+                taskResult.SetResult(_showCompare);
+            });
+
+            return taskResult.Task;
+        }
 
         //复制文本
         private void CopySection(int lineNo,DiffFile srcDiffFile)
         {
             Console.WriteLine($"{lineNo} {srcDiffFile.FilePath}");
+            DiffFile targetDiffFile = srcDiffFile == _leftDiffFile ? _rightDiffFile : _leftDiffFile;
+            Task.Run(()=> {
+                targetDiffFile.SetSectionLines(lineNo, srcDiffFile.GetSectionLines(lineNo));
+                CompareTextContent(_leftDiffFile.TextResult.ToString(), _rightDiffFile.TextResult.ToString());
+            });
         }
 
         //设置文本的状态

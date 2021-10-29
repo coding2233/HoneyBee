@@ -34,6 +34,7 @@ namespace HoneyBee.Diff.Gui
         {
             SideModelTextResult result = new SideModelTextResult();
 
+            List<string> lines = new List<string>();
             List<int> flagLines = new List<int>();
             List<int> flagPoints = new List<int>();
             StringBuilder stringBuilder = new StringBuilder();
@@ -50,6 +51,7 @@ namespace HoneyBee.Diff.Gui
                     {
                         flagLines.Add(i);
                     }
+                    lines.Add(showText);
                     stringBuilder.AppendLine(showText);
                 }
             }
@@ -68,16 +70,22 @@ namespace HoneyBee.Diff.Gui
 
                 flagPoints.Add(flagPointList[0]);
                 flagPointSequence.Add(flagPointList[0], flagPointList.ToArray());
-                flagPointList.Clear();
 
-                flagPointList.Add(flagLines[i]);
                 if (i == flagLines.Count - 1)
                 {
-                    flagPoints.Add(flagPointList[0]);
-                    flagPointSequence.Add(flagPointList[0], flagPointList.ToArray());
+                    int lastNo = flagLines[flagLines.Count - 1];
+                    if (!flagPointList.Contains(lastNo))
+                    {
+                        flagPoints.Add(lastNo);
+                        flagPointSequence.Add(lastNo, new int[] { lastNo });
+                    }
                 }
+
+                flagPointList.Clear();
+                flagPointList.Add(flagLines[i]);
             }
-            
+
+            result.Lines = lines;
             result.FlagPoints = flagPoints.ToArray();
             result.FlagPointSequence = flagPointSequence;
             TextResult = result;
@@ -102,6 +110,32 @@ namespace HoneyBee.Diff.Gui
                 && !string.IsNullOrEmpty(FilePath) && File.Exists(FilePath))
             {
                 File.WriteAllText(FilePath,TextEditor.text);
+                TextEditor.IsTextChanged = false;
+            }
+        }
+
+        public string[] GetSectionLines(int lineNo)
+        {
+            string[] lines = null;
+            if (TextResult.FlagPointSequence.TryGetValue(lineNo, out int[] lineNos))
+            {
+                lines = new string[lineNos.Length];
+                for (int i = 0; i < lineNos.Length; i++)
+                {
+                    lines[i] = TextResult.Lines[lineNos[i]];
+                }
+            }
+            return lines;
+        }
+
+        public void SetSectionLines(int lineNo, string[] lines)
+        {
+            if (TextResult.FlagPointSequence.TryGetValue(lineNo, out int[] lineNos))
+            {
+                for (int i = 0; i < lineNos.Length; i++)
+                {
+                     TextResult.Lines[lineNos[i]]= lines[i];
+                }
             }
         }
 
@@ -112,10 +146,22 @@ namespace HoneyBee.Diff.Gui
 
         public struct SideModelTextResult
         {
-            //public string Text;
+            public List<string> Lines;
             public int[] FlagLines;
             public int[] FlagPoints;
             public Dictionary<int, int[]> FlagPointSequence;
+            public new string ToString()
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                if (Lines != null)
+                {
+                    foreach (var item in Lines)
+                    {
+                        stringBuilder.AppendLine(item);
+                    }
+                }
+                return stringBuilder.ToString();
+            }
         }
     }
 }
