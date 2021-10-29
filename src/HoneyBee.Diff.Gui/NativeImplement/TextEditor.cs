@@ -52,7 +52,11 @@ namespace HoneyBee.Diff.Gui
                     igSetTextEditor(_igTextEditor, native_label);
                 }
                 else { native_label = null; }
-                Util.Free(native_label);
+
+                if (label_byteCount > Util.StackAllocationSizeLimit)
+                {
+                    Util.Free(native_label);
+                }
                 _text = nativeText;
             }
         }
@@ -187,7 +191,10 @@ namespace HoneyBee.Diff.Gui
 
         public void SetFlagPoints(int[] points)
         {
-            igSetFlagPointsTextEditor(_igTextEditor, points, points.Length);
+            if (points != null && points.Length > 0)
+            {
+                igSetFlagPointsTextEditor(_igTextEditor, points, points.Length);
+            }
         }
 
         public Vector4 GetFlagPointRect(int lineNo)

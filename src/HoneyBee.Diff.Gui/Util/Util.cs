@@ -9,7 +9,7 @@ namespace HoneyBee.Diff.Gui
 {
     internal unsafe class Util
     {
-        internal const int StackAllocationSizeLimit = 2048;
+        internal const int StackAllocationSizeLimit = 1024*10;
 
         public static string StringFromPtr(byte* ptr)
         {

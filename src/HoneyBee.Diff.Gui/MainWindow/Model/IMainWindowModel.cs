@@ -17,7 +17,7 @@ namespace HoneyBee.Diff.Gui
         void CreateTab<T>(params object[] objets) where T : ITabWindow,new();
 
         bool HasSameWindow(string name,ITabWindow tabWindow=null);
-
+        void SaveWindow(ITabWindow tabWindow);
         void RemoveTab(int index);
         void RemoveTab(ITabWindow tabWindow);
     }

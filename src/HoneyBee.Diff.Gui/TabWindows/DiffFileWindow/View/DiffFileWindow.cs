@@ -37,16 +37,8 @@ namespace HoneyBee.Diff.Gui
         private bool _showCompare;
         private bool _readOnly=true;
 
-        [Import]
-        public IMainWindowModel mainModel { get; set; }
-
-        [Import]
-        public IUserSettingsModel userSettings { get; set; }
-
         public DiffFileWindow()
         {
-            DiffProgram.ComposeParts(this);
-
             string userPath = Environment.GetEnvironmentVariable("USERPROFILE");
             string folderPath = $"{userPath}\\Documents";
 
@@ -138,10 +130,13 @@ namespace HoneyBee.Diff.Gui
                     }
                 }, openPath);
             }
-            ImGui.SameLine();
-            if (ImGui.Button(Icon.Get(Icon.Material_save)))
+            if (diffFile.TextEditor.IsTextChanged)
             {
-                
+                ImGui.SameLine();
+                if (ImGui.Button(Icon.Get(Icon.Material_save)))
+                {
+
+                }
             }
 
             var cpos = diffFile.TextEditor.CursorPosition;
@@ -196,30 +191,32 @@ namespace HoneyBee.Diff.Gui
                 string leftPath = _leftDiffFile.FilePath;
                 string rightPath = _rightDiffFile.FilePath;
 
-                if (string.IsNullOrEmpty(leftPath) || string.IsNullOrEmpty(rightPath)
-                    || !File.Exists(leftPath) || !File.Exists(rightPath))
+                string leftContent = _leftDiffFile.ReadFromFile();
+                string rightContent = _rightDiffFile.ReadFromFile();
+
+                if (string.IsNullOrEmpty(leftContent) || string.IsNullOrEmpty(rightContent))
                     return;
+
                 _loading = true;
                 _showCompare = false;
                 await Task.Run(() => {
-                    _sideModel = SideBySideDiffBuilder.Diff(File.ReadAllText(leftPath), File.ReadAllText(rightPath));
+                    _sideModel = SideBySideDiffBuilder.Diff(leftContent, rightContent);
                     _showCompare = _sideModel!=null;
-                });
-
-                if (_showCompare)
-                {
-                    string leftName = Path.GetFileName(leftPath);
-                    string rightName = Path.GetFileName(rightPath);
-                    _name = leftName.Equals(rightName) ? leftName : $"{leftName}/{rightName}";
-                    string oldName = _name;
-                    while (mainModel.HasSameWindow(_name, this))
+                    if (_showCompare)
                     {
-                        _name = $"{oldName} - {Guid.NewGuid().ToString().Substring(0, 6)}";
-                    }
+                        string leftName = Path.GetFileName(leftPath);
+                        string rightName = Path.GetFileName(rightPath);
+                        _name = leftName.Equals(rightName) ? leftName : $"{leftName}/{rightName}";
+                        string oldName = _name;
+                        while (mainModel.HasSameWindow(_name, this))
+                        {
+                            _name = $"{oldName} - {Guid.NewGuid().ToString().Substring(0, 6)}";
+                        }
 
-                    _leftDiffFile.Setup(_sideModel.OldText);
-                    _rightDiffFile.Setup(_sideModel.NewText);
-                }
+                        _leftDiffFile.Setup(_sideModel.OldText);
+                        _rightDiffFile.Setup(_sideModel.NewText);
+                    }
+                });
                 _loading = false;
             }
             catch (System.Exception e)
@@ -233,7 +230,7 @@ namespace HoneyBee.Diff.Gui
         //复制文本
         private void CopySection(int lineNo,DiffFile srcDiffFile)
         {
-            
+            Console.WriteLine($"{lineNo} {srcDiffFile.FilePath}");
         }
 
         //设置文本的状态

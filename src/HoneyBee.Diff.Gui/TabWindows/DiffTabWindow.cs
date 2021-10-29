@@ -1,6 +1,7 @@
 using ImGuiNET;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -24,6 +25,17 @@ namespace HoneyBee.Diff.Gui
 
         protected bool _loading;
 
+        [Import]
+        public IMainWindowModel mainModel { get; set; }
+
+        [Import]
+        public IUserSettingsModel userSettings { get; set; }
+
+        public DiffTabWindow()
+        {
+            DiffProgram.ComposeParts(this);
+        }
+
         public virtual void Setup(params object[] parameters)
         {
         }
@@ -37,6 +49,8 @@ namespace HoneyBee.Diff.Gui
             if (ImGui.Button(Icon.Get(Icon.Material_compare) + "Compare"))
             {
                 OnCompare();
+                //动态保存信息
+                mainModel.SaveWindow(this);
             }
         }
 

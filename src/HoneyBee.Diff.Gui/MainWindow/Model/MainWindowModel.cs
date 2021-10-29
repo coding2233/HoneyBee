@@ -61,9 +61,14 @@ namespace HoneyBee.Diff.Gui
         public bool HasSameWindow(string name,ITabWindow tabWindow = null)
         {
             var findTabWindow = _tabWindows.Find(x => x.Name.Equals(name));
-            if (findTabWindow == tabWindow)
+            if (findTabWindow==null || findTabWindow == tabWindow)
                 return false;
             return  true;
+        }
+
+        public void SaveWindow(ITabWindow tabWindow)
+        {
+            SaveData();
         }
 
         public void RemoveTab(int index)

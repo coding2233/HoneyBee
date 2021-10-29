@@ -34,18 +34,11 @@ namespace HoneyBee.Diff.Gui
 
         public override string IconName => Icon.Get(Icon.Material_folder);
 
-        [Import]
-        public IMainWindowModel mainModel { get; set; }
-        [Import]
-        public IUserSettingsModel userSettings { get; set; }
-
         //同步打开文件夹
         private readonly Dictionary<string, bool> _syncOpenFolders = new Dictionary<string, bool>();
 
         public DiffFolderWindow()
         {
-            DiffProgram.ComposeParts(this);
-
             string userPath = Environment.GetEnvironmentVariable("USERPROFILE");
             string folderPath = $"{userPath}\\Documents";
 
@@ -129,7 +122,7 @@ namespace HoneyBee.Diff.Gui
             }
 
             ImGui.TableSetColumnIndex(0);
-            string itemName = node.IsEmpty ? "---" : node.Name;
+            string itemName = node.IsEmpty ? " " : node.Name;
             ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags.SpanFullWidth;
             if (!string.IsNullOrEmpty(selectPath) && selectPath.Equals(node.FullName))
             {
