@@ -248,8 +248,12 @@ namespace HoneyBee.Diff.Gui
             Console.WriteLine($"{lineNo} {srcDiffFile.FilePath}");
             DiffFile targetDiffFile = srcDiffFile == _leftDiffFile ? _rightDiffFile : _leftDiffFile;
             Task.Run(()=> {
-                targetDiffFile.SetSectionLines(lineNo, srcDiffFile.GetSectionLines(lineNo));
-                CompareTextContent(_leftDiffFile.TextResult.ToString(), _rightDiffFile.TextResult.ToString());
+                if (targetDiffFile.SetSectionLines(lineNo, srcDiffFile.GetSectionLines(lineNo)))
+                {
+                    _leftDiffFile.Setup(_sideModel.OldText);
+                    _rightDiffFile.Setup(_sideModel.NewText);
+                    //CompareTextContent(_leftDiffFile.TextResult.ToString(), _rightDiffFile.TextResult.ToString());
+                }
             });
         }
 

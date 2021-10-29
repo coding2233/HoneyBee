@@ -19,6 +19,8 @@ namespace HoneyBee.Diff.Gui
 
         public TextEditor TextEditor { get; private set; } = new TextEditor();
 
+        public DiffPaneModel DiffModel { get; private set; }
+
         public bool IsTextChanged { get; private set; } = false;
 
         public DiffFile(string icon, string copyTip ="")
@@ -34,9 +36,10 @@ namespace HoneyBee.Diff.Gui
 
         public void Setup(DiffPaneModel diffModel)
         {
+            DiffModel = diffModel;
+
             SideModelTextResult result = new SideModelTextResult();
 
-            List<string> lines = new List<string>();
             List<int> flagLines = new List<int>();
             List<int> flagPoints = new List<int>();
             StringBuilder stringBuilder = new StringBuilder();
@@ -53,7 +56,6 @@ namespace HoneyBee.Diff.Gui
                     {
                         flagLines.Add(i);
                     }
-                    lines.Add(showText);
                     stringBuilder.AppendLine(showText);
                 }
             }
@@ -87,7 +89,6 @@ namespace HoneyBee.Diff.Gui
                 flagPointList.Add(flagLines[i]);
             }
 
-            result.Lines = lines;
             result.FlagPoints = flagPoints.ToArray();
             result.FlagPointSequence = flagPointSequence;
             TextResult = result;
@@ -116,30 +117,34 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
-        public string[] GetSectionLines(int lineNo)
+        public DiffPiece[] GetSectionLines(int lineNo)
         {
-            string[] lines = null;
+            DiffPiece[] lines = null;
             if (TextResult.FlagPointSequence.TryGetValue(lineNo, out int[] lineNos))
             {
-                lines = new string[lineNos.Length];
+                lines = new DiffPiece[lineNos.Length];
                 for (int i = 0; i < lineNos.Length; i++)
                 {
-                    lines[i] = TextResult.Lines[lineNos[i]];
+                    lines[i] = DiffModel.Lines[lineNos[i]];
                 }
             }
             return lines;
         }
 
-        public void SetSectionLines(int lineNo, string[] lines)
+        public bool SetSectionLines(int lineNo, DiffPiece[] lines)
         {
             if (TextResult.FlagPointSequence.TryGetValue(lineNo, out int[] lineNos))
             {
                 for (int i = 0; i < lineNos.Length; i++)
                 {
-                     TextResult.Lines[lineNos[i]]= lines[i];
+                    var targetLine = DiffModel.Lines[lineNos[i]];
+                    targetLine.Text= lines[i].Text;
+                    targetLine.Type = lines[i].Type = ChangeType.Unchanged;
                 }
                 IsTextChanged = true;
+                return true;
             }
+            return false;
         }
 
         public void Dispose()
@@ -149,22 +154,9 @@ namespace HoneyBee.Diff.Gui
 
         public struct SideModelTextResult
         {
-            public List<string> Lines;
             public int[] FlagLines;
             public int[] FlagPoints;
             public Dictionary<int, int[]> FlagPointSequence;
-            public new string ToString()
-            {
-                StringBuilder stringBuilder = new StringBuilder();
-                if (Lines != null)
-                {
-                    foreach (var item in Lines)
-                    {
-                        stringBuilder.AppendLine(item);
-                    }
-                }
-                return stringBuilder.ToString();
-            }
         }
     }
 }
