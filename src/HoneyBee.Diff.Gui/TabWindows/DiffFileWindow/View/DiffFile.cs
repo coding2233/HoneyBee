@@ -149,14 +149,7 @@ namespace HoneyBee.Diff.Gui
                     {
                         var targetLine = DiffModel.Lines[lineNos[i]];
                         targetLine.Text = lines[i].Text;
-                        if (lines[i].Type == ChangeType.Deleted)
-                        {
-                            DiffModel.Lines.Remove(targetLine);
-                        }
-                        else
-                        {
-                            targetLine.Type = lines[i].Type = ChangeType.Unchanged;
-                        }
+                        targetLine.Type = lines[i].Type;
                     }
                 }
                 IsTextChanged = true;
