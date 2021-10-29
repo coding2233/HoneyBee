@@ -109,11 +109,19 @@ namespace HoneyBee.Diff.Gui
 
         public void SaveFile()
         {
-            if (!string.IsNullOrEmpty(TextEditor.text)
-                && !string.IsNullOrEmpty(FilePath) && File.Exists(FilePath))
+            if (!string.IsNullOrEmpty(FilePath) && File.Exists(FilePath))
             {
-                File.WriteAllText(FilePath,TextEditor.text);
-                IsTextChanged = false;
+                if (DiffModel != null && DiffModel.Lines != null)
+                {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    foreach (var item in DiffModel.Lines)
+                    {
+                        if(item.Type!=ChangeType.Deleted && item.Type!=ChangeType.Imaginary)
+                            stringBuilder.AppendLine(item.Text);
+                    }
+                    File.WriteAllText(FilePath, stringBuilder.ToString());
+                    IsTextChanged = false;
+                }
             }
         }
 
@@ -137,9 +145,19 @@ namespace HoneyBee.Diff.Gui
             {
                 for (int i = 0; i < lineNos.Length; i++)
                 {
-                    var targetLine = DiffModel.Lines[lineNos[i]];
-                    targetLine.Text= lines[i].Text;
-                    targetLine.Type = lines[i].Type = ChangeType.Unchanged;
+                    if (lineNos[i] < DiffModel.Lines.Count)
+                    {
+                        var targetLine = DiffModel.Lines[lineNos[i]];
+                        targetLine.Text = lines[i].Text;
+                        if (lines[i].Type == ChangeType.Deleted)
+                        {
+                            DiffModel.Lines.Remove(targetLine);
+                        }
+                        else
+                        {
+                            targetLine.Type = lines[i].Type = ChangeType.Unchanged;
+                        }
+                    }
                 }
                 IsTextChanged = true;
                 return true;

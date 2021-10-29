@@ -248,8 +248,16 @@ namespace HoneyBee.Diff.Gui
             Console.WriteLine($"{lineNo} {srcDiffFile.FilePath}");
             DiffFile targetDiffFile = srcDiffFile == _leftDiffFile ? _rightDiffFile : _leftDiffFile;
             Task.Run(()=> {
-                if (targetDiffFile.SetSectionLines(lineNo, srcDiffFile.GetSectionLines(lineNo)))
+                var srcLines = srcDiffFile.GetSectionLines(lineNo);
+                if (targetDiffFile.SetSectionLines(lineNo, srcLines))
                 {
+                    foreach (var item in srcLines)
+                    {
+                        if (item.Type == ChangeType.Deleted)
+                        {
+                            srcDiffFile.DiffModel.Lines.Remove(item);
+                        }
+                    }
                     _leftDiffFile.Setup(_sideModel.OldText);
                     _rightDiffFile.Setup(_sideModel.NewText);
                     //CompareTextContent(_leftDiffFile.TextResult.ToString(), _rightDiffFile.TextResult.ToString());
