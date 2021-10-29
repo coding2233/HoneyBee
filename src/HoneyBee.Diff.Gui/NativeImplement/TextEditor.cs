@@ -61,8 +61,9 @@ namespace HoneyBee.Diff.Gui
         {
             get
             {
-               int* igPos = igGetCursorPositionTextEditor(_igTextEditor);
-               return new Vector2(igPos[0],igPos[1]);
+                Coordinates* igPos = igGetCursorPositionTextEditor(_igTextEditor);
+                Vector2 pos = new Vector2(igPos->mLine, igPos->mColumn);
+                return pos;
             }
         }
         public int TotalLines => igGetTotalLinesTextEditor(_igTextEditor);
@@ -186,13 +187,22 @@ namespace HoneyBee.Diff.Gui
 
         public void SetFlagPoints(int[] points,string iconText,string tipText)
         {
-            //var iconTextPointer = ToImguiCharPointer(iconText);
+            var iconTextPointer = ToImguiCharPointer(iconText);
             //var tipTextPointer = ToImguiCharPointer(iconText);
-            igSetFlagPointsTextEditor(_igTextEditor, points, points.Length, iconText, tipText);
+            igSetFlagPointsTextEditor(_igTextEditor, points, points.Length, iconTextPointer, tipText);
             //Util.Free(iconTextPointer);
             //Util.Free(tipTextPointer);
         }
 
+        public Vector4 GetFlagPointRect(int lineNo)
+        {
+            Vector4 rect;
+            if (!igGetFlagPointRectTextEditor(_igTextEditor, lineNo,&rect))
+            {
+                rect = Vector4.Zero;
+            }
+            return rect;
+        }
 
         public void Dispose()
         {
@@ -227,6 +237,15 @@ namespace HoneyBee.Diff.Gui
             return native_label;
         }
 
+        public struct Coordinates
+        {
+          public int mLine, mColumn;
+        }
+
+        public struct ImVec4
+        {
+            public float x, y, z, w;
+        }
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr igNewTextEditor();
@@ -256,7 +275,10 @@ namespace HoneyBee.Diff.Gui
         private static extern void igSetFlagLinesTextEditor(IntPtr textEditor, int[] flagLines, int length);
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void igSetFlagPointsTextEditor(IntPtr textEditor, int[] points, int length, string flagPointText, string flagPointTipText);
+        private static extern void igSetFlagPointsTextEditor(IntPtr textEditor, int[] points, int length, byte* flagPointText, string flagPointTipText);
+
+        [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+        private static extern bool igGetFlagPointRectTextEditor(IntPtr textEditor, int lineNo,Vector4* rect);
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern void igCustomPaletteTextEditor(IntPtr textEditor, uint[] colors, int length);
@@ -265,7 +287,7 @@ namespace HoneyBee.Diff.Gui
         private static extern void igIgnoreChildTextEditor(IntPtr textEditor, bool ignoreChild);
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int* igGetCursorPositionTextEditor(IntPtr textEditor);
+        private static extern Coordinates* igGetCursorPositionTextEditor(IntPtr textEditor);
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern int igGetTotalLinesTextEditor(IntPtr textEditor);

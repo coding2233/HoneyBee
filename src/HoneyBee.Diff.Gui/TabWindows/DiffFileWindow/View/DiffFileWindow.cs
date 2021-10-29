@@ -34,6 +34,8 @@ namespace HoneyBee.Diff.Gui
         private TextEditor _leftTextEditor;
         private TextEditor _rightTextEditor;
 
+        private SideModelTextResult _rightResult;
+
         private bool _showCompare;
         private bool _readOnly=true;
 
@@ -160,7 +162,24 @@ namespace HoneyBee.Diff.Gui
         protected override void OnRightContentDraw()
         {
             _rightTextEditor?.Render("Right-TextEditor", ImGui.GetWindowSize());
+
+            if (_rightResult.FlagPoints!=null)
+            {
+                for (int i = 0; i < _rightResult.FlagPoints.Length; i++)
+                {
+                    int lineNo = _rightResult.FlagPoints[i];
+                    var rect= _rightTextEditor.GetFlagPointRect(lineNo);
+                    Console.WriteLine(rect);
+                    if (rect != Vector4.Zero)
+                    {
+                        var ti= DiffProgram.GetOrCreateTexture("bee.png");
+                        ImGui.GetWindowDrawList().AddImage(ti,new Vector2(rect.X, rect.Y), new Vector2(rect.Z, rect.W));
+                    }
+                }
+            }
         }
+
+
 
 
         protected override async void OnCompare()
@@ -194,12 +213,13 @@ namespace HoneyBee.Diff.Gui
                     var leftResult = BuilderShowText(_sideModel.OldText);
                     _leftTextEditor.text = leftResult.Text;
                     _leftTextEditor.flagLines = leftResult.FlagLines;
-                    _leftTextEditor.SetFlagPoints(leftResult.FlagPoints, "->", "Copy the section to the right.");
+                    _leftTextEditor.SetFlagPoints(leftResult.FlagPoints, Icon.Get(Icon.Material_arrow_right), "Copy the section to the right.");
 
                     var rightResult = BuilderShowText(_sideModel.NewText);
                     _rightTextEditor.text = rightResult.Text;
                     _rightTextEditor.flagLines = rightResult.FlagLines;
-                    _rightTextEditor.SetFlagPoints(rightResult.FlagPoints, "<-", "Copy the section to the left.");
+                    _rightTextEditor.SetFlagPoints(rightResult.FlagPoints, "X", "Copy the section to the left.");
+                    _rightResult = rightResult;
                 }
                 _loading = false;
             }
