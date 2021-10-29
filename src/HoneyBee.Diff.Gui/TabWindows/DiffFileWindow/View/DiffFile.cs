@@ -107,19 +107,29 @@ namespace HoneyBee.Diff.Gui
             return string.Empty;
         }
 
+        public string BuildString()
+        {
+            if (DiffModel != null && DiffModel.Lines != null)
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                foreach (var item in DiffModel.Lines)
+                {
+                    if (item.Type != ChangeType.Deleted && item.Type != ChangeType.Imaginary)
+                        stringBuilder.AppendLine(item.Text);
+                }
+                return stringBuilder.ToString();
+            }
+            return string.Empty;
+        }
+
         public void SaveFile()
         {
             if (!string.IsNullOrEmpty(FilePath) && File.Exists(FilePath))
             {
-                if (DiffModel != null && DiffModel.Lines != null)
+                var content = BuildString();
+                if (!string.IsNullOrEmpty(content))
                 {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    foreach (var item in DiffModel.Lines)
-                    {
-                        if(item.Type!=ChangeType.Deleted && item.Type!=ChangeType.Imaginary)
-                            stringBuilder.AppendLine(item.Text);
-                    }
-                    File.WriteAllText(FilePath, stringBuilder.ToString());
+                    File.WriteAllText(FilePath, content);
                     IsTextChanged = false;
                 }
             }
