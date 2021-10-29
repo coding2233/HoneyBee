@@ -13,7 +13,7 @@ namespace HoneyBee.Diff.Gui
     {
         public string Name => "About";
 
-        public string IconName => Icon.Get(Icon.Material_home);
+        public string IconName => Icon.Get(Icon.Material_info);
 
         public bool Unsave => false;
 

@@ -32,7 +32,7 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
-        public override string IconName => Icon.Get(Icon.Material_folder_special);
+        public override string IconName => Icon.Get(Icon.Material_folder);
 
         [Import]
         public IMainWindowModel mainModel { get; set; }
@@ -59,7 +59,7 @@ namespace HoneyBee.Diff.Gui
         {
             ImGui.InputText("", ref _leftDiffFolder.FolderPath, 500);
             ImGui.SameLine();
-            if (ImGui.Button("Select"))
+            if (ImGui.Button((Icon.Get(Icon.Material_open_in_browser))))
             {
                 string openPath = string.IsNullOrEmpty(_rightDiffFolder.FolderPath) ? "./" : _rightDiffFolder.FolderPath;
                 ImGuiFileDialog.OpenFolder((selectPath) => {
@@ -75,7 +75,7 @@ namespace HoneyBee.Diff.Gui
         {
             ImGui.InputText("", ref _rightDiffFolder.FolderPath, 500);
             ImGui.SameLine();
-            if (ImGui.Button("Select"))
+            if (ImGui.Button((Icon.Get(Icon.Material_open_in_browser))))
             {
                 string openPath = string.IsNullOrEmpty(_rightDiffFolder.FolderPath) ? "./" : _rightDiffFolder.FolderPath;
                 ImGuiFileDialog.OpenFolder((selectPath) => {
@@ -148,7 +148,7 @@ namespace HoneyBee.Diff.Gui
             }
             else
             {
-                ImGui.TreeNodeEx(Icon.Get(Icon.Material_file_copy)+itemName, flag | ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.NoTreePushOnOpen );
+                ImGui.TreeNodeEx(Icon.Get(Icon.Material_text_snippet)+itemName, flag | ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.NoTreePushOnOpen );
 
                 if(!node.IsEmpty && ImGui.IsItemHovered() && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
                 {

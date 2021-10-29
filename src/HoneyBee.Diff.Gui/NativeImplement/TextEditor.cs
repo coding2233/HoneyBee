@@ -185,13 +185,9 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
-        public void SetFlagPoints(int[] points,string iconText,string tipText)
+        public void SetFlagPoints(int[] points)
         {
-            var iconTextPointer = ToImguiCharPointer(iconText);
-            //var tipTextPointer = ToImguiCharPointer(iconText);
-            igSetFlagPointsTextEditor(_igTextEditor, points, points.Length, iconTextPointer, tipText);
-            //Util.Free(iconTextPointer);
-            //Util.Free(tipTextPointer);
+            igSetFlagPointsTextEditor(_igTextEditor, points, points.Length);
         }
 
         public Vector4 GetFlagPointRect(int lineNo)
@@ -275,7 +271,7 @@ namespace HoneyBee.Diff.Gui
         private static extern void igSetFlagLinesTextEditor(IntPtr textEditor, int[] flagLines, int length);
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void igSetFlagPointsTextEditor(IntPtr textEditor, int[] points, int length, byte* flagPointText, string flagPointTipText);
+        private static extern void igSetFlagPointsTextEditor(IntPtr textEditor, int[] points, int length);
 
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         private static extern bool igGetFlagPointRectTextEditor(IntPtr textEditor, int lineNo,Vector4* rect);

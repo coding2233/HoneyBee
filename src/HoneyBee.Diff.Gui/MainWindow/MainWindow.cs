@@ -52,9 +52,9 @@ namespace HoneyBee.Diff.Gui
             {
                 if (ImGui.BeginMainMenuBar())
                 {
-                    if (ImGui.BeginMenu(Icon.Get(Icon.Material_file_present)+"File"))
+                    if (ImGui.BeginMenu("File"))
                     {
-                        if (ImGui.BeginMenu(Icon.Get(Icon.Material_create_new_folder)+"New"))
+                        if (ImGui.BeginMenu("New"))
                         {
                             if (ImGui.MenuItem("Folder Diff"))
                             {
@@ -78,9 +78,9 @@ namespace HoneyBee.Diff.Gui
                         ImGui.EndMenu();
                     }
 
-                    if (ImGui.BeginMenu(Icon.Get(Icon.Material_edit) + "Edit"))
+                    if (ImGui.BeginMenu("Edit"))
                     {
-                        if (ImGui.BeginMenu(Icon.Get(Icon.Material_style) + "Style"))
+                        if (ImGui.BeginMenu("Style"))
                         {
                             var styleIndex = userSettings.StyleColors;
                             if (ImGui.MenuItem("Light", "", styleIndex == 0))
@@ -103,16 +103,16 @@ namespace HoneyBee.Diff.Gui
                             ImGui.EndMenu();
                         }
 
-                        if (ImGui.MenuItem(Icon.Get(Icon.Material_format_color_text) + "Text Style"))
+                        if (ImGui.MenuItem("Text Style"))
                         {
                             _textStyleModal.Popup();
                         }
                         ImGui.EndMenu();
                     }
                     
-                    if (ImGui.BeginMenu(Icon.Get(Icon.Material_edit) + "Help"))
+                    if (ImGui.BeginMenu("Help"))
                     {
-                        if (ImGui.MenuItem(Icon.Get(Icon.Material_format_color_text) + "About"))
+                        if (ImGui.MenuItem("About"))
                         {
                             mainModel.CreateTab<AboutTabWindow>();
                         }

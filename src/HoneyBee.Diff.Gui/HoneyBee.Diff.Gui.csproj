@@ -51,6 +51,8 @@
 	
     <ItemGroup>
 		<EmbeddedResource Include="Textures/bee.png" LogicalName="bee.png" />
+		<EmbeddedResource Include="Textures/left-arrow.png" LogicalName="left-arrow.png" />
+		<EmbeddedResource Include="Textures/right-arrow.png" LogicalName="right-arrow.png" />
     </ItemGroup>
 	
   <ItemGroup>
