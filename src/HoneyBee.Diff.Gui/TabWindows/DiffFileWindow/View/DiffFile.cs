@@ -19,6 +19,8 @@ namespace HoneyBee.Diff.Gui
 
         public TextEditor TextEditor { get; private set; } = new TextEditor();
 
+        public bool IsTextChanged { get; private set; } = false;
+
         public DiffFile(string icon, string copyTip ="")
         {
             IconIntPtr = DiffProgram.GetOrCreateTexture(icon);
@@ -110,7 +112,7 @@ namespace HoneyBee.Diff.Gui
                 && !string.IsNullOrEmpty(FilePath) && File.Exists(FilePath))
             {
                 File.WriteAllText(FilePath,TextEditor.text);
-                TextEditor.IsTextChanged = false;
+                IsTextChanged = false;
             }
         }
 
@@ -136,6 +138,7 @@ namespace HoneyBee.Diff.Gui
                 {
                      TextResult.Lines[lineNos[i]]= lines[i];
                 }
+                IsTextChanged = true;
             }
         }
 

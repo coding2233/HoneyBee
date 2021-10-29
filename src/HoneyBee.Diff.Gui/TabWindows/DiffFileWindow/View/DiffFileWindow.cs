@@ -82,7 +82,7 @@ namespace HoneyBee.Diff.Gui
         {
             base.OnDraw();
 
-            Unsave = _leftDiffFile.TextEditor.IsTextChanged || _rightDiffFile.TextEditor.IsTextChanged;
+            Unsave = _leftDiffFile.IsTextChanged || _rightDiffFile.IsTextChanged;
         }
 
         protected override void OnToolbarDraw()
@@ -91,6 +91,7 @@ namespace HoneyBee.Diff.Gui
             ImGui.SameLine();
             if (ImGui.Checkbox("Read Only",ref _readOnly))
             {
+                _readOnly = true;
                 SetTextEditorStatus();
             }
         }
@@ -130,19 +131,18 @@ namespace HoneyBee.Diff.Gui
                     }
                 }, openPath);
             }
-            if (diffFile.TextEditor.IsTextChanged)
+            ImGui.SameLine();
+            if (ImGui.Button(Icon.Get(Icon.Material_save)))
             {
-                ImGui.SameLine();
-                if (ImGui.Button(Icon.Get(Icon.Material_save)))
-                {
-                    diffFile.SaveFile();
-                }
+                //diffFile.SaveFile();
             }
 
             var cpos = diffFile.TextEditor.CursorPosition;
+            string linePos = ((int)cpos.X+1).ToString("D4");
+            string columnPos = ((int)cpos.Y+1).ToString("D4");
             string overWrite = diffFile.TextEditor.IsOverwrite ? "Over" : "Ins";
             string canUndo = diffFile.TextEditor.CanUndo ? "*" : " ";
-            ImGui.Text($"{cpos.X + 1}/{cpos.Y + 1} lines {diffFile.TextEditor.TotalLines} | {overWrite} | {canUndo} | {diffFile.TextEditor.IsTextChanged} ");
+            ImGui.Text($"{linePos}/{columnPos} lines {diffFile.TextEditor.TotalLines} | {overWrite} | {canUndo} | {diffFile.IsTextChanged} ");
         }
 
         private void TextContentDraw(string title,DiffFile diffFile)
