@@ -225,6 +225,7 @@ namespace HoneyBee.Diff.Gui
             OnCompare();
         }
 
+
         public override void Dispose()
         {
         }

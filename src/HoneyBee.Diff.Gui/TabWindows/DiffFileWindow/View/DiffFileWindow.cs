@@ -268,6 +268,14 @@ namespace HoneyBee.Diff.Gui
             _rightDiffFile.TextEditor.readOnly = _readOnly;
         }
 
+        public override void OnExitModalSure()
+        {
+            base.OnExitModalSure();
+
+            _leftDiffFile?.SaveFile();
+            _rightDiffFile?.SaveFile();
+        }
+
         public override void Dispose()
         {
             _leftDiffFile?.Dispose();
