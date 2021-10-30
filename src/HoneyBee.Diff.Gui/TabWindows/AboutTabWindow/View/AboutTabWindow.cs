@@ -18,7 +18,7 @@ namespace HoneyBee.Diff.Gui
         public bool Unsave => false;
 
         public const string Version = "0.1.0";
-
+        public bool ExitModal { get; set; }
         public AboutTabWindow()
         {
 			DiffProgram.ComposeParts(this);
@@ -49,5 +49,8 @@ namespace HoneyBee.Diff.Gui
         {
         }
 
+        public void OnExitModalSure()
+        {
+        }
     }
 }

@@ -13,6 +13,10 @@ namespace HoneyBee.Diff.Gui
 
         public bool Unsave { get; }
 
+        public bool ExitModal { get; set; }
+
+        void OnExitModalSure();
+
         void Setup(params object[] parameters);
 
         void OnDraw();

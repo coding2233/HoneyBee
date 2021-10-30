@@ -155,14 +155,46 @@ namespace HoneyBee.Diff.Gui
                                 if (visible)
                                 {
                                     tabWindow.OnDraw();
+
+                                    if (tabWindow.ExitModal)
+                                    {
+                                        ImGui.OpenPopup("Exit Modal");
+                                        bool openExitModal = true;
+                                        if (ImGui.BeginPopupModal("Exit Modal",ref openExitModal,ImGuiWindowFlags.AlwaysAutoResize))
+                                        {
+
+                                            ImGui.Text("Check whether the current TAB window is closed?");
+
+                                            if (ImGui.Button("Sure"))
+                                            {
+                                                mainModel.RemoveTab(i);
+                                                i--;
+                                                break;
+                                            }
+                                            ImGui.SameLine();
+                                            if (ImGui.Button("Cancel"))
+                                            {
+                                                tabWindow.ExitModal = false;
+                                            }
+                                            ImGui.EndPopup();
+                                        }
+                                        if (!openExitModal)
+                                        {
+                                            tabWindow.ExitModal = false;
+                                        }
+                                    }
+                                   
                                     ImGui.EndTabItem();
                                 }
                                 if (!showTab)
                                 {
-                                    mainModel.RemoveTab(i);
-                                    i--;
+                                    tabWindow.ExitModal = true;
+                                    //mainModel.RemoveTab(i);
+                                    //i--;
                                 }
                             }
+
+
 
                             //Text style colors settings.
                             _textStyleModal.Draw();

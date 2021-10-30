@@ -30,6 +30,7 @@ namespace HoneyBee.Diff.Gui
 
         [Import]
         public IUserSettingsModel userSettings { get; set; }
+        public bool ExitModal { get; set; }
 
         public DiffTabWindow()
         {
@@ -170,10 +171,14 @@ namespace HoneyBee.Diff.Gui
 
         protected abstract void OnCompare();
 
+        public virtual void OnExitModalSure()
+        {
+        }
 
         public virtual void Dispose()
         {
         }
 
+    
     }
 }
