@@ -71,6 +71,7 @@ namespace HoneyBee.Diff.Gui
                             }
                             if (ImGui.MenuItem("Git Repository"))
                             {
+                                mainModel.CreateTab<GitRepoWindow>();
                             }
                             ImGui.EndMenu();
                         }
