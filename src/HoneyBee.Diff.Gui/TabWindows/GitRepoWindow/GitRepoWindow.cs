@@ -12,7 +12,17 @@ namespace HoneyBee.Diff.Gui
 {
     public class GitRepoWindow : ITabWindow
     {
-        public string Name => "GitRepoWindow";
+        public string Name
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_repoName))
+                {
+                    _repoName = Guid.NewGuid().ToString().Substring(0, 6);
+                }
+                return _repoName;
+            }
+        }
 
         public string IconName => Icon.Get(Icon.Material_gite);
 
@@ -37,64 +47,34 @@ namespace HoneyBee.Diff.Gui
                 {
                     _repoName = Path.GetFileName(Path.GetDirectoryName(_repoPath));
                 }
+                //检查是否为正常的Git仓库
                 _isGitRepo = IsGitRepo();
-            }
-        }
-
-        //Clone / Add / Create tool item index.
-        private int _toolItemIndex = 0;
-
-
-        public void Setup(params object[] parameters)
-        {
-        }
-
-        private string _remoteURL="";
-        private string _localPath="";
-        public void OnDraw()
-        {
-            if (_isGitRepo)
-            {
-                
-            }
-            else
-            {
-                int toolItemIndex = _toolItemIndex;
-                if (DrawToolItem(Icon.Get(Icon.Material_download),"Clone", toolItemIndex == 0))
+                //显示View
+                if (_gitRepoView != null)
                 {
-                    toolItemIndex = 0;
-                }
-                ImGui.SameLine();
-                if (DrawToolItem(Icon.Get(Icon.Material_add),"Add", toolItemIndex == 1))
-                {
-                    toolItemIndex = 1;
-                }
-                ImGui.SameLine();
-                if (DrawToolItem(Icon.Get(Icon.Material_create), "Create", toolItemIndex == 2))
-                {
-                    toolItemIndex = 2;
-                }
-                if (toolItemIndex != _toolItemIndex)
-                {
-                    _toolItemIndex = toolItemIndex;
-                }
-                ImGui.Separator();
-
-                if (_toolItemIndex == 0)
-                {
-                    ImGui.Text("Clone");
-                    ImGui.InputText("Git_Remote_URL", ref _remoteURL, 500);
-                    ImGui.InputText("Git_Local_Path", ref _localPath, 500);
-                    ImGui.SameLine();
-                    ImGui.Button(Icon.Get(Icon.Material_open_in_browser));
-                    if (ImGui.Button(Icon.Get(Icon.Material_download) + "Clone"))
+                    if (_isGitRepo.GetType() != (_isGitRepo?typeof(GetGitRepoView):typeof(ShowGitRepoView)))
                     {
-                        
-                        var result = Repository.Clone("https://gitee.com/xiyoufang/aij.git", "./aij");
-                        Console.WriteLine(result);
+                        _gitRepoView.Dispose();
+                        _gitRepoView = null;
                     }
                 }
+                if (_gitRepoView == null)
+                {
+                    _gitRepoView = _isGitRepo ? new ShowGitRepoView() : new GetGitRepoView();
+                }
+                if (_isGitRepo)
+                {
+                    (_gitRepoView as ShowGitRepoView).SetRepoPath(_repoPath);
+                }
             }
+        }
+
+
+        private GitRepoView _gitRepoView;
+
+        public void OnDraw()
+        {
+            _gitRepoView?.Draw();
         }
 
         public void OnExitModalSure()
@@ -110,32 +90,20 @@ namespace HoneyBee.Diff.Gui
         {
             repoPath = data;
         }
-        public void Dispose()
-        {
-        }
+
 
         bool IsGitRepo()
         {
             return !string.IsNullOrEmpty(_repoPath) && Repository.IsValid(_repoPath);
         }
 
-        private bool DrawToolItem(string icon, string tip,bool active)
+
+        public void Setup(params object[] parameters)
         {
-            bool buttonClick = ImGui.Button(icon);
-            var p1 = ImGui.GetItemRectMin();
-            var p2 = ImGui.GetItemRectMax();
-            p1.Y = p2.Y;
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.BeginTooltip();
-                ImGui.PushTextWrapPos(ImGui.GetFontSize() * 35.0f);
-                ImGui.TextUnformatted(tip);
-                ImGui.PopTextWrapPos();
-                ImGui.EndTooltip();
-            }
-            if(active)
-                ImGui.GetWindowDrawList().AddLine(p1, p2, ImGui.GetColorU32(ImGuiCol.ButtonActive));
-            return buttonClick;
         }
+        public void Dispose()
+        {
+        }
+
     }
 }
