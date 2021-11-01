@@ -60,7 +60,7 @@ namespace HoneyBee.Diff.Gui
                 }
                 if (_gitRepoView == null)
                 {
-                    _gitRepoView = _isGitRepo ? new ShowGitRepoView() : new GetGitRepoView();
+                    _gitRepoView = _isGitRepo ? new ShowGitRepoView() : new GetGitRepoView(GetGitRepoPath);
                 }
                 if (_isGitRepo)
                 {
@@ -92,11 +92,15 @@ namespace HoneyBee.Diff.Gui
         }
 
 
-        bool IsGitRepo()
+        private bool IsGitRepo()
         {
             return !string.IsNullOrEmpty(_repoPath) && Repository.IsValid(_repoPath);
         }
 
+        private void GetGitRepoPath(string gitRepoPath)
+        {
+            repoPath = gitRepoPath;
+        }
 
         public void Setup(params object[] parameters)
         {
