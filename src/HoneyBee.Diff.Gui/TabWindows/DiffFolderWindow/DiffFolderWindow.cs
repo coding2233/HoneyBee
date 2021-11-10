@@ -141,7 +141,7 @@ namespace HoneyBee.Diff.Gui
             }
             else
             {
-                ImGui.TreeNodeEx(Icon.Get(Icon.Material_text_snippet)+itemName, flag | ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.NoTreePushOnOpen );
+                ImGui.TreeNodeEx(Icon.Get(node.IsEmpty?Icon.Material_no_sim:Icon.Material_text_snippet)+itemName, flag | ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.NoTreePushOnOpen );
 
                 if(!node.IsEmpty && ImGui.IsItemHovered() && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
                 {
@@ -164,13 +164,31 @@ namespace HoneyBee.Diff.Gui
 
             if (openFolder)
             {
-                foreach (var item in node.ChildrenNodes)
+                if (node.FindChildren)
                 {
-                    ShowItemColumns(item,ref selectPath);
+                    if (node.ChildrenNodes.Count > 0)
+                    {
+                        foreach (var item in node.ChildrenNodes)
+                        {
+                            ShowItemColumns(item, ref selectPath);
+                        }
+                        
+                    }
+                }
+                else
+                {
+                    var leftNode = _leftDiffFolder.DiffNode.ChildrenNodes.Find(x => node.FullName.Equals(x.FullName));
+                    var rightNode = _rightDiffFolder.DiffNode.ChildrenNodes.Find(x => node.FullName.Equals(x.FullName));
+
+                    if (leftNode != null && rightNode != null)
+                    {
+                        leftNode.GetChildren();
+                        rightNode.GetChildren();
+                        CompareFolderNode(leftNode, rightNode);
+                    }
                 }
                 ImGui.TreePop();
             }
-
         }
     
 
@@ -185,7 +203,8 @@ namespace HoneyBee.Diff.Gui
                 Console.WriteLine(_leftDiffFolder.FolderPath + "\n" + _rightDiffFolder.FolderPath);
                 await Task.Run(() =>
                 {
-                    _showCompare = _leftDiffFolder.GetDiffFlag(_rightDiffFolder);
+                     CompareFolderNode(null, null);
+                    _showCompare = _leftDiffFolder.DiffNode != null && _rightDiffFolder.DiffNode != null;
                 });
 
                 if (_showCompare)
@@ -208,6 +227,95 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
+
+        private void CompareFolderNode(DiffFolderNode leftNode, DiffFolderNode rightNode)
+        {
+            if (leftNode == null)
+            {
+                leftNode = _leftDiffFolder.GetNode();
+            }
+            if (rightNode == null)
+            {
+                rightNode = _rightDiffFolder.GetNode();
+            }
+
+            HashSet<string> dirNodeNames = new HashSet<string>();
+            HashSet<string> fileNodeNames = new HashSet<string>();
+            foreach (var item in leftNode.ChildrenNodes)
+            {
+                if (!item.IsEmpty)
+                {
+                    if (item.IsFolder)
+                        dirNodeNames.Add(item.Name);
+                    else
+                        fileNodeNames.Add(item.Name);
+                }
+            }
+
+            foreach (var item in rightNode.ChildrenNodes)
+            {
+                if (!item.IsEmpty)
+                {
+                    if (item.IsFolder)
+                        dirNodeNames.Add(item.Name);
+                    else
+                        fileNodeNames.Add(item.Name);
+                }
+            }
+            var dirList = dirNodeNames.ToList();
+            dirList.Sort();
+            var fileList = fileNodeNames.ToList();
+            fileList.Sort();
+
+            List<string> nodeNames = new List<string>();
+            nodeNames.AddRange(dirList);
+            nodeNames.AddRange(fileList);
+
+            for (int i = 0; i < nodeNames.Count; i++)
+            {
+                var item = nodeNames[i];
+                if (i < leftNode.ChildrenNodes.Count)
+                {
+                    var child = leftNode.ChildrenNodes[i];
+                    if (!item.Equals(child.Name))
+                    {
+                        leftNode.ChildrenNodes.Insert(i, new DiffFolderNode(leftNode));
+                    }
+                }
+                else
+                {
+                    leftNode.ChildrenNodes.Add(new DiffFolderNode(leftNode));
+                }
+
+                if (i < rightNode.ChildrenNodes.Count)
+                {
+                    var child = rightNode.ChildrenNodes[i];
+                    if (!item.Equals(child.Name))
+                    {
+                        rightNode.ChildrenNodes.Insert(i, new DiffFolderNode(rightNode));
+                    }
+                }
+                else
+                {
+                    rightNode.ChildrenNodes.Add(new DiffFolderNode(rightNode));
+                }
+            }
+
+            for (int i = 0; i < nodeNames.Count; i++)
+            {
+                var a = leftNode.ChildrenNodes[i];
+                var b = rightNode.ChildrenNodes[i];
+                if (!a.IsEmpty && !b.IsEmpty)
+                {
+                    a.Status = b.Status = a.MD5.Equals(b.MD5) ? DiffStatus.Same : DiffStatus.Modified;
+                }
+                else
+                {
+                    a.Status = a.IsEmpty ? DiffStatus.Delete : DiffStatus.Add;
+                    a.Status = b.IsEmpty ? DiffStatus.Delete : DiffStatus.Add;
+                }
+            }
+        }
 
         public override string Serialize()
         {

@@ -12,6 +12,7 @@ namespace HoneyBee.Diff.Gui
     {
         public string Name;
         public string FullName;
+        public string FullPath;
         public bool Expansion;
         public bool IsFolder;
         public DiffFolderNode Parent;
@@ -35,6 +36,7 @@ namespace HoneyBee.Diff.Gui
         public DiffFolderNode(DiffFolderNode parent,string name,string fullName,bool isFolder = false,bool expansion=false)
         {
             IsEmpty = false;
+            FullPath = name;
             Name = Path.GetFileName(name);
             FullName =string.IsNullOrEmpty(fullName)?".": $"{fullName}/{Name}";
             IsFolder = isFolder;
@@ -51,7 +53,7 @@ namespace HoneyBee.Diff.Gui
             if (!IsEmpty && IsFolder)
             {
                 ChildrenNodes = new List<DiffFolderNode>();
-                string dirPath = FullName;
+                string dirPath = FullPath;
 
                 var dirs = Directory.GetDirectories(dirPath);
                 if (dirs != null)
@@ -83,6 +85,8 @@ namespace HoneyBee.Diff.Gui
                     this.ChildrenNodes.AddRange(filesNodes.OrderBy(x => x.Name));
                 }
                 this.SizeString = ToSizeString(this.Size);
+
+                Parent?.UpdateStatus();
             }
             
         }
