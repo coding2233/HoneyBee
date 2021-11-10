@@ -197,14 +197,17 @@ namespace HoneyBee.Diff.Gui
 
 
 
-                            //Text style colors settings.
-                            _textStyleModal.Draw();
-                            //LoadingModal.Draw(mainModel.ShowLoading.Count>0);
-                            ImGuiFileDialog.Display();
+ 
 
                             ImGui.EndTabBar();
                         }
                     }
+
+                    //Text style colors settings.
+                    _textStyleModal.Draw();
+                    //LoadingModal.Draw(mainModel.ShowLoading.Count>0);
+                    ImGuiFileDialog.Display();
+
                     ImGui.End();
                 }
                 ImGui.End();
