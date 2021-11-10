@@ -50,7 +50,8 @@ namespace HoneyBee.Diff.Gui
                 List<DiffFolderNode> folderNodes = new List<DiffFolderNode>();
                 foreach (var item in dirs)
                 {
-                    DiffFolderNode dirNode = GetDirectoryNodes(item, node.FullName, true);
+                    //DiffFolderNode dirNode = GetDirectoryNodes(item, node.FullName, true);
+                    DiffFolderNode dirNode= new DiffFolderNode(item, node.FullName, true, false);
                     folderNodes.Add(dirNode);
                     node.Size += dirNode.Size;
                 }

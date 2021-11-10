@@ -8,7 +8,7 @@ namespace HoneyBee.Diff.Gui
 {
     public enum DiffStatus
     {
-        None,
+        Unknown,
         Same,
         Add,
         Delete,
