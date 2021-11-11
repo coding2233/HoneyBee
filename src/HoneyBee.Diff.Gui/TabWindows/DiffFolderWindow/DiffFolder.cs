@@ -24,7 +24,7 @@ namespace HoneyBee.Diff.Gui
         public DiffFolderNode GetNode()
         {
             string dirPath = FolderPath;
-            DiffFolderNode node= Directory.Exists(dirPath)?new DiffFolderNode(null,dirPath,null,true): new DiffFolderNode(null);
+            DiffFolderNode node= Directory.Exists(dirPath)?new DiffFolderNode(null,dirPath,null,true,false): new DiffFolderNode(null,null,null,false,true);
             DiffNode = node;
             return node;
         }

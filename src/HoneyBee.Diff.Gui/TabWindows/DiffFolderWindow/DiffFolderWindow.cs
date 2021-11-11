@@ -177,18 +177,41 @@ namespace HoneyBee.Diff.Gui
                 }
                 else
                 {
-                    var leftNode = _leftDiffFolder.DiffNode.ChildrenNodes.Find(x => node.FullName.Equals(x.FullName));
-                    var rightNode = _rightDiffFolder.DiffNode.ChildrenNodes.Find(x => node.FullName.Equals(x.FullName));
-
-                    if (leftNode != null && rightNode != null)
+                    var leftNode = FindChild(node.FullName, _leftDiffFolder.DiffNode);
+                    var rightNode = FindChild(node.FullName, _rightDiffFolder.DiffNode);
+                    if (!leftNode.IsEmpty)
                     {
                         leftNode.GetChildren();
-                        rightNode.GetChildren();
-                        CompareFolderNode(leftNode, rightNode);
+                        leftNode.CopyToEmptyNodeWithChildren(rightNode);
                     }
+                    else if (!rightNode.IsEmpty)
+                    {
+                        rightNode.GetChildren();
+                        rightNode.CopyToEmptyNodeWithChildren(leftNode);
+                    }
+                    CompareFolderNode(leftNode, rightNode);
                 }
                 ImGui.TreePop();
             }
+        }
+
+        private DiffFolderNode FindChild(string fullName, DiffFolderNode node)
+        {
+            foreach (var item in node.ChildrenNodes)
+            {
+                if (!item.IsEmpty)
+                {
+                    if (item.FullName.Equals(fullName))
+                    {
+                        return item;
+                    }
+                    if (item.IsFolder && item.FullName.StartsWith(fullName))
+                    {
+                        return FindChild(fullName,item);
+                    }
+                }
+            }
+            return null;
         }
     
 
@@ -230,15 +253,13 @@ namespace HoneyBee.Diff.Gui
 
         private void CompareFolderNode(DiffFolderNode leftNode, DiffFolderNode rightNode)
         {
-            if (leftNode == null)
+            if (leftNode == null && rightNode == null)
             {
                 leftNode = _leftDiffFolder.GetNode();
-            }
-            if (rightNode == null)
-            {
                 rightNode = _rightDiffFolder.GetNode();
             }
 
+            Dictionary<string, DiffFolderNode> allNodes = new Dictionary<string, DiffFolderNode>();
             HashSet<string> dirNodeNames = new HashSet<string>();
             HashSet<string> fileNodeNames = new HashSet<string>();
             foreach (var item in leftNode.ChildrenNodes)
@@ -249,6 +270,9 @@ namespace HoneyBee.Diff.Gui
                         dirNodeNames.Add(item.Name);
                     else
                         fileNodeNames.Add(item.Name);
+
+                    if(!allNodes.ContainsKey(item.Name))
+                        allNodes.Add(item.Name,item);
                 }
             }
 
@@ -261,6 +285,8 @@ namespace HoneyBee.Diff.Gui
                     else
                         fileNodeNames.Add(item.Name);
                 }
+                if (!allNodes.ContainsKey(item.Name))
+                    allNodes.Add(item.Name,item);
             }
             var dirList = dirNodeNames.ToList();
             dirList.Sort();
@@ -279,12 +305,12 @@ namespace HoneyBee.Diff.Gui
                     var child = leftNode.ChildrenNodes[i];
                     if (!item.Equals(child.Name))
                     {
-                        leftNode.ChildrenNodes.Insert(i, new DiffFolderNode(leftNode));
+                        leftNode.ChildrenNodes.Insert(i, allNodes[item].CopyToEmptyNode(leftNode));
                     }
                 }
                 else
                 {
-                    leftNode.ChildrenNodes.Add(new DiffFolderNode(leftNode));
+                    leftNode.ChildrenNodes.Add(allNodes[item].CopyToEmptyNode(leftNode));
                 }
 
                 if (i < rightNode.ChildrenNodes.Count)
@@ -292,12 +318,12 @@ namespace HoneyBee.Diff.Gui
                     var child = rightNode.ChildrenNodes[i];
                     if (!item.Equals(child.Name))
                     {
-                        rightNode.ChildrenNodes.Insert(i, new DiffFolderNode(rightNode));
+                        rightNode.ChildrenNodes.Insert(i, allNodes[item].CopyToEmptyNode(rightNode));
                     }
                 }
                 else
                 {
-                    rightNode.ChildrenNodes.Add(new DiffFolderNode(rightNode));
+                    rightNode.ChildrenNodes.Add(allNodes[item].CopyToEmptyNode(rightNode));
                 }
             }
 

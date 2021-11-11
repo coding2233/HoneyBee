@@ -27,26 +27,38 @@ namespace HoneyBee.Diff.Gui
 
         public bool FindChildren => ChildrenNodes != null;
 
-        public DiffFolderNode(DiffFolderNode parent)
-        {
-            IsEmpty = true;
-            Parent = parent;
-        }
 
-        public DiffFolderNode(DiffFolderNode parent,string name,string fullName,bool isFolder = false,bool expansion=false)
+        public DiffFolderNode(DiffFolderNode parent,string name,string fullName,bool isFolder = false,bool isEmpty=true)
         {
-            IsEmpty = false;
+            IsEmpty = isEmpty;
             FullPath = name;
             Name = Path.GetFileName(name);
             FullName =string.IsNullOrEmpty(fullName)?".": $"{fullName}/{Name}";
             IsFolder = isFolder;
-            Expansion = expansion;
+            Expansion = false;
             Parent = parent;
             if (parent == null)
             {
                 GetChildren();
             }
         }
+
+        public void CopyToEmptyNodeWithChildren(DiffFolderNode parent)
+        {
+            parent.ChildrenNodes = new List<DiffFolderNode>();
+            foreach (var item in ChildrenNodes)
+            {
+                var newEmptyChild = item.CopyToEmptyNode(parent);
+                parent.ChildrenNodes.Add(newEmptyChild);
+            }
+        }
+
+        public DiffFolderNode CopyToEmptyNode(DiffFolderNode parent)
+        {
+            DiffFolderNode emptyNode = new DiffFolderNode(parent, Name, FullName,IsFolder,true);
+            return emptyNode;
+        }
+
 
         public void GetChildren()
         {
