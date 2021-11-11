@@ -122,13 +122,13 @@ namespace HoneyBee.Diff.Gui
             }
 
             ImGui.TableSetColumnIndex(0);
-            string itemName = node.IsEmpty ? " " : node.Name;
+            string itemName = node.Name;
             ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags.SpanFullWidth;
             if (!string.IsNullOrEmpty(selectPath) && selectPath.Equals(node.FullName))
             {
                 flag |= ImGuiTreeNodeFlags.Selected;
             }
-            bool openFolder = !node.IsEmpty && node.IsFolder;
+            bool openFolder = node.IsFolder;
             if (openFolder)
             {
                 if (_syncOpenFolders.TryGetValue(node.FullName, out bool nextOpen))
@@ -199,16 +199,13 @@ namespace HoneyBee.Diff.Gui
         {
             foreach (var item in node.ChildrenNodes)
             {
-                if (!item.IsEmpty)
+                if (item.FullName.Equals(fullName))
                 {
-                    if (item.FullName.Equals(fullName))
-                    {
-                        return item;
-                    }
-                    if (item.IsFolder && item.FullName.StartsWith(fullName))
-                    {
-                        return FindChild(fullName,item);
-                    }
+                    return item;
+                }
+                if (item.IsFolder && item.FullName.StartsWith(fullName))
+                {
+                    return FindChild(fullName, item);
                 }
             }
             return null;
@@ -226,7 +223,9 @@ namespace HoneyBee.Diff.Gui
                 Console.WriteLine(_leftDiffFolder.FolderPath + "\n" + _rightDiffFolder.FolderPath);
                 await Task.Run(() =>
                 {
-                     CompareFolderNode(null, null);
+                    var leftNode = _leftDiffFolder.GetNode();
+                    var rightNode = _rightDiffFolder.GetNode();
+                    CompareFolderNode(leftNode, rightNode);
                     _showCompare = _leftDiffFolder.DiffNode != null && _rightDiffFolder.DiffNode != null;
                 });
 
@@ -253,12 +252,6 @@ namespace HoneyBee.Diff.Gui
 
         private void CompareFolderNode(DiffFolderNode leftNode, DiffFolderNode rightNode)
         {
-            if (leftNode == null && rightNode == null)
-            {
-                leftNode = _leftDiffFolder.GetNode();
-                rightNode = _rightDiffFolder.GetNode();
-            }
-
             Dictionary<string, DiffFolderNode> allNodes = new Dictionary<string, DiffFolderNode>();
             HashSet<string> dirNodeNames = new HashSet<string>();
             HashSet<string> fileNodeNames = new HashSet<string>();
