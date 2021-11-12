@@ -41,6 +41,11 @@ namespace HoneyBee.Diff.Gui
             {
                 GetChildren();
             }
+            else
+            {
+                if (isFolder)
+                    Status = DiffStatus.Unknown;
+            }
         }
 
         public void CopyToEmptyNodeWithChildren(DiffFolderNode parent)
@@ -76,6 +81,7 @@ namespace HoneyBee.Diff.Gui
                         DiffFolderNode dirNode = new DiffFolderNode(this,item, this.FullName, true, false);
                         folderNodes.Add(dirNode);
                         this.Size += dirNode.Size;
+                        dirNode.UpdateTime = Directory.GetLastWriteTime(item).ToString("yyyy-MM-dd HH:mm");
                     }
                     this.ChildrenNodes.AddRange(folderNodes.OrderBy(x => x.Name));
                 }
@@ -105,13 +111,37 @@ namespace HoneyBee.Diff.Gui
 
         public void UpdateStatus()
         {
+            HashSet<DiffStatus> childrenStatus = new HashSet<DiffStatus>();
+            Size = 0;
             foreach (var item in ChildrenNodes)
             {
-                if (item.Status == DiffStatus.Unknown)
+                if (!item.IsEmpty)
                 {
-                    this.Status = DiffStatus.Unknown;
+                    Size += item.Size;
+                    childrenStatus.Add(item.Status);
                 }
             }
+
+            Status = DiffStatus.Same;
+            ChildrenHasDiff = false;
+
+            if (childrenStatus.Contains(DiffStatus.Unknown))
+            {
+                SizeString = $"{ToSizeString(Size)}+";
+                Status = DiffStatus.Unknown;
+                ChildrenHasDiff = true;
+            }
+            else
+            {
+                SizeString = $"{ToSizeString(Size)}";
+                childrenStatus.Remove(DiffStatus.Same);
+                if (childrenStatus.Count > 0)
+                {
+                    Status = DiffStatus.Modified;
+                    ChildrenHasDiff = true;
+                }
+            }
+
             if (Parent != null)
             {
                 Parent.UpdateStatus();

@@ -186,15 +186,20 @@ namespace HoneyBee.Diff.Gui
                 {
                     var leftNode = FindChild(node.FullName, _leftDiffFolder.DiffNode);
                     var rightNode = FindChild(node.FullName, _rightDiffFolder.DiffNode);
-                    if (!leftNode.IsEmpty)
+                    if (leftNode.IsEmpty)
+                    {
+                        rightNode.GetChildren();
+                        rightNode.CopyToEmptyNodeWithChildren(leftNode);
+                    }
+                    else if (rightNode.IsEmpty)
                     {
                         leftNode.GetChildren();
                         leftNode.CopyToEmptyNodeWithChildren(rightNode);
                     }
-                    else if (!rightNode.IsEmpty)
+                    else
                     {
+                        leftNode.GetChildren();
                         rightNode.GetChildren();
-                        rightNode.CopyToEmptyNodeWithChildren(leftNode);
                     }
                     CompareFolderNode(leftNode, rightNode);
                 }
@@ -340,7 +345,16 @@ namespace HoneyBee.Diff.Gui
                     a.Status = a.IsEmpty ? DiffStatus.Delete : DiffStatus.Add;
                     a.Status = b.IsEmpty ? DiffStatus.Delete : DiffStatus.Add;
                 }
+
+                if (!a.IsEmpty && a.IsFolder && !a.FindChildren)
+                    a.Status = DiffStatus.Unknown;
+
+                if (!b.IsEmpty && b.IsFolder && !b.FindChildren)
+                    b.Status = DiffStatus.Unknown;
             }
+
+            leftNode.UpdateStatus();
+            rightNode.UpdateStatus();
         }
 
         public override string Serialize()
