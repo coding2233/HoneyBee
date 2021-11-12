@@ -115,7 +115,7 @@ namespace HoneyBee.Diff.Gui
         {
             ImGui.TableNextRow();
 
-            if (node.ChildrenHasDiff || node.Status != DiffStatus.Same)
+            if (node.ChildrenHasDiff || node.Status == DiffStatus.Modified)
             {
                 ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, userSettings.MarkBgColor);
                 ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg1, userSettings.MarkBgColor);
@@ -152,10 +152,17 @@ namespace HoneyBee.Diff.Gui
                 }
             }
 
-            if (!node.IsEmpty && ImGui.IsItemClicked())
+            if (node.IsEmpty)
             {
-                selectPath = node.FullName;
+                var rectMin = ImGui.GetItemRectMin();
+                var rectMax = ImGui.GetItemRectMax();
+                var rectSize = rectMax - rectMin;
+                rectMax.Y= rectMin.Y += rectSize.Y * 0.5f;
+                ImGui.GetWindowDrawList().AddLine(rectMin, rectMax, ImGui.GetColorU32(ImGuiCol.TextDisabled));
             }
+
+            if (ImGui.IsItemClicked())
+                selectPath = node.FullName;
 
             ImGui.TableSetColumnIndex(1);
             ImGui.Text(node.SizeString);
@@ -203,7 +210,7 @@ namespace HoneyBee.Diff.Gui
                 {
                     return item;
                 }
-                if (item.IsFolder && item.FullName.StartsWith(fullName))
+                if (item.IsFolder && fullName.StartsWith($"{item.FullName}/"))
                 {
                     return FindChild(fullName, item);
                 }

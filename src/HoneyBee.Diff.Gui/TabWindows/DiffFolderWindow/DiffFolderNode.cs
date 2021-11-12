@@ -120,21 +120,37 @@ namespace HoneyBee.Diff.Gui
 
         private long GetFileLength(string filePath)
         {
-            using (var fileStream = File.OpenRead(filePath))
+            try
             {
-                return fileStream.Length;
+                using (var fileStream = File.OpenRead(filePath))
+                {
+                    return fileStream.Length;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{filePath}  {e}");
+                return 0;
             }
         }
 
         //获取文件的md5值
         public string GetFileMD5(string filePath)
         {
-            using (var fileStream = File.OpenRead(filePath))
+            try
             {
-                System.Security.Cryptography.MD5 md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
-                byte[] toData = md5.ComputeHash(fileStream);
-                string fileMD5 = BitConverter.ToString(toData).Replace("-", "").ToLower();
-                return fileMD5;
+                using (var fileStream = File.OpenRead(filePath))
+                {
+                    System.Security.Cryptography.MD5 md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
+                    byte[] toData = md5.ComputeHash(fileStream);
+                    string fileMD5 = BitConverter.ToString(toData).Replace("-", "").ToLower();
+                    return fileMD5;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{filePath}  {e}");
+                return filePath;
             }
         }
 
