@@ -53,6 +53,14 @@ namespace HoneyBee.Diff.Gui
                 //动态保存信息
                 mainModel.SaveWindow(this);
             };
+            ImGui.SameLine();
+            if (DrawToolItem(Icon.Get(Icon.Material_change_circle), "Exchange"))
+            {
+                OnExchange();
+                OnCompare();
+                //动态保存信息
+                mainModel.SaveWindow(this);
+            };
         }
 
         protected virtual void OnLeftToolbarDraw()
@@ -170,6 +178,9 @@ namespace HoneyBee.Diff.Gui
         }
 
         protected abstract void OnCompare();
+
+        protected virtual void OnExchange()
+        { }
 
         public virtual void OnExitModalSure()
         {

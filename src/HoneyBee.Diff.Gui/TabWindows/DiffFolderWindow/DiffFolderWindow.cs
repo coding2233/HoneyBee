@@ -261,6 +261,12 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
+        protected override void OnExchange()
+        {
+            string leftPath = _leftDiffFolder.FolderPath;
+            _leftDiffFolder.FolderPath = _rightDiffFolder.FolderPath;
+            _rightDiffFolder.FolderPath = leftPath;
+        }
 
         private void CompareFolderNode(DiffFolderNode leftNode, DiffFolderNode rightNode)
         {

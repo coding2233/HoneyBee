@@ -222,6 +222,13 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
+        protected override void OnExchange()
+        {
+            string leftPath = _leftDiffFile.FilePath;
+            _leftDiffFile.FilePath = _rightDiffFile.FilePath;
+            _rightDiffFile.FilePath = leftPath;
+        }
+
         //对比文本
         private Task<bool> CompareTextContent(string leftContent, string rightContent)
         {
