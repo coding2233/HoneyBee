@@ -44,7 +44,7 @@ namespace HoneyBee.Diff.Gui
                 }
                 else
                 {
-                    markBgColor = ImGui.GetColorU32(new Vector4(0.8f, 0.2f, 0.2f, 1));
+                   markBgColor = ImGui.GetColorU32(new Vector4(0.5f, 0.2f, 0.2f, 1));
                 }
                 return markBgColor;
             }
@@ -60,7 +60,7 @@ namespace HoneyBee.Diff.Gui
                 }
                 else
                 {
-                     return new Vector4(1, 0.8f, 0.8f, 1);
+                    return new Vector4(1, 0.8f, 0.8f, 1);
                 }
             }
         }
