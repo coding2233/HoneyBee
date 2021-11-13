@@ -230,7 +230,7 @@ namespace HoneyBee.Diff.Gui
             Task.Run(() => {
                 _loading = true;
                 _showCompare = false;
-                if (!string.IsNullOrEmpty(leftContent) && !string.IsNullOrEmpty(rightContent))
+                //if (!string.IsNullOrEmpty(leftContent) && !string.IsNullOrEmpty(rightContent))
                 {
                     _sideModel = SideBySideDiffBuilder.Diff(leftContent, rightContent);
                     _showCompare = _sideModel != null;

@@ -104,7 +104,7 @@ namespace HoneyBee.Diff.Gui
             {
                 return File.ReadAllText(FilePath);
             }
-            return string.Empty;
+            return "";
         }
 
         public string BuildString()
