@@ -190,7 +190,6 @@ namespace HoneyBee.Diff.Gui
                                 }
                                 if (ImGui.IsItemHovered())
                                 {
-                                    ImGui.SetTooltip("Right-click to open popup");
                                     if (ImGui.IsMouseClicked(ImGuiMouseButton.Right))
                                     {
                                         ImGui.OpenPopup("TabItem MenuPopup");

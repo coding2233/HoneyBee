@@ -37,6 +37,9 @@ namespace HoneyBee.Diff.Gui
         //同步打开文件夹
         private readonly Dictionary<string, bool> _syncOpenFolders = new Dictionary<string, bool>();
 
+
+        private DiffFolderNode _menuSelectNode;
+
         public DiffFolderWindow()
         {
             string userPath = Environment.GetEnvironmentVariable("USERPROFILE");
@@ -101,6 +104,37 @@ namespace HoneyBee.Diff.Gui
 
                 if (_showCompare)
                 {
+                    if (ImGui.BeginPopupContextItem("DiffFolder Item MenuPopup"))
+                    {
+                        if (ImGui.MenuItem("Open"))
+                        {
+                            if (_menuSelectNode.IsFolder)
+                            {
+                                _syncOpenFolders[_menuSelectNode.FullName] = true;
+                            }
+                            else
+                            {
+                                OpenFile(_menuSelectNode.FullName);
+                            }
+                        }
+                        bool isLeftSide = diffFolde == _leftDiffFolder;
+                        string targetSide = isLeftSide ? "right" : "left";
+                        if (ImGui.MenuItem($"Copy it to the {targetSide} side."))
+                        {
+                            if (!_menuSelectNode.IsFolder)
+                            {
+                                DiffFolder srcDiffFolder = isLeftSide ? _leftDiffFolder : _rightDiffFolder;
+                                DiffFolder targetDiffFolder = isLeftSide ? _rightDiffFolder : _leftDiffFolder;
+
+                                string srcFilePath = Path.Combine(srcDiffFolder.FolderPath, _menuSelectNode.FullName);
+                                string targetFilePath = Path.Combine(targetDiffFolder.FolderPath, _menuSelectNode.FullName);
+                                File.Copy(srcFilePath, targetFilePath, true);
+                                OnCompare();
+                            }
+                        }
+                        ImGui.EndPopup();
+                    }
+
                     for (int i = 0; i < diffFolde.DiffNode.ChildrenNodes.Count; i++)
                     {
                         var item = diffFolde.DiffNode.ChildrenNodes[i];
@@ -143,12 +177,12 @@ namespace HoneyBee.Diff.Gui
             {
                 ImGui.TreeNodeEx(Icon.Get(node.IsEmpty?Icon.Material_no_sim:Icon.Material_text_snippet)+itemName, flag | ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.NoTreePushOnOpen );
 
-                if(!node.IsEmpty && ImGui.IsItemHovered() && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
+                if(!node.IsEmpty && ImGui.IsItemHovered())
                 {
-                    Console.WriteLine($"Double click. {node.FullName}");
-                    string leftFilePath = Path.Combine(_leftDiffFolder.FolderPath, node.FullName);
-                    string rightFilePath = Path.Combine(_rightDiffFolder.FolderPath, node.FullName);
-                    mainModel.CreateTab<DiffFileWindow>(leftFilePath, rightFilePath);
+                    if (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
+                    {
+                        OpenFile(node.FullName);
+                    }
                 }
             }
 
@@ -162,7 +196,18 @@ namespace HoneyBee.Diff.Gui
             }
 
             if (ImGui.IsItemClicked())
+            {
                 selectPath = node.FullName;
+            }
+            else if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
+            {
+                selectPath = node.FullName;
+                if (!node.IsEmpty)
+                {
+                    _menuSelectNode = node;
+                    ImGui.OpenPopup("DiffFolder Item MenuPopup");
+                }
+            }
 
             ImGui.TableSetColumnIndex(1);
             ImGui.Text(node.SizeString);
@@ -222,7 +267,15 @@ namespace HoneyBee.Diff.Gui
             }
             return null;
         }
-    
+
+
+        private void OpenFile(string nodeFullName)
+        {
+            Console.WriteLine($"Open file. {nodeFullName}");
+            string leftFilePath = Path.Combine(_leftDiffFolder.FolderPath, nodeFullName);
+            string rightFilePath = Path.Combine(_rightDiffFolder.FolderPath, nodeFullName);
+            mainModel.CreateTab<DiffFileWindow>(leftFilePath, rightFilePath);
+        }
 
         protected override async void OnCompare()
         {
