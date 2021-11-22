@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Reflection;
+using System.IO;
 
 namespace HoneyBee.Diff.Gui
 {
@@ -42,8 +43,26 @@ namespace HoneyBee.Diff.Gui
 
             _textStyleModal = new TextStyleSettingModal();
 
-            _defaultWindowFlag = ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize 
-                | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse ;
+            _defaultWindowFlag = ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize
+                | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
+
+            var args = System.Environment.GetCommandLineArgs();
+            if (args.Length == 3)
+            {
+                string leftArg = args[1].Trim();
+                string rightArg = args[2].Trim();
+                if (!string.IsNullOrEmpty(leftArg) && !string.IsNullOrEmpty(rightArg))
+                {
+                    if (File.Exists(leftArg) || File.Exists(rightArg))
+                    {
+                        mainModel.CreateTab<DiffFileWindow>(leftArg, rightArg);
+                    }
+                    else if (Directory.Exists(leftArg) && Directory.Exists(rightArg))
+                    {
+                        mainModel.CreateTab<DiffFolderWindow>(leftArg, rightArg);
+                    }
+                }
+            }
         }
 
         public void OnDraw()

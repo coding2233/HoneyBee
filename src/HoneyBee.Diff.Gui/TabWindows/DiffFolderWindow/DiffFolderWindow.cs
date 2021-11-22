@@ -51,6 +51,14 @@ namespace HoneyBee.Diff.Gui
             _leftDiffFolder.FolderPath = folderPath;
             _rightDiffFolder.FolderPath = folderPath;
         }
+
+        public override void Setup(params object[] parameters)
+        {
+            _leftDiffFolder.FolderPath = (string)parameters[0];
+            _rightDiffFolder.FolderPath = (string)parameters[1];
+            OnCompare();
+        }
+
         protected override void OnLeftToolbarDraw()
         {
             ImGui.InputText("", ref _leftDiffFolder.FolderPath, 500);

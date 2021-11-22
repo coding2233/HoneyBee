@@ -61,11 +61,10 @@ namespace HoneyBee.Diff.Gui
                 _gd.MainSwapchain.Resize((uint)_window.Width, (uint)_window.Height);
                 _controller.WindowResized(_window.Width, _window.Height);
             };
+            //_window.BorderVisible = false;
             _cl = _gd.ResourceFactory.CreateCommandList();
             _controller = new ImGuiController(_gd, _gd.MainSwapchain.Framebuffer.OutputDescription, _window.Width, _window.Height);
-
             //ImGui.StyleColorsLight();
-
             _mainWindow = new MainWindow(isLaunchWindow);
 
             // Main application loop
