@@ -130,8 +130,8 @@ namespace HoneyBee.Diff.Gui
         {
             // Create window, GraphicsDevice, and all resources necessary for the demo.
             VeldridStartup.CreateWindowAndGraphicsDevice(
-                new WindowCreateInfo(693, 390, 534, 300, WindowState.Normal, "Honey Bee - Diff"),
-                new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true),
+                new WindowCreateInfo(693, 390, 534, 300, WindowState.Normal, null),
+                new GraphicsDeviceOptions(false, null, false, ResourceBindingModel.Improved, true, true),
                 out _window,
                 out _gd);
             _window.BorderVisible = false;
@@ -149,7 +149,7 @@ namespace HoneyBee.Diff.Gui
                 _controller.Update(1f / 60f, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
 
                 _mainWindow?.OnDraw();
-
+         
                 _cl.Begin();
                 _cl.SetFramebuffer(_gd.MainSwapchain.Framebuffer);
                 _cl.ClearColorTarget(0, new RgbaFloat(_clearColor.X, _clearColor.Y, _clearColor.Z, 1f));

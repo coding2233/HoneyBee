@@ -1,6 +1,7 @@
 using LiteDB;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -18,11 +19,34 @@ namespace HoneyBee.Diff.Gui
 
     public abstract class CustomerDataSave
     {
-        private const string DATABASENAME = ".userSettings.db";
+        protected string UserDataPath = string.Empty;
+        private string _dataBasePath = string.Empty;
+        public string DataBasePath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_dataBasePath))
+                {
+                    string userPath = Environment.GetEnvironmentVariable("USERPROFILE");
+                    if (string.IsNullOrEmpty(userPath))
+                    {
+                        userPath = "./";
+                    }
+                    userPath = Path.Combine(userPath, ".Honeybee.Diff.Gui");
+                    if (!Directory.Exists(userPath))
+                    {
+                        Directory.CreateDirectory(userPath);
+                    }
+                    UserDataPath = userPath;
+                    _dataBasePath = Path.Combine(userPath, ".userSettings.db");
+                }
+                return _dataBasePath;
+            }
+        }
 
         public void SetCustomerData<T>(string key, T value)
         {
-            using (var db = new LiteDatabase(DATABASENAME))
+            using (var db = new LiteDatabase(DataBasePath))
             {
                 var col = db.GetCollection<CustomerData<T>>(GetCustomerTableName<T>());
                 CustomerData<T> customerData;
@@ -46,7 +70,7 @@ namespace HoneyBee.Diff.Gui
         }
         public T GetCustomerData<T>(string key, T defaultValue = default(T))
         {
-            using (var db = new LiteDatabase(DATABASENAME))
+            using (var db = new LiteDatabase(DataBasePath))
             {
                 var col = db.GetCollection<CustomerData<T>>(GetCustomerTableName<T>());
                 var value = col.Query().Where(x => x.Key.Equals(key));
