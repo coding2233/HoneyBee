@@ -32,6 +32,9 @@ namespace HoneyBee.Diff.Gui
         {
             _isLaunchWindow = isLaunchWindow;
 
+            if (_isLaunchWindow)
+                return;
+            
             //Ioc entrance.
             DiffProgram.ComposeParts(this);
 
@@ -63,247 +66,287 @@ namespace HoneyBee.Diff.Gui
                     }
                 }
             }
+
+            if (mainModel.TabWindows.Count == 0)
+            {
+                mainModel.CreateTab<AboutTabWindow>();
+            }
+
         }
 
         public void OnDraw()
         {
-            ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 3.0f);
-
-            var viewport = ImGui.GetMainViewport();
-            ImGui.SetNextWindowPos(viewport.WorkPos);
-            ImGui.SetNextWindowSize(viewport.WorkSize);
-            ImGui.SetNextWindowViewport(viewport.ID);
-          
-            if (ImGui.Begin("Diff", _defaultWindowFlag|ImGuiWindowFlags.NoBringToFrontOnFocus))
+            if (_isLaunchWindow)
             {
-                if (ImGui.BeginMainMenuBar())
+                var viewport = ImGui.GetMainViewport();
+                ImGui.SetNextWindowPos(viewport.WorkPos);
+                ImGui.SetNextWindowSize(viewport.WorkSize);
+                ImGui.SetNextWindowViewport(viewport.ID);
+
+                var workSize = viewport.WorkSize;
+                if (ImGui.Begin("Diff", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize
+                | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.NoBringToFrontOnFocus))
                 {
-                    if (ImGui.BeginMenu("File"))
-                    {
-                        if (ImGui.BeginMenu("New"))
-                        {
-                            if (ImGui.MenuItem("Folder Diff"))
-                            {
-                                mainModel.CreateTab<DiffFolderWindow>();
-                            }
-                            if (ImGui.MenuItem("File Diff"))
-                            {
-                                mainModel.CreateTab<DiffFileWindow>();
-                            }
-                            if (ImGui.MenuItem("Git Repository"))
-                            {
-                                mainModel.CreateTab<GitRepoWindow>();
-                            }
-                            ImGui.EndMenu();
-                        }
+                    int iconSize = 128;
+                    float offset = ImGui.GetStyle().ItemSpacing.Y * 10;
+                    ImGui.SetCursorPos(new Vector2((workSize.X - iconSize) * 0.5f, offset));
+                    var tptr = DiffProgram.GetOrCreateTexture("bee.png");
+                    ImGui.Image(tptr, Vector2.One * 128);
 
-                        ImGui.Separator();
-                        if (ImGui.MenuItem("Exit"))
-                        {
-                            Environment.Exit(0);
-                        }
-                        ImGui.EndMenu();
-                    }
+                    ImGui.SetCursorPosY(ImGui.GetCursorPosY() + offset);
 
-                    if (ImGui.BeginMenu("Edit"))
-                    {
-                        if (ImGui.BeginMenu("Style"))
-                        {
-                            var styleIndex = userSettings.StyleColors;
-                            if (ImGui.MenuItem("Light", "", styleIndex == 0))
-                            {
-                                styleIndex = 0;
-                            }
-                            if (ImGui.MenuItem("Drak", "", styleIndex == 1))
-                            {
-                                styleIndex = 1;
-                            }
-                            if (ImGui.MenuItem("Classic", "", styleIndex == 2))
-                            {
-                                styleIndex = 2;
-                            }
-                            if (styleIndex != userSettings.StyleColors)
-                            {
-                                userSettings.StyleColors = styleIndex;
-                                SetStyleColors();
-                            }
-                            ImGui.EndMenu();
-                        }
+                    string text = "Honeybee - Diff";
+                    var textSize = ImGui.CalcTextSize(text);
+                    ImGui.SetCursorPosX((workSize.X - textSize.X)*0.5f);
+                    ImGui.Text(text);
 
-                        if (ImGui.MenuItem("Text Style"))
-                        {
-                            _textStyleModal.Popup();
-                        }
-                        ImGui.EndMenu();
-                    }
-                    
-                    if (ImGui.BeginMenu("Help"))
-                    {
-                        if (ImGui.MenuItem("About"))
-                        {
-                            mainModel.CreateTab<AboutTabWindow>();
-                        }
-                        ImGui.EndMenu();
-                    }
-
-                    ImGui.EndMainMenuBar();
-                }
-
-                Vector2 contentSize = viewport.WorkSize;
-                contentSize.Y -= 20;
-                Vector2 contentPos = new Vector2(0,20);
-
-                ImGui.SetNextWindowPos(contentPos);
-                ImGui.SetNextWindowSize(contentSize);
-
-                if (ImGui.Begin("Compare", _defaultWindowFlag))
-                {
-                   
-
-                    //_folderWindow?.OnDraw();
-                    var tabWindows = mainModel.TabWindows;
-                    if (tabWindows.Count > 0)
-                    {
-                        if (ImGui.BeginTabBar("Diff window tabs", ImGuiTabBarFlags.FittingPolicyDefault|ImGuiTabBarFlags.TabListPopupButton|ImGuiTabBarFlags.AutoSelectNewTabs))
-                        {
-                            for (int i = 0; i < tabWindows.Count; i++)
-                            {
-                                var tabWindow = tabWindows[i];
-                                bool showTab = true;
-                                ImGuiTabItemFlags tabItemFlag = ImGuiTabItemFlags.Trailing|ImGuiTabItemFlags.NoCloseWithMiddleMouseButton;
-                                if (tabWindow.Unsave)
-                                {
-                                    tabItemFlag |= ImGuiTabItemFlags.UnsavedDocument;
-                                }
-                                bool visible = ImGui.BeginTabItem(tabWindow.IconName+tabWindow.Name,ref showTab, tabItemFlag);
-                                if (ImGui.BeginPopupContextItem("TabItem MenuPopup"))
-                                {
-                                    if (ImGui.MenuItem("Close"))
-                                    {
-                                        showTab = false;
-                                    }
-
-                                    if (ImGui.MenuItem("Close the other"))
-                                    {
-                                        for (int m = 0; m < tabWindows.Count; m++)
-                                        {
-                                            if(m != i)
-                                                _waitCloseTabIndexs.Add(m);
-                                        }
-                                    }
-                                    if (ImGui.MenuItem("Close to the right"))
-                                    {
-                                        for (int m = i + 1; m < tabWindows.Count; m++)
-                                        {
-                                            _waitCloseTabIndexs.Add(m);
-                                        }
-                                    }
-                                    if (ImGui.MenuItem("Close all"))
-                                    {
-                                        for (int m = 0; m < tabWindows.Count; m++)
-                                        {
-                                            _waitCloseTabIndexs.Add(m);
-                                        }
-                                    }
-                                    ImGui.EndPopup();
-                                }
-                                if (ImGui.IsItemHovered())
-                                {
-                                    if (ImGui.IsMouseClicked(ImGuiMouseButton.Right))
-                                    {
-                                        ImGui.OpenPopup("TabItem MenuPopup");
-                                    }
-                                }
-                                if (visible)
-                                {
-                                    tabWindow.OnDraw();
-
-                                    if (tabWindow.ExitModal)
-                                    {
-                                        ImGui.OpenPopup("Exit Modal");
-                                        bool openExitModal = true;
-                                        if (ImGui.BeginPopupModal("Exit Modal",ref openExitModal,ImGuiWindowFlags.AlwaysAutoResize))
-                                        {
-
-                                            ImGui.Text("Check whether the current TAB window is closed?");
-
-                                            if (ImGui.Button("Sure"))
-                                            {
-                                                mainModel.RemoveTab(i);
-                                                i--;
-                                                break;
-                                            }
-                                            ImGui.SameLine();
-                                            if (ImGui.Button("Cancel"))
-                                            {
-                                                tabWindow.ExitModal = false;
-                                            }
-                                            ImGui.EndPopup();
-                                        }
-                                        if (!openExitModal)
-                                        {
-                                            tabWindow.ExitModal = false;
-                                        }
-                                    }
-                                   
-                                    ImGui.EndTabItem();
-                                }
-                                if (!showTab)
-                                {
-                                    tabWindow.ExitModal = true;
-                                    //mainModel.RemoveTab(i);
-                                    //i--;
-                                }
-                            }
-
-
-                            ImGui.EndTabBar();
-                        }
-                    }
-
-                    //Text style colors settings.
-                    _textStyleModal.Draw();
-                    ImGuiFileDialog.Display();
-
-                    //确认删掉多个tab
-                    if (_waitCloseTabIndexs.Count > 0)
-                    {
-                        ImGui.OpenPopup("Exit Multi Modal");
-                        bool openMultiExitModal = true;
-                        if (ImGui.BeginPopupModal("Exit Multi Modal", ref openMultiExitModal, ImGuiWindowFlags.AlwaysAutoResize))
-                        {
-
-                            ImGui.Text("Check whether the current TAB window is closed?");
-                            if (ImGui.Button("Sure"))
-                            {
-                                Queue<ITabWindow> removeTabs = new Queue<ITabWindow>();
-                                foreach (var tabIndex in _waitCloseTabIndexs)
-                                {
-                                    removeTabs.Enqueue(mainModel.TabWindows[tabIndex]);
-                                }
-                                while (removeTabs.Count > 0)
-                                {
-                                    var removeTab = removeTabs.Dequeue();
-                                    mainModel.RemoveTab(removeTab);
-                                }
-                                _waitCloseTabIndexs.Clear();
-                            }
-                            ImGui.SameLine();
-                            if (ImGui.Button("Cancel"))
-                            {
-                                _waitCloseTabIndexs.Clear();
-                            }
-                            ImGui.EndPopup();
-                        }
-                    }
+                    text = "Lightweight comparison tool.";
+                    textSize = ImGui.CalcTextSize(text);
+                    ImGui.SetCursorPosX((workSize.X - textSize.X) * 0.5f);
+                    ImGui.TextDisabled(text);
 
                     ImGui.End();
                 }
-                ImGui.End();
+            }
+            else
+            {
+                ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 3.0f);
+
+                var viewport = ImGui.GetMainViewport();
+                ImGui.SetNextWindowPos(viewport.WorkPos);
+                ImGui.SetNextWindowSize(viewport.WorkSize);
+                ImGui.SetNextWindowViewport(viewport.ID);
+
+                if (ImGui.Begin("Diff", _defaultWindowFlag | ImGuiWindowFlags.NoBringToFrontOnFocus))
+                {
+                    if (ImGui.BeginMainMenuBar())
+                    {
+                        if (ImGui.BeginMenu("File"))
+                        {
+                            if (ImGui.BeginMenu("New"))
+                            {
+                                if (ImGui.MenuItem("Folder Diff"))
+                                {
+                                    mainModel.CreateTab<DiffFolderWindow>();
+                                }
+                                if (ImGui.MenuItem("File Diff"))
+                                {
+                                    mainModel.CreateTab<DiffFileWindow>();
+                                }
+                                if (ImGui.MenuItem("Git Repository"))
+                                {
+                                    mainModel.CreateTab<GitRepoWindow>();
+                                }
+                                ImGui.EndMenu();
+                            }
+
+                            ImGui.Separator();
+                            if (ImGui.MenuItem("Exit"))
+                            {
+                                Environment.Exit(0);
+                            }
+                            ImGui.EndMenu();
+                        }
+
+                        if (ImGui.BeginMenu("Edit"))
+                        {
+                            if (ImGui.BeginMenu("Style"))
+                            {
+                                var styleIndex = userSettings.StyleColors;
+                                if (ImGui.MenuItem("Light", "", styleIndex == 0))
+                                {
+                                    styleIndex = 0;
+                                }
+                                if (ImGui.MenuItem("Drak", "", styleIndex == 1))
+                                {
+                                    styleIndex = 1;
+                                }
+                                if (ImGui.MenuItem("Classic", "", styleIndex == 2))
+                                {
+                                    styleIndex = 2;
+                                }
+                                if (styleIndex != userSettings.StyleColors)
+                                {
+                                    userSettings.StyleColors = styleIndex;
+                                    SetStyleColors();
+                                }
+                                ImGui.EndMenu();
+                            }
+
+                            if (ImGui.MenuItem("Text Style"))
+                            {
+                                _textStyleModal.Popup();
+                            }
+                            ImGui.EndMenu();
+                        }
+
+                        if (ImGui.BeginMenu("Help"))
+                        {
+                            if (ImGui.MenuItem("About"))
+                            {
+                                mainModel.CreateTab<AboutTabWindow>();
+                            }
+                            ImGui.EndMenu();
+                        }
+
+                        ImGui.EndMainMenuBar();
+                    }
+
+                    Vector2 contentSize = viewport.WorkSize;
+                    contentSize.Y -= 20;
+                    Vector2 contentPos = new Vector2(0, 20);
+
+                    ImGui.SetNextWindowPos(contentPos);
+                    ImGui.SetNextWindowSize(contentSize);
+
+                    if (ImGui.Begin("Compare", _defaultWindowFlag))
+                    {
+
+
+                        //_folderWindow?.OnDraw();
+                        var tabWindows = mainModel.TabWindows;
+                        if (tabWindows.Count > 0)
+                        {
+                            if (ImGui.BeginTabBar("Diff window tabs", ImGuiTabBarFlags.FittingPolicyDefault | ImGuiTabBarFlags.TabListPopupButton | ImGuiTabBarFlags.AutoSelectNewTabs))
+                            {
+                                for (int i = 0; i < tabWindows.Count; i++)
+                                {
+                                    var tabWindow = tabWindows[i];
+                                    bool showTab = true;
+                                    ImGuiTabItemFlags tabItemFlag = ImGuiTabItemFlags.Trailing | ImGuiTabItemFlags.NoCloseWithMiddleMouseButton;
+                                    if (tabWindow.Unsave)
+                                    {
+                                        tabItemFlag |= ImGuiTabItemFlags.UnsavedDocument;
+                                    }
+                                    bool visible = ImGui.BeginTabItem(tabWindow.IconName + tabWindow.Name, ref showTab, tabItemFlag);
+                                    if (ImGui.BeginPopupContextItem("TabItem MenuPopup"))
+                                    {
+                                        if (ImGui.MenuItem("Close"))
+                                        {
+                                            showTab = false;
+                                        }
+
+                                        if (ImGui.MenuItem("Close the other"))
+                                        {
+                                            for (int m = 0; m < tabWindows.Count; m++)
+                                            {
+                                                if (m != i)
+                                                    _waitCloseTabIndexs.Add(m);
+                                            }
+                                        }
+                                        if (ImGui.MenuItem("Close to the right"))
+                                        {
+                                            for (int m = i + 1; m < tabWindows.Count; m++)
+                                            {
+                                                _waitCloseTabIndexs.Add(m);
+                                            }
+                                        }
+                                        if (ImGui.MenuItem("Close all"))
+                                        {
+                                            for (int m = 0; m < tabWindows.Count; m++)
+                                            {
+                                                _waitCloseTabIndexs.Add(m);
+                                            }
+                                        }
+                                        ImGui.EndPopup();
+                                    }
+                                    if (ImGui.IsItemHovered())
+                                    {
+                                        if (ImGui.IsMouseClicked(ImGuiMouseButton.Right))
+                                        {
+                                            ImGui.OpenPopup("TabItem MenuPopup");
+                                        }
+                                    }
+                                    if (visible)
+                                    {
+                                        tabWindow.OnDraw();
+
+                                        if (tabWindow.ExitModal)
+                                        {
+                                            ImGui.OpenPopup("Exit Modal");
+                                            bool openExitModal = true;
+                                            if (ImGui.BeginPopupModal("Exit Modal", ref openExitModal, ImGuiWindowFlags.AlwaysAutoResize))
+                                            {
+
+                                                ImGui.Text("Check whether the current TAB window is closed?");
+
+                                                if (ImGui.Button("Sure"))
+                                                {
+                                                    mainModel.RemoveTab(i);
+                                                    i--;
+                                                    break;
+                                                }
+                                                ImGui.SameLine();
+                                                if (ImGui.Button("Cancel"))
+                                                {
+                                                    tabWindow.ExitModal = false;
+                                                }
+                                                ImGui.EndPopup();
+                                            }
+                                            if (!openExitModal)
+                                            {
+                                                tabWindow.ExitModal = false;
+                                            }
+                                        }
+
+                                        ImGui.EndTabItem();
+                                    }
+                                    if (!showTab)
+                                    {
+                                        tabWindow.ExitModal = true;
+                                        //mainModel.RemoveTab(i);
+                                        //i--;
+                                    }
+                                }
+
+
+                                ImGui.EndTabBar();
+                            }
+                        }
+
+                        //Text style colors settings.
+                        _textStyleModal.Draw();
+                        ImGuiFileDialog.Display();
+
+                        //确认删掉多个tab
+                        if (_waitCloseTabIndexs.Count > 0)
+                        {
+                            ImGui.OpenPopup("Exit Multi Modal");
+                            bool openMultiExitModal = true;
+                            if (ImGui.BeginPopupModal("Exit Multi Modal", ref openMultiExitModal, ImGuiWindowFlags.AlwaysAutoResize))
+                            {
+
+                                ImGui.Text("Check whether the current TAB window is closed?");
+                                if (ImGui.Button("Sure"))
+                                {
+                                    Queue<ITabWindow> removeTabs = new Queue<ITabWindow>();
+                                    foreach (var tabIndex in _waitCloseTabIndexs)
+                                    {
+                                        removeTabs.Enqueue(mainModel.TabWindows[tabIndex]);
+                                    }
+                                    while (removeTabs.Count > 0)
+                                    {
+                                        var removeTab = removeTabs.Dequeue();
+                                        mainModel.RemoveTab(removeTab);
+                                    }
+                                    _waitCloseTabIndexs.Clear();
+                                }
+                                ImGui.SameLine();
+                                if (ImGui.Button("Cancel"))
+                                {
+                                    _waitCloseTabIndexs.Clear();
+                                }
+                                ImGui.EndPopup();
+                            }
+                        }
+
+                        ImGui.End();
+                    }
+                    ImGui.End();
+                }
+           
             }
         }
-
-
 
         public void Dispose()
         {

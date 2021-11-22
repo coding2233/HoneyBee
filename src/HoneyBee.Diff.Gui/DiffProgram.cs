@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using ImGuiNET;
 using ImPlotNET;
 using Veldrid;
@@ -33,8 +35,11 @@ namespace HoneyBee.Diff.Gui
 
         private static Dictionary<string, IntPtr> _textureChache = new Dictionary<string, IntPtr>();
 
+        private static bool _waitForLaunch => _window == null || _window.WindowState == WindowState.Hidden;
+
         static void Main(string[] args)
         {
+            args = System.Environment.GetCommandLineArgs();
             bool isLaunchWindow = false;
             for (int i = 0; i < args.Length; i++)
             {
@@ -49,9 +54,33 @@ namespace HoneyBee.Diff.Gui
                 }
             }
 
+            if (isLaunchWindow)
+            {
+                LaunchMain();
+                return;
+            }
+            else
+            {
+                var launchProcess = new Process();
+                launchProcess.StartInfo.FileName = args[0].Replace(".dll",".exe");
+                launchProcess.StartInfo.Arguments = "WindowType=Launch";
+                launchProcess.StartInfo.UseShellExecute = false;
+                launchProcess.StartInfo.CreateNoWindow = false;
+                launchProcess.StartInfo.RedirectStandardInput = true;
+                launchProcess.StartInfo.RedirectStandardOutput = true;
+                Task.Run(() => {
+                    launchProcess.Start();
+                    while (_waitForLaunch)
+                    {
+                        
+                    }
+                    launchProcess.Kill();
+                });
+            }
+
             // Create window, GraphicsDevice, and all resources necessary for the demo.
             VeldridStartup.CreateWindowAndGraphicsDevice(
-                new WindowCreateInfo(50, 50, 1280, 720, WindowState.Maximized, "Honey Bee - Diff"),
+                new WindowCreateInfo(50, 50, 1280, 720, WindowState.Hidden, "Honey Bee - Diff"),
                 new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true),
                 GraphicsBackend.OpenGL,
                 out _window,
@@ -61,11 +90,56 @@ namespace HoneyBee.Diff.Gui
                 _gd.MainSwapchain.Resize((uint)_window.Width, (uint)_window.Height);
                 _controller.WindowResized(_window.Width, _window.Height);
             };
-            //_window.BorderVisible = false;
+
             _cl = _gd.ResourceFactory.CreateCommandList();
             _controller = new ImGuiController(_gd, _gd.MainSwapchain.Framebuffer.OutputDescription, _window.Width, _window.Height);
             //ImGui.StyleColorsLight();
-            _mainWindow = new MainWindow(isLaunchWindow);
+            _mainWindow = new MainWindow(false);
+            _window.WindowState = WindowState.Maximized;
+
+            // Main application loop
+            while (_window.Exists)
+            {
+                InputSnapshot snapshot = _window.PumpEvents();
+                if (!_window.Exists) { break; }
+                _controller.Update(1f / 60f, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
+
+                _mainWindow?.OnDraw();
+
+                _cl.Begin();
+                _cl.SetFramebuffer(_gd.MainSwapchain.Framebuffer);
+                _cl.ClearColorTarget(0, new RgbaFloat(_clearColor.X, _clearColor.Y, _clearColor.Z, 1f));
+                _controller.Render(_gd, _cl);
+                _cl.End();
+                _gd.SubmitCommands(_cl);
+                _gd.SwapBuffers(_gd.MainSwapchain);
+            }
+
+            _mainWindow?.Dispose();
+            _mainWindow = null;
+
+            // Clean up Veldrid resources
+            _gd.WaitForIdle();
+            _controller.Dispose();
+            _cl.Dispose();
+            _gd.Dispose();
+        }
+
+
+        static void LaunchMain()
+        {
+            // Create window, GraphicsDevice, and all resources necessary for the demo.
+            VeldridStartup.CreateWindowAndGraphicsDevice(
+                new WindowCreateInfo(693, 390, 534, 300, WindowState.Normal, "Honey Bee - Diff"),
+                new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true),
+                out _window,
+                out _gd);
+            _window.BorderVisible = false;
+
+            _cl = _gd.ResourceFactory.CreateCommandList();
+            _controller = new ImGuiController(_gd, _gd.MainSwapchain.Framebuffer.OutputDescription, _window.Width, _window.Height);
+            //ImGui.StyleColorsLight();
+            _mainWindow = new MainWindow(true);
 
             // Main application loop
             while (_window.Exists)

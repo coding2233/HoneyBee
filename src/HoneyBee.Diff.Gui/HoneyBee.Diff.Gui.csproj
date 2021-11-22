@@ -9,6 +9,10 @@
     <Win32Resource />
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="Tools\Icon.Material.cs.txt" />
   </ItemGroup>

@@ -38,10 +38,10 @@ namespace HoneyBee.Diff.Gui
                 }
 
             }
-            else
-            {
-                CreateTab<AboutTabWindow>();
-            }
+            //else
+            //{
+            //    CreateTab<AboutTabWindow>();
+            //}
         }
 
         public void CreateTab<T>(params object[] parameters) where T : ITabWindow, new()
