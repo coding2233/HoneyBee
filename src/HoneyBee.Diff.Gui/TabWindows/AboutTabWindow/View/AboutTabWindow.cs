@@ -17,7 +17,7 @@ namespace HoneyBee.Diff.Gui
 
         public bool Unsave => false;
 
-        public const string Version = "0.1.1";
+        public const string Version = "0.1.2";
         public bool ExitModal { get; set; }
         public AboutTabWindow()
         {

@@ -70,9 +70,8 @@ namespace HoneyBee.Diff.Gui
 
             if (mainModel.TabWindows.Count == 0)
             {
-                mainModel.CreateTab<AboutTabWindow>();
+                mainModel.CreateTab<MainTabWindow>();
             }
-
         }
 
         public void OnDraw()

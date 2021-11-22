@@ -17,33 +17,58 @@ namespace HoneyBee.Diff.Gui
 
         public HashSet<string> ShowLoading { get; set; } = new HashSet<string>();
 
+        public List<string> TabWindowDataList => GetCustomerData<List<string>>(TABWINDOWSKEY, null);
+
         public MainWindowModel()
         {
-            
+
         }
 
         public void Init(bool restore)
         {
-            var tabLists = GetCustomerData<List<string>>(TABWINDOWSKEY, null);
-            if (restore && tabLists != null)
-            {
-                foreach (var item in tabLists)
-                {
-                    int index = item.IndexOf('|');
-                    string typeFullName = item.Substring(0, index);
-                    string data = item.Substring(index + 1, item.Length - index - 1);
-                    ITabWindow tabWindow = (ITabWindow)GetType().Assembly.CreateInstance(typeFullName);
-                    if (tabWindow.Deserialize(data))
-                    {
-                        _tabWindows.Add(tabWindow);
-                    }
-                }
-                SaveData();
-            }
+            //var tabLists = GetCustomerData<List<string>>(TABWINDOWSKEY, null);
+            //if (restore && tabLists != null)
+            //{
+            //    foreach (var item in tabLists)
+            //    {
+            //        int index = item.IndexOf('|');
+            //        string typeFullName = item.Substring(0, index);
+            //        string data = item.Substring(index + 1, item.Length - index - 1);
+            //        ITabWindow tabWindow = (ITabWindow)GetType().Assembly.CreateInstance(typeFullName);
+            //        if (tabWindow.Deserialize(data))
+            //        {
+            //            _tabWindows.Add(tabWindow);
+            //        }
+            //    }
+            //    SaveData();
+            //}
             //else
             //{
             //    CreateTab<AboutTabWindow>();
             //}
+        }
+
+        public void CreateTabInstance(string typeFullName, string data)
+        {
+            ITabWindow tabWindow = (ITabWindow)GetType().Assembly.CreateInstance(typeFullName);
+            if (tabWindow.Deserialize(data))
+            {
+                if (_tabWindows.Find(x => x.Name.Equals(tabWindow.Name)) == null)
+                {
+                    _tabWindows.Add(tabWindow);
+                    SaveData();
+                }
+            }
+            else
+            {
+                var tabDataList = TabWindowDataList;
+                var findData = tabDataList.Find(x => x.StartsWith(typeFullName) && x.EndsWith(data));
+                if (findData != null)
+                {
+                    tabDataList.Remove(findData);
+                    SetCustomerData<List<string>>(TABWINDOWSKEY, tabDataList);
+                }
+            }
         }
 
         public void CreateTab<T>(params object[] parameters) where T : ITabWindow, new()
@@ -94,15 +119,35 @@ namespace HoneyBee.Diff.Gui
 
         private void SaveData()
         {
-            List<string> data = new List<string>();
+            List<string> data = TabWindowDataList;
+            if (data == null)
+            {
+                data = new List<string>();
+            }
             foreach (var item in _tabWindows)
             {
-                string itemData = $"{item.GetType().FullName}|{item.Serialize()}";
+                if (item.GetType() == typeof(MainTabWindow)
+                    || item.GetType() == typeof(AboutTabWindow))
+                    continue;
+                string typeFullName = item.GetType().FullName;
+                string serializeData = item.Serialize();
+                var findData = data.Find(x => x.StartsWith(typeFullName) && x.EndsWith(serializeData));
+                if (findData != null)
+                {
+                    data.Remove(findData);
+                }
+                string itemData = $"{typeFullName}|{DateTime.Now.ToString()}|{serializeData}";
                 data.Add(itemData);
             }
             if(data.Count>0)
                 SetCustomerData<List<string>>(TABWINDOWSKEY, data);
         }
+
+        public void DeleteDatabase()
+        {
+            DeleteDatabaseFile();
+        }
+         
 
     }
 }

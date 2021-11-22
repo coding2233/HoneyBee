@@ -88,5 +88,17 @@ namespace HoneyBee.Diff.Gui
             tableName = $"CustomerData_{tableName}";
             return tableName;
         }
+
+        protected void DeleteDatabaseFile()
+        {
+            if (!string.IsNullOrEmpty(_dataBasePath))
+            {
+                if (File.Exists(_dataBasePath))
+                {
+                    File.Delete(_dataBasePath);
+                }
+                _dataBasePath = string.Empty;
+            }
+        }
     }
 }
