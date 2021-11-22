@@ -64,18 +64,24 @@ namespace HoneyBee.Diff.Gui
             return path;
         }
 
-        public override void Deserialize(string data)
+        public override bool Deserialize(string data)
         {
             string[] args = data.Split('|');
             _name = args[0];
             _leftDiffFile.FilePath = args[1];
             _rightDiffFile.FilePath = args[2];
+
+            if (!File.Exists(_leftDiffFile.FilePath) && !File.Exists(_rightDiffFile.FilePath))
+                return false;
+
             if (args.Length == 4)
             {
                 _readOnly = bool.Parse(args[3]);
                 SetTextEditorStatus();
             }
             OnCompare();
+
+            return true;
         }
 
         public override void OnDraw()

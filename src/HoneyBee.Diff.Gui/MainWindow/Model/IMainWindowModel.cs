@@ -12,7 +12,7 @@ namespace HoneyBee.Diff.Gui
 
         List<ITabWindow> TabWindows {get;}
 
-        void Init();
+        void Init(bool restore);
 
         void CreateTab<T>(params object[] objets) where T : ITabWindow,new();
 

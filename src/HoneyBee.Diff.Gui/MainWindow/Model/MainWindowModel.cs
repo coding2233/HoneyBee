@@ -22,10 +22,10 @@ namespace HoneyBee.Diff.Gui
             
         }
 
-        public void Init()
+        public void Init(bool restore)
         {
             var tabLists = GetCustomerData<List<string>>(TABWINDOWSKEY, null);
-            if (tabLists != null)
+            if (restore && tabLists != null)
             {
                 foreach (var item in tabLists)
                 {
@@ -33,10 +33,12 @@ namespace HoneyBee.Diff.Gui
                     string typeFullName = item.Substring(0, index);
                     string data = item.Substring(index + 1, item.Length - index - 1);
                     ITabWindow tabWindow = (ITabWindow)GetType().Assembly.CreateInstance(typeFullName);
-                    tabWindow.Deserialize(data);
-                    _tabWindows.Add(tabWindow);
+                    if (tabWindow.Deserialize(data))
+                    {
+                        _tabWindows.Add(tabWindow);
+                    }
                 }
-
+                SaveData();
             }
             //else
             //{

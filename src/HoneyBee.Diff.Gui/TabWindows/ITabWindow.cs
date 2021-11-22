@@ -23,6 +23,6 @@ namespace HoneyBee.Diff.Gui
 
         string Serialize();
 
-        void Deserialize(string data);
+        bool Deserialize(string data);
     }
 }

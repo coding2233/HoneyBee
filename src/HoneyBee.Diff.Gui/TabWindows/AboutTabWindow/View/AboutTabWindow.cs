@@ -39,8 +39,9 @@ namespace HoneyBee.Diff.Gui
             return "@";
         }
 
-        public void Deserialize(string data)
+        public bool Deserialize(string data)
         {
+            return true;
         }
 
 		

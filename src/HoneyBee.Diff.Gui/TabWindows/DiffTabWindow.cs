@@ -41,7 +41,7 @@ namespace HoneyBee.Diff.Gui
         {
         }
 
-        public abstract void Deserialize(string data);
+        public abstract bool Deserialize(string data);
 
         public abstract string Serialize();
 

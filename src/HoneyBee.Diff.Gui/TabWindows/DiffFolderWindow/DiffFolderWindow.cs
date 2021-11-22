@@ -430,14 +430,20 @@ namespace HoneyBee.Diff.Gui
             return path;
         }
 
-        public override void Deserialize(string data)
+        public override bool Deserialize(string data)
         {
             string[] args = data.Split('|');
             _name = args[0];
             _leftDiffFolder.FolderPath = args[1];
             _rightDiffFolder.FolderPath = args[2];
 
+            if (!Directory.Exists(_leftDiffFolder.FolderPath)
+                && !Directory.Exists(_rightDiffFolder.FolderPath))
+                return false;
+
             OnCompare();
+
+            return true;
         }
 
 

@@ -86,9 +86,10 @@ namespace HoneyBee.Diff.Gui
             return repoPath;
         }
 
-        public void Deserialize(string data)
+        public bool Deserialize(string data)
         {
             repoPath = data;
+            return true;
         }
 
 

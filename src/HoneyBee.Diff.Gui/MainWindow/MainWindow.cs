@@ -41,15 +41,16 @@ namespace HoneyBee.Diff.Gui
             //logic...
             SetStyleColors();
 
+            var args = System.Environment.GetCommandLineArgs();
+
             //初始化
-            mainModel.Init();
+            mainModel.Init(args.Length != 3);
 
             _textStyleModal = new TextStyleSettingModal();
 
             _defaultWindowFlag = ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize
                 | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
 
-            var args = System.Environment.GetCommandLineArgs();
             if (args.Length == 3)
             {
                 string leftArg = args[1].Trim();
