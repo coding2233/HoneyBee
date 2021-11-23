@@ -128,13 +128,9 @@ namespace HoneyBee.Diff.Gui
 
         static void LaunchMain()
         {
-            // Create window, GraphicsDevice, and all resources necessary for the demo.
-            VeldridStartup.CreateWindowAndGraphicsDevice(
-                new WindowCreateInfo(693, 390, 534, 300, WindowState.Normal, null),
-                new GraphicsDeviceOptions(false, null, false, ResourceBindingModel.Improved, true, true),
-                out _window,
-                out _gd);
-            _window.BorderVisible = false;
+            _window = new Sdl2Window("Honybee diff launch",693, 390, 534, 300, SDL_WindowFlags.AllowHighDpi| SDL_WindowFlags.AlwaysOnTop| SDL_WindowFlags.Borderless,false);
+            _gd= VeldridStartup.CreateGraphicsDevice(_window);
+            //_window.BorderVisible = false;
 
             _cl = _gd.ResourceFactory.CreateCommandList();
             _controller = new ImGuiController(_gd, _gd.MainSwapchain.Framebuffer.OutputDescription, _window.Width, _window.Height);
