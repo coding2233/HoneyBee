@@ -70,41 +70,47 @@ namespace HoneyBee.Diff.Gui
             if (!IsEmpty && IsFolder)
             {
                 ChildrenNodes = new List<DiffFolderNode>();
-                string dirPath = FullPath;
-
-                var dirs = Directory.GetDirectories(dirPath);
-                if (dirs != null)
+                try
                 {
-                    List<DiffFolderNode> folderNodes = new List<DiffFolderNode>();
-                    foreach (var item in dirs)
+                    string dirPath = FullPath;
+                    var dirs = Directory.GetDirectories(dirPath);
+                    if (dirs != null)
                     {
-                        DiffFolderNode dirNode = new DiffFolderNode(this,item, this.FullName, true, false);
-                        folderNodes.Add(dirNode);
-                        this.Size += dirNode.Size;
-                        dirNode.UpdateTime = Directory.GetLastWriteTime(item).ToString("yyyy-MM-dd HH:mm");
+                        List<DiffFolderNode> folderNodes = new List<DiffFolderNode>();
+                        foreach (var item in dirs)
+                        {
+                            DiffFolderNode dirNode = new DiffFolderNode(this, item, this.FullName, true, false);
+                            folderNodes.Add(dirNode);
+                            this.Size += dirNode.Size;
+                            dirNode.UpdateTime = Directory.GetLastWriteTime(item).ToString("yyyy-MM-dd HH:mm");
+                        }
+                        this.ChildrenNodes.AddRange(folderNodes.OrderBy(x => x.Name));
                     }
-                    this.ChildrenNodes.AddRange(folderNodes.OrderBy(x => x.Name));
-                }
 
-                var files = Directory.GetFiles(dirPath);
-                if (files != null)
+                    var files = Directory.GetFiles(dirPath);
+                    if (files != null)
+                    {
+                        List<DiffFolderNode> filesNodes = new List<DiffFolderNode>();
+                        foreach (var item in files)
+                        {
+                            DiffFolderNode fileNode = new DiffFolderNode(this, item, this.FullName, false, false);
+                            fileNode.Size = GetFileLength(item);
+                            fileNode.SizeString = ToSizeString(fileNode.Size);
+                            fileNode.MD5 = GetFileMD5(item);
+                            fileNode.UpdateTime = File.GetLastWriteTime(item).ToString("yyyy-MM-dd HH:mm");
+                            filesNodes.Add(fileNode);
+                            this.Size += fileNode.Size;
+                        }
+                        this.ChildrenNodes.AddRange(filesNodes.OrderBy(x => x.Name));
+                    }
+                    this.SizeString = ToSizeString(this.Size);
+
+                    Parent?.UpdateStatus();
+                }
+                catch (Exception e)
                 {
-                    List<DiffFolderNode> filesNodes = new List<DiffFolderNode>();
-                    foreach (var item in files)
-                    {
-                        DiffFolderNode fileNode = new DiffFolderNode(this,item, this.FullName,false,false);
-                        fileNode.Size = GetFileLength(item);
-                        fileNode.SizeString = ToSizeString(fileNode.Size);
-                        fileNode.MD5 = GetFileMD5(item);
-                        fileNode.UpdateTime = File.GetLastWriteTime(item).ToString("yyyy-MM-dd HH:mm");
-                        filesNodes.Add(fileNode);
-                        this.Size += fileNode.Size;
-                    }
-                    this.ChildrenNodes.AddRange(filesNodes.OrderBy(x => x.Name));
+                    Console.WriteLine(e);
                 }
-                this.SizeString = ToSizeString(this.Size);
-
-                Parent?.UpdateStatus();
             }
             
         }

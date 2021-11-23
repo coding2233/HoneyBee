@@ -129,7 +129,7 @@ namespace HoneyBee.Diff.Gui
         static void LaunchMain()
         {
             _window = new Sdl2Window("Honybee diff launch",693, 390, 534, 300, SDL_WindowFlags.AllowHighDpi| SDL_WindowFlags.AlwaysOnTop| SDL_WindowFlags.Borderless,false);
-            _gd= VeldridStartup.CreateGraphicsDevice(_window);
+            _gd = VeldridStartup.CreateGraphicsDevice(_window);
             //_window.BorderVisible = false;
 
             _cl = _gd.ResourceFactory.CreateCommandList();

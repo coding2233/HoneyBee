@@ -43,7 +43,7 @@ namespace HoneyBee.Diff.Gui
         public DiffFolderWindow()
         {
             string userPath = Environment.GetEnvironmentVariable("USERPROFILE");
-            string folderPath = $"{userPath}\\Documents";
+            string folderPath = $"{userPath}";//Documents
 
             _leftDiffFolder = new DiffFolder();
             _rightDiffFolder = new DiffFolder();
