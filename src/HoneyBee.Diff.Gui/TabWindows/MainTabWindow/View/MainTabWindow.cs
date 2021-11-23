@@ -57,6 +57,7 @@ namespace HoneyBee.Diff.Gui
 
                         _mainTabDatas.Add(mainTabData);
                     }
+                    _mainTabDatas.Reverse();
             }
             catch (Exception e)
             {

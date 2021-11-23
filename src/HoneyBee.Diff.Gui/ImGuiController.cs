@@ -63,6 +63,12 @@ namespace HoneyBee.Diff.Gui
 
             IntPtr context = ImGui.CreateContext();
             ImGui.SetCurrentContext(context);
+            
+            string iniFilePath = Path.Combine(Path.GetDirectoryName(System.Environment.GetCommandLineArgs()[0]), "imgui.ini");
+            fixed (byte* iniFileName = System.Text.Encoding.UTF8.GetBytes(iniFilePath))
+            {
+                ImGui.GetIO().NativePtr->IniFilename = iniFileName;
+            }
 
             //Load default font.
             var defaultFont = ImGui.GetIO().Fonts.AddFontDefault();
