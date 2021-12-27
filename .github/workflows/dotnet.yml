@@ -1,0 +1,63 @@
+name: .NET
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: |
+        cd src/HoneyBee.Diff.Gui
+        dotnet build --no-restore -c Release
+        ls ../../bin/Release/HoneyBee.Diff.Gui/net5.0
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: |
+        cd src/HoneyBee.Diff.Gui
+        dotnet build --no-restore -c Release
+        dir ../../bin/Release/HoneyBee.Diff.Gui/net5.0
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+  
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: |
+        cd src/HoneyBee.Diff.Gui
+        dotnet build --no-restore -c Release
+        ls ../../bin/Release/HoneyBee.Diff.Gui/net5.0
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
