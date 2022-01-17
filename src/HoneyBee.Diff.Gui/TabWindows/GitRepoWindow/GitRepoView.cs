@@ -12,11 +12,14 @@ namespace HoneyBee.Diff.Gui
         public string RepoPath { get; protected set; }
 
         protected virtual void OnToolbarDraw()
-        { }
+        {
+
+
+        }
         protected virtual void OnDrawContent()
         { 
         }
-       internal void Draw()
+        internal void Draw()
         {
             OnToolbarDraw();
             OnDrawContent();

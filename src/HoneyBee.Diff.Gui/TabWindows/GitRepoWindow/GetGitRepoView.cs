@@ -38,12 +38,18 @@ namespace HoneyBee.Diff.Gui
                 {
                     _toolItemIndex = i;
                 }
-                if(i< _toolbarTabs.Count-1)
+                if (i < _toolbarTabs.Count - 1)
                     ImGui.SameLine();
             }
             ImGui.Separator();
+        }
+
+        protected override void OnDrawContent()
+        {
             _toolbarTabs[_toolItemIndex].OnDraw();
         }
+
+       
 
         private void DrawClone()
         {

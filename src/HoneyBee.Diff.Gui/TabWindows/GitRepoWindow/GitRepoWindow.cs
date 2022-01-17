@@ -2,6 +2,7 @@ using ImGuiNET;
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -32,7 +33,7 @@ namespace HoneyBee.Diff.Gui
 
         private bool _isGitRepo;
         private string _repoName;
-        private string _repoPath;
+        private string _repoPath="";
         private string repoPath
         {
             get
@@ -52,7 +53,7 @@ namespace HoneyBee.Diff.Gui
                 //显示View
                 if (_gitRepoView != null)
                 {
-                    if (_isGitRepo.GetType() != (_isGitRepo?typeof(GetGitRepoView):typeof(ShowGitRepoView)))
+                    if (_isGitRepo.GetType() != (_isGitRepo ? typeof(GetGitRepoView) : typeof(ShowGitRepoView)))
                     {
                         _gitRepoView.Dispose();
                         _gitRepoView = null;
@@ -72,9 +73,24 @@ namespace HoneyBee.Diff.Gui
 
         private GitRepoView _gitRepoView;
 
+        [Import]
+        public IMainWindowModel mainModel { get; set; }
+
+        public GitRepoWindow()
+        {
+            DiffProgram.ComposeParts(this);
+        }
+
         public void OnDraw()
         {
-            _gitRepoView?.Draw();
+            if (_gitRepoView == null)
+            {
+                _gitRepoView = new GetGitRepoView(GetGitRepoPath);
+            }
+            else
+            {
+                _gitRepoView.Draw();
+            }
         }
 
         public void OnExitModalSure()
@@ -101,6 +117,7 @@ namespace HoneyBee.Diff.Gui
         private void GetGitRepoPath(string gitRepoPath)
         {
             repoPath = gitRepoPath;
+            mainModel.SaveWindow(this);
         }
 
         public void Setup(params object[] parameters)
