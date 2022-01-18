@@ -16,7 +16,7 @@ namespace HoneyBee.Diff.Gui
         private Repository _repository;
         private int _commitAddInterval = 5;
         private int _commitViewIndex = 0;
-        private int _commitViewMax = 300;
+        private int _commitViewMax = 200;
         private float _lastCommitScrollY = 0.0f;
 
         public void SetRepoPath(string repoPath)
