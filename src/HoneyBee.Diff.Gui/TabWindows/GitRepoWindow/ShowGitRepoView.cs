@@ -16,8 +16,10 @@ namespace HoneyBee.Diff.Gui
         private Repository _repository;
         private int _commitAddInterval = 5;
         private int _commitViewIndex = 0;
-        private int _commitViewMax = 200;
+        private int _commitViewMax = 100;
         private float _lastCommitScrollY = 0.0f;
+        private SplitView _splitView = new SplitView(SplitView.SplitType.Horizontal);
+        private Commit _selectCommit;
 
         public void SetRepoPath(string repoPath)
         {
@@ -47,16 +49,11 @@ namespace HoneyBee.Diff.Gui
 
         protected override void OnDrawContent()
         {
-            ImGui.BeginChild($"GitRepo {_repoName}", new Vector2(300, 0),true);
+            _splitView.Begin();
             OnRepoKeysDraw();
-            ImGui.EndChild();
-
-            ImGui.SameLine();
-
-            ImGui.BeginChild("GitRepo-Info", Vector2.Zero,true);
-            //ImGui.Button("xxxxx-info");
+            _splitView.Separate();
             OnRepoContentDraw();
-            ImGui.EndChild();
+            _splitView.End();
         }
 
 
@@ -79,8 +76,10 @@ namespace HoneyBee.Diff.Gui
             {
                 foreach (var item in _repository.Branches)
                 {
-                    if(!item.IsRemote)
+                    if (!item.IsRemote)
+                    {
                         ImGui.Button($"{item.FriendlyName}");
+                    }
                 }
                 ImGui.TreePop();
             }
@@ -132,7 +131,7 @@ namespace HoneyBee.Diff.Gui
                     commitMax = commitMax - _commitViewMax;
                 }
                 _commitViewIndex = Math.Min(_commitViewIndex, commitMax);
-                if(_commitViewIndex< commitMax)
+                if(_commitViewIndex < commitMax)
                     ImGui.SetScrollY(_lastCommitScrollY-10);
             }
             _lastCommitScrollY = ImGui.GetScrollY();
@@ -156,16 +155,26 @@ namespace HoneyBee.Diff.Gui
                     ImGui.TableNextRow();
                     ImGui.TableSetColumnIndex(0);
                     ImGui.Text(item.MessageShort);
+                    if (_selectCommit == item || ImGui.IsItemHovered())
+                    {
+                        ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(ImGuiCol.TabActive));
+                        ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg1, ImGui.GetColorU32(ImGuiCol.TabActive));
+                    }
+                    if (ImGui.IsItemClicked())
+                    {
+                        _selectCommit = item;
+                    }
                     ImGui.TableSetColumnIndex(1);
                     ImGui.Text(item.Committer.When.ToString("yyyy-MM-dd HH:mm:ss"));
                     ImGui.TableSetColumnIndex(2);
-                    ImGui.Text($"{item.Committer.Name} [{item.Committer.Email}]");
+                    ImGui.Text($"{item.Committer.Name}");// [{item.Committer.Email}]
                     ImGui.TableSetColumnIndex(3);
                     ImGui.Text($"{item.Sha.Substring(0, 10)}");
                 }
-
                 ImGui.EndTable();
             }
+
+            
         }
 
     }
