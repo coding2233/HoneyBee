@@ -70,8 +70,22 @@ namespace HoneyBee.Diff.Gui
                 ImGui.GetIO().NativePtr->IniFilename = iniFileName;
             }
 
-            //Load default font.
-            var defaultFont = ImGui.GetIO().Fonts.AddFontDefault();
+            ////Load default font.
+            //var defaultFont = ImGui.GetIO().Fonts.AddFontDefault();
+
+            //字体大小
+            int fontSize = 14;
+            //Load chinese font.
+            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("wqy-microhei.ttc"))
+            {
+                if (stream.Length > 0)
+                {
+                    byte[] buffer = new byte[stream.Length];
+                    stream.Read(buffer, 0, buffer.Length);
+                    var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
+                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, fontSize, fontSize, null, ImGui.GetIO().Fonts.GetGlyphRangesChineseFull());
+                }
+            }
 
             ImFontConfigPtr imFontConfigPtr = new ImFontConfigPtr(ImGuiNative.ImFontConfig_ImFontConfig())
             {
@@ -82,34 +96,17 @@ namespace HoneyBee.Diff.Gui
                 PixelSnapH = true,
             };
 
-            //字体大小
-            int fontSize = 15;
-
-
-            //Load chinese font.
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("wqy-microhei.ttc"))
-            {
-                if (stream.Length > 0)
-                {
-                    byte[] buffer = new byte[stream.Length];
-                    stream.Read(buffer, 0, buffer.Length);
-                    var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
-                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, fontSize, 12, imFontConfigPtr, ImGui.GetIO().Fonts.GetGlyphRangesChineseFull());
-                }
-            }
-
-
-            //Load Source code pro font.
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("SourceCodePro-Black.ttf"))
-            {
-                if (stream.Length > 0)
-                {
-                    byte[] buffer = new byte[stream.Length];
-                    stream.Read(buffer, 0, buffer.Length);
-                    var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
-                    ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, fontSize, fontSize, imFontConfigPtr, ImGui.GetIO().Fonts.GetGlyphRangesDefault());
-                }
-            }
+            ////Load Source code pro font.
+            //using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("SourceCodePro-Black.ttf"))
+            //{
+            //    if (stream.Length > 0)
+            //    {
+            //        byte[] buffer = new byte[stream.Length];
+            //        stream.Read(buffer, 0, buffer.Length);
+            //        var fontIntPtr = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
+            //        ImGui.GetIO().Fonts.AddFontFromMemoryTTF(fontIntPtr, fontSize, fontSize, null, ImGui.GetIO().Fonts.GetGlyphRangesDefault());
+            //    }
+            //}
 
             //Load icon.
             using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MaterialIcons-Regular.ttf"))

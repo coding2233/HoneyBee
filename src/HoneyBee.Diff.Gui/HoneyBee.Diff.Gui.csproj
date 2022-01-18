@@ -47,7 +47,6 @@
 
     <ItemGroup>
 		<EmbeddedResource Include="Fonts/wqy-microhei.ttc" LogicalName="wqy-microhei.ttc" />
-		<EmbeddedResource Include="Fonts/SourceHanSansCN-Normal.ttf" LogicalName="SourceHanSansCN-Normal.ttf" />
 		<EmbeddedResource Include="Fonts/CenturyGothic.ttf" LogicalName="CenturyGothic.ttf" />
 	    <EmbeddedResource Include="Fonts/SourceCodePro-Black.ttf" LogicalName="SourceCodePro-Black.ttf" />
 		<EmbeddedResource Include="Fonts/MaterialIcons-Regular.ttf" LogicalName="MaterialIcons-Regular.ttf" />
