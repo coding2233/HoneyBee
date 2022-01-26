@@ -35,7 +35,7 @@ namespace HoneyBee.Diff.Gui
                 splitCount = 2;
             }
 
-            _splitMin = min;
+            _splitMin = 10;
             _splitMax = (splitType==SplitType.Horizontal? ImGui.GetContentRegionAvail().X: ImGui.GetContentRegionAvail().Y)* max;
 
             for (int i = 0; i < splitCount-1; i++)
@@ -63,7 +63,10 @@ namespace HoneyBee.Diff.Gui
             Vector2 min = ImGui.GetItemRectMin();
             Vector2 max = ImGui.GetItemRectMax();
             if (_splitType == SplitType.Horizontal)
-                min.X += ImGui.GetItemRectSize().X;
+            {
+                min.X = max.X+3.0f;
+                max.X += 5.0f;
+            }
             else
             {
                 min.Y = max.Y+1.0f;
@@ -77,11 +80,11 @@ namespace HoneyBee.Diff.Gui
             if (_splitType == SplitType.Horizontal)
                 ImGui.SameLine();
 
-            if (_splitType == SplitType.Horizontal)
-                max.X = ImGui.GetCursorPos().X;
-            else
-            {
-            }
+            //if (_splitType == SplitType.Horizontal)
+            //    max.X =min.X+ ImGui.GetCursorPos().X;
+            //else
+            //{
+            //}
 
             bool separatorHovered = true;
             if (_draging)
@@ -115,9 +118,9 @@ namespace HoneyBee.Diff.Gui
 
             if (_splitType == SplitType.Horizontal)
             {
-                float interval = (max.X - min.X - 2.0f) * 0.5f;
-                min.X += interval;
-                max.X -= interval;
+                //float interval = (max.X - min.X - 2.0f) * 0.5f;
+                //min.X += interval;
+                //max.X -= interval;
             }
             else
             {

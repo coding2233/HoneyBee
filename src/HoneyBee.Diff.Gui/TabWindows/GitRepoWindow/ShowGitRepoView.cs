@@ -19,7 +19,9 @@ namespace HoneyBee.Diff.Gui
         private int _commitViewMax = 100;
         private float _lastCommitScrollY = 0.0f;
         private SplitView _splitView = new SplitView(SplitView.SplitType.Horizontal);
-        private Commit _selectCommit;
+        private SplitView _contentSplitView = new SplitView(SplitView.SplitType.Vertical,2,600,0.9f);
+        private ShowCommitView _showCommitView = new ShowCommitView();
+        private Commit _selectCommit=null;
 
         public void SetRepoPath(string repoPath)
         {
@@ -115,6 +117,11 @@ namespace HoneyBee.Diff.Gui
 
         private void OnRepoContentDraw()
         {
+            if (_selectCommit != null)
+            {
+                _contentSplitView.Begin();
+            }
+
             int commitMax = _repository.Commits.Count();
             if (_lastCommitScrollY <= 0.0f)
             {
@@ -174,8 +181,18 @@ namespace HoneyBee.Diff.Gui
                 ImGui.EndTable();
             }
 
-            
+            if (_selectCommit != null)
+            {
+                _contentSplitView.Separate();
+                OnDrawSelectCommit(_selectCommit);
+                _contentSplitView.End();
+            }
         }
 
+
+        private void OnDrawSelectCommit(Commit commit)
+        {
+            _showCommitView.DrawSelectCommit(commit);
+        }
     }
 }

@@ -1,0 +1,79 @@
+using ImGuiNET;
+using LibGit2Sharp;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace HoneyBee.Diff.Gui
+{
+    public class ShowCommitView
+    {
+        private SplitView _horizontalSplitView = new SplitView(SplitView.SplitType.Horizontal,2,600,0.6f);
+        private SplitView _verticalSplitView = new SplitView(SplitView.SplitType.Vertical);
+        StringBuilder _tempStringBuilder = new StringBuilder();
+        private TreeEntry _selectTreeEntry;
+
+        public void DrawSelectCommit(Commit commit)
+        {
+            _horizontalSplitView.Begin();
+            _verticalSplitView.Begin();
+            OnDrawCommitInfo(commit);
+            _verticalSplitView.Separate();
+            OnDrawCommitTree(commit.Tree);
+            _verticalSplitView.End();
+            _horizontalSplitView.Separate();
+            OnDrawDiff();
+            _horizontalSplitView.End();
+         
+        }
+
+
+        private void OnDrawCommitInfo(Commit commit)
+        {
+            ImGui.Text($"Sha: {commit.Sha}");
+            _tempStringBuilder.Clear();
+            _tempStringBuilder.Append("Parents:");
+            if (commit.Parents != null)
+            {
+                foreach (var item in commit.Parents)
+                {
+                    _tempStringBuilder.Append($" {item.Sha}");
+                }
+            }
+            ImGui.Text(_tempStringBuilder.ToString());
+            ImGui.Text($"Author: {commit.Author.Name} {commit.Author.Email}");
+            ImGui.Text($"DateTime: {commit.Author.When.ToString()}");
+            ImGui.Text($"Committer: {commit.Committer.Name} {commit.Committer.Email}\n");
+
+            ImGui.Text(commit.Message);
+        }
+
+        private void OnDrawCommitTree(Tree trees)
+        {
+            foreach (var item in trees)
+            {
+                ImGui.Text(item.Path);
+
+                if (_selectTreeEntry == null)
+                {
+                    _selectTreeEntry = item;
+                }
+            }
+        }
+
+        private void OnDrawDiff()
+        {
+            if (_selectTreeEntry != null)
+            {
+                ImGui.Text(_selectTreeEntry.Mode.ToString());
+                ImGui.Text(_selectTreeEntry.Name);
+                ImGui.Text(_selectTreeEntry.Path);
+                ImGui.Text(_selectTreeEntry.Target.ToString());
+                ImGui.Text(_selectTreeEntry.TargetType.ToString());
+            }
+        }
+
+    }
+}
