@@ -18,7 +18,7 @@ namespace HoneyBee.Diff.Gui
         private int _commitViewIndex = 0;
         private int _commitViewMax = 100;
         private float _lastCommitScrollY = 0.0f;
-        private SplitView _splitView = new SplitView(SplitView.SplitType.Horizontal);
+        private SplitView _splitView = new SplitView(SplitView.SplitType.Horizontal,2,200);
         private SplitView _contentSplitView = new SplitView(SplitView.SplitType.Vertical,2,600,0.9f);
         private ShowCommitView _showCommitView = new ShowCommitView();
         private Commit _selectCommit=null;

@@ -62,29 +62,34 @@ namespace HoneyBee.Diff.Gui
 
             Vector2 min = ImGui.GetItemRectMin();
             Vector2 max = ImGui.GetItemRectMax();
+
+            Vector2 hoverMin = min;
+            Vector2 hoverMax = max;
+
             if (_splitType == SplitType.Horizontal)
             {
                 min.X = max.X+3.0f;
                 max.X += 5.0f;
+
+                hoverMin = min;
+                hoverMax = max;
+                hoverMin.X -= 2.0f;
+                hoverMax.X += 2.0f;
             }
             else
             {
                 min.Y = max.Y+1.0f;
                 max.Y += 3.0f;
-                //for (int i = 0; i <= _splitIndex; i++)
-                //{
-                //    min.Y += _splitWidth[_splitIndex];
-                //}
+
+                hoverMin = min;
+                hoverMax = max;
+                hoverMin.Y -= 2.0f;
+                hoverMax.Y += 2.0f;
             }
 
             if (_splitType == SplitType.Horizontal)
                 ImGui.SameLine();
 
-            //if (_splitType == SplitType.Horizontal)
-            //    max.X =min.X+ ImGui.GetCursorPos().X;
-            //else
-            //{
-            //}
 
             bool separatorHovered = true;
             if (_draging)
@@ -102,7 +107,7 @@ namespace HoneyBee.Diff.Gui
                 }
 
             }
-            else if (!_draging && ImGui.IsMouseHoveringRect(min, max))
+            else if (!_draging && ImGui.IsMouseHoveringRect(hoverMin, hoverMax))
             {
                 if (ImGui.IsMouseDown(ImGuiMouseButton.Left))
                 {
@@ -116,18 +121,6 @@ namespace HoneyBee.Diff.Gui
                 separatorHovered = false;
             }
 
-            if (_splitType == SplitType.Horizontal)
-            {
-                //float interval = (max.X - min.X - 2.0f) * 0.5f;
-                //min.X += interval;
-                //max.X -= interval;
-            }
-            else
-            {
-                //float interval = (max.Y - min.Y - 2.0f) * 0.5f;
-                //min.Y += interval;
-                //max.Y -= interval;
-            }
             ImGui.GetWindowDrawList().AddRectFilled(min, max, ImGui.GetColorU32(separatorHovered ? ImGuiCol.SeparatorHovered : ImGuiCol.Border));
 
             _splitIndex++;
