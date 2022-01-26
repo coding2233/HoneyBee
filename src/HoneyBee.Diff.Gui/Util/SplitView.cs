@@ -66,18 +66,22 @@ namespace HoneyBee.Diff.Gui
                 min.X += ImGui.GetItemRectSize().X;
             else
             {
-                min.Y += ImGui.GetItemRectSize().Y;
+                min.Y = max.Y+1.0f;
+                max.Y += 3.0f;
+                //for (int i = 0; i <= _splitIndex; i++)
+                //{
+                //    min.Y += _splitWidth[_splitIndex];
+                //}
             }
 
             if (_splitType == SplitType.Horizontal)
                 ImGui.SameLine();
-            else
-                ImGui.Spacing();
 
             if (_splitType == SplitType.Horizontal)
-                max.X=ImGui.GetCursorPos().X;
+                max.X = ImGui.GetCursorPos().X;
             else
-                max.Y=ImGui.GetCursorPos().Y;
+            {
+            }
 
             bool separatorHovered = true;
             if (_draging)
@@ -117,9 +121,9 @@ namespace HoneyBee.Diff.Gui
             }
             else
             {
-                float interval = (max.Y - min.Y - 2.0f) * 0.5f;
-                min.Y += interval;
-                max.Y -= interval;
+                //float interval = (max.Y - min.Y - 2.0f) * 0.5f;
+                //min.Y += interval;
+                //max.Y -= interval;
             }
             ImGui.GetWindowDrawList().AddRectFilled(min, max, ImGui.GetColorU32(separatorHovered ? ImGuiCol.SeparatorHovered : ImGuiCol.Border));
 
