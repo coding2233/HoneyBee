@@ -12,8 +12,15 @@ namespace HoneyBee.Diff.Gui
 {
     public class ShowGitRepoView:GitRepoView
     {
+        public enum WorkSpaceRadio
+        {
+            WorkTree,
+            CommitHistory,
+        }
+
         private string _repoName ="";
         private Repository _repository;
+        private WorkSpaceRadio _workSpaceRadio= WorkSpaceRadio.WorkTree;
         private int _commitAddInterval = 5;
         private int _commitViewIndex = 0;
         private int _commitViewMax = 100;
@@ -21,6 +28,7 @@ namespace HoneyBee.Diff.Gui
         private SplitView _splitView = new SplitView(SplitView.SplitType.Horizontal,2,200);
         private SplitView _contentSplitView = new SplitView(SplitView.SplitType.Vertical,2,600,0.9f);
         private ShowCommitView _showCommitView = new ShowCommitView();
+        private WorkTreeView _workTreeView = new WorkTreeView();
         private Commit _selectCommit=null;
 
         public void SetRepoPath(string repoPath)
@@ -61,15 +69,17 @@ namespace HoneyBee.Diff.Gui
 
         private void OnRepoKeysDraw()
         {
+            ImGui.SetNextItemOpen(true);
             if (ImGui.TreeNode("Workspace"))
             {
-                if (ImGui.Button("File status"))
+                if (ImGui.RadioButton("Work tree", _workSpaceRadio==WorkSpaceRadio.WorkTree))
                 {
-                    
+                    _workSpaceRadio = WorkSpaceRadio.WorkTree;
                 }
-                if (ImGui.Button("History"))
-                {
 
+                if (ImGui.RadioButton("Commit history", _workSpaceRadio==WorkSpaceRadio.CommitHistory))
+                {
+                    _workSpaceRadio = WorkSpaceRadio.CommitHistory;
                 }
                 ImGui.TreePop();
             }
@@ -81,6 +91,23 @@ namespace HoneyBee.Diff.Gui
                     if (!item.IsRemote)
                     {
                         ImGui.Button($"{item.FriendlyName}");
+                        if (item.IsTracking)
+                        {
+                            var pos = ImGui.GetItemRectMax();
+                            pos.Y -= 15;
+                            
+                            var trackingDetails = item.TrackingDetails;
+                            if (trackingDetails.AheadBy > 0)
+                            {
+                                ImGui.GetWindowDrawList().AddText(pos,ImGui.GetColorU32(new Vector4(1,0,0,1)), trackingDetails.AheadBy.ToString());
+                                pos.X += 10;
+                            }
+
+                            if (trackingDetails.BehindBy > 0)
+                            {
+                                ImGui.GetWindowDrawList().AddText(pos,ImGui.GetColorU32(new Vector4(0,1,0,1)), trackingDetails.AheadBy.ToString());
+                            }
+                        }
                     }
                 }
                 ImGui.TreePop();
@@ -117,6 +144,23 @@ namespace HoneyBee.Diff.Gui
 
         private void OnRepoContentDraw()
         {
+            if (_workSpaceRadio == WorkSpaceRadio.CommitHistory)
+            {
+                OnDrawCommitHistory();
+            }
+            else
+            {
+                OnDrawWorkTree();
+            }
+        }
+
+        private void OnDrawWorkTree()
+        {
+                _workTreeView.OnDraw(_repository.RetrieveStatus());
+        }
+
+        private void OnDrawCommitHistory()
+        {
             if (_selectCommit != null)
             {
                 _contentSplitView.Begin();
@@ -125,28 +169,28 @@ namespace HoneyBee.Diff.Gui
             int commitMax = _repository.Commits.Count();
             if (_lastCommitScrollY <= 0.0f)
             {
-                _commitViewIndex-= _commitAddInterval;
+                _commitViewIndex -= _commitAddInterval;
                 _commitViewIndex = Math.Max(_commitViewIndex, 0);
-                if(_commitViewIndex>0)
+                if (_commitViewIndex > 0)
                     ImGui.SetScrollY(10);
             }
             else if (_lastCommitScrollY >= ImGui.GetScrollMaxY())
             {
-                _commitViewIndex += _commitAddInterval ;
+                _commitViewIndex += _commitAddInterval;
                 if (commitMax > _commitViewMax)
                 {
                     commitMax = commitMax - _commitViewMax;
                 }
                 _commitViewIndex = Math.Min(_commitViewIndex, commitMax);
-                if(_commitViewIndex < commitMax)
-                    ImGui.SetScrollY(_lastCommitScrollY-10);
+                if (_commitViewIndex < commitMax)
+                    ImGui.SetScrollY(_lastCommitScrollY - 10);
             }
             _lastCommitScrollY = ImGui.GetScrollY();
 
             if (ImGui.BeginTable("GitRepo-Commits", 4, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable))
             {
                 ImGui.TableSetupColumn("Description", ImGuiTableColumnFlags.WidthStretch);
-                ImGui.TableSetupColumn("Date", ImGuiTableColumnFlags.WidthFixed );
+                ImGui.TableSetupColumn("Date", ImGuiTableColumnFlags.WidthFixed);
                 ImGui.TableSetupColumn("Author", ImGuiTableColumnFlags.WidthFixed);
                 ImGui.TableSetupColumn("Commit", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize);
                 ImGui.TableHeadersRow();
@@ -188,7 +232,6 @@ namespace HoneyBee.Diff.Gui
                 _contentSplitView.End();
             }
         }
-
 
         private void OnDrawSelectCommit(Commit commit)
         {
