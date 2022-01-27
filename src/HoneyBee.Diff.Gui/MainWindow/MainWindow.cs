@@ -180,6 +180,15 @@ namespace HoneyBee.Diff.Gui
                             ImGui.EndMenu();
                         }
 
+                        if (ImGui.BeginMenu("Window"))
+                        {
+                            if (ImGui.MenuItem("Main Window"))
+                            {
+                                mainModel.CreateTab<MainTabWindow>();
+                            }
+                            ImGui.EndMenu();
+                        }
+
                         if (ImGui.BeginMenu("Help"))
                         {
                             if (ImGui.MenuItem("About"))

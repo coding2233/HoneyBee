@@ -105,7 +105,7 @@ namespace HoneyBee.Diff.Gui
 
                             if (trackingDetails.BehindBy > 0)
                             {
-                                ImGui.GetWindowDrawList().AddText(pos,ImGui.GetColorU32(new Vector4(0,1,0,1)), trackingDetails.AheadBy.ToString());
+                                ImGui.GetWindowDrawList().AddText(pos,ImGui.GetColorU32(new Vector4(0,1,0,1)), trackingDetails.BehindBy.ToString());
                             }
                         }
                     }
