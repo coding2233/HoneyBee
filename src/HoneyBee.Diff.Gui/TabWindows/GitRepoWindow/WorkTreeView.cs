@@ -19,6 +19,9 @@ namespace HoneyBee.Diff.Gui
             {
                 foreach (var item in statuses)
                 {
+                    if (item.State == FileStatus.Ignored)
+                        continue;
+
                     ImGui.Text(item.FilePath);
                     //ImGui.Text(item.HeadToIndexRenameDetails.ToString());
                     //ImGui.Text(item.IndexToWorkDirRenameDetails.ToString());

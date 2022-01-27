@@ -12,6 +12,14 @@ namespace HoneyBee.Diff.Gui
 {
     public class ShowGitRepoView:GitRepoView
     {
+        public class BranchNode
+        {
+            public string Name;
+            public string FullName;
+            public Branch Branch;
+            public List<BranchNode> Children;
+        }
+
         public enum WorkSpaceRadio
         {
             WorkTree,
@@ -31,6 +39,9 @@ namespace HoneyBee.Diff.Gui
         private WorkTreeView _workTreeView = new WorkTreeView();
         private Commit _selectCommit=null;
 
+        private List<BranchNode> _localBranchNodes;
+        private List<BranchNode> _remoteBranchNodes;
+
         public void SetRepoPath(string repoPath)
         {
             RepoPath = repoPath;
@@ -38,6 +49,52 @@ namespace HoneyBee.Diff.Gui
             {
                 _repoName = Path.GetFileNameWithoutExtension(RepoPath);
                 _repository = new Repository(RepoPath);
+
+                //Set branch nodes.
+                _localBranchNodes = new List<BranchNode>();
+                _remoteBranchNodes = new List<BranchNode>();
+                foreach (var branch in _repository.Branches)
+                {
+                    string[] nameArgs = branch.FriendlyName.Split('/');
+                    Queue<string> nameTree = new Queue<string>();
+                    foreach (var item in nameArgs)
+                    {
+                        nameTree.Enqueue(item);
+                    }
+                    if (branch.IsRemote)
+                    {
+                        JointBranchNode(_remoteBranchNodes, nameTree, branch);
+                    }
+                    else
+                    {
+                        JointBranchNode(_localBranchNodes, nameTree, branch);
+                    }
+                }
+            }
+        }
+
+        private void JointBranchNode(List<BranchNode> branchNodes,Queue<string> nameTree,Branch branch)
+        {
+            if (nameTree.Count == 1)
+            {
+                BranchNode branchNode = new BranchNode();
+                branchNode.Name = nameTree.Dequeue();
+                branchNode.FullName = branch.FriendlyName;
+                branchNode.Branch = branch;
+                branchNodes.Add(branchNode);
+            }
+            else
+            {
+                string name = nameTree.Dequeue();
+                var findNode = branchNodes.Find(x => x.Name.Equals(name));
+                if (findNode == null)
+                {
+                    findNode = new BranchNode();
+                    findNode.Name = name;
+                    findNode.Children = new List<BranchNode>();
+                    branchNodes.Add(findNode);
+                }
+                JointBranchNode(findNode.Children, nameTree, branch);
             }
         }
 
@@ -45,9 +102,9 @@ namespace HoneyBee.Diff.Gui
         {
             DrawToolItem(Icon.Get(Icon.Material_add), "Commit", true);
             ImGui.SameLine();
-            DrawToolItem(Icon.Get(Icon.Material_get_app), "Pull", false);
+            DrawToolItem(Icon.Get(Icon.Material_sync), "Pull", false);
             ImGui.SameLine();
-            DrawToolItem(Icon.Get(Icon.Material_get_app), "Fetch", false);
+            DrawToolItem(Icon.Get(Icon.Material_download), "Fetch", false);
             ImGui.SameLine();
             ImGui.Spacing();
             ImGui.SameLine();
@@ -86,29 +143,9 @@ namespace HoneyBee.Diff.Gui
 
             if (ImGui.TreeNode("Branch"))
             {
-                foreach (var item in _repository.Branches)
+                foreach (var item in _localBranchNodes)
                 {
-                    if (!item.IsRemote)
-                    {
-                        ImGui.Button($"{item.FriendlyName}");
-                        if (item.IsTracking)
-                        {
-                            var pos = ImGui.GetItemRectMax();
-                            pos.Y -= 15;
-                            
-                            var trackingDetails = item.TrackingDetails;
-                            if (trackingDetails.AheadBy > 0)
-                            {
-                                ImGui.GetWindowDrawList().AddText(pos,ImGui.GetColorU32(new Vector4(1,0,0,1)), trackingDetails.AheadBy.ToString());
-                                pos.X += 10;
-                            }
-
-                            if (trackingDetails.BehindBy > 0)
-                            {
-                                ImGui.GetWindowDrawList().AddText(pos,ImGui.GetColorU32(new Vector4(0,1,0,1)), trackingDetails.BehindBy.ToString());
-                            }
-                        }
-                    }
+                    DrawBranchTreeNode(item);
                 }
                 ImGui.TreePop();
             }
@@ -124,10 +161,9 @@ namespace HoneyBee.Diff.Gui
 
             if (ImGui.TreeNode("Remote"))
             {
-                foreach (var item in _repository.Branches)
+                foreach (var item in _remoteBranchNodes)
                 {
-                    if (item.IsRemote)
-                        ImGui.Button($"{item.FriendlyName}");
+                    DrawBranchTreeNode(item);
                 }
                 ImGui.TreePop();
             }
@@ -139,6 +175,57 @@ namespace HoneyBee.Diff.Gui
                     ImGui.Button($"{item.Name}");
                 }
                 ImGui.TreePop();
+            }
+        }
+
+
+        private void DrawBranchTreeNode(BranchNode branchNode)
+        {
+            if (branchNode.Children != null && branchNode.Children.Count > 0)
+            {
+                if (ImGui.TreeNode(branchNode.Name))
+                {
+                    foreach (var item in branchNode.Children)
+                    {
+                        DrawBranchTreeNode(item);
+                    }
+                    ImGui.TreePop();
+                }
+            }
+            else
+            {
+                Vector2 textSize = ImGui.CalcTextSize(branchNode.Name);
+                uint textColor = ImGui.GetColorU32(ImGuiCol.Text);
+                //if (ImGui.IsMouseHoveringRect(ImGui.GetCursorPos(), ImGui.GetCursorPos() + textSize))
+                //{
+                //    textColor = ImGui.GetColorU32(ImGuiCol.HeaderActive);
+                //}
+                if (branchNode.Branch.IsCurrentRepositoryHead)
+                {
+                    textColor= ImGui.GetColorU32(ImGuiCol.HeaderActive);
+                }
+                ImGui.TextColored(ImGui.ColorConvertU32ToFloat4(textColor), $"\t{branchNode.Name}");
+                if (branchNode.Branch.IsTracking)
+                {
+                    var pos = ImGui.GetItemRectMax();
+                    pos.Y -= 15;
+
+                    var trackingDetails = branchNode.Branch.TrackingDetails;
+                    if (trackingDetails.BehindBy > 0)
+                    {
+                        string showTipText = $"{Icon.Get(Icon.Material_arrow_downward)}{trackingDetails.BehindBy}";
+                        textSize = ImGui.CalcTextSize(showTipText);
+                        ImGui.GetWindowDrawList().AddText(pos, ImGui.GetColorU32(ImGuiCol.Text), showTipText);
+                        pos.X += textSize.X;
+                    }
+
+                    if (trackingDetails.AheadBy > 0)
+                    {
+                        string showTipText = $"{Icon.Get(Icon.Material_arrow_upward)}{trackingDetails.AheadBy}";
+                        //Vector2 textSize = ImGui.CalcTextSize(showTipText);
+                        ImGui.GetWindowDrawList().AddText(pos, ImGui.GetColorU32(ImGuiCol.Text), showTipText);
+                    }
+                }
             }
         }
 
@@ -183,7 +270,7 @@ namespace HoneyBee.Diff.Gui
                 }
                 _commitViewIndex = Math.Min(_commitViewIndex, commitMax);
                 if (_commitViewIndex < commitMax)
-                    ImGui.SetScrollY(_lastCommitScrollY - 10);
+                    ImGui.SetScrollY(_lastCommitScrollY - 1);
             }
             _lastCommitScrollY = ImGui.GetScrollY();
 
