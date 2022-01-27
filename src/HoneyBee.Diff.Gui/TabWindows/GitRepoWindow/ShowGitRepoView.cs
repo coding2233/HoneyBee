@@ -28,6 +28,7 @@ namespace HoneyBee.Diff.Gui
 
         private string _repoName ="";
         private Repository _repository;
+        private RepositoryStatus _currentStatuses;
         private WorkSpaceRadio _workSpaceRadio= WorkSpaceRadio.WorkTree;
         private int _commitAddInterval = 5;
         private int _commitViewIndex = 0;
@@ -49,27 +50,32 @@ namespace HoneyBee.Diff.Gui
             {
                 _repoName = Path.GetFileNameWithoutExtension(RepoPath);
                 _repository = new Repository(RepoPath);
-
                 //Set branch nodes.
                 _localBranchNodes = new List<BranchNode>();
                 _remoteBranchNodes = new List<BranchNode>();
-                foreach (var branch in _repository.Branches)
+                Task.Run(() =>
                 {
-                    string[] nameArgs = branch.FriendlyName.Split('/');
-                    Queue<string> nameTree = new Queue<string>();
-                    foreach (var item in nameArgs)
+                    foreach (var branch in _repository.Branches)
                     {
-                        nameTree.Enqueue(item);
+                        string[] nameArgs = branch.FriendlyName.Split('/');
+                        Queue<string> nameTree = new Queue<string>();
+                        foreach (var item in nameArgs)
+                        {
+                            nameTree.Enqueue(item);
+                        }
+                        if (branch.IsRemote)
+                        {
+                            JointBranchNode(_remoteBranchNodes, nameTree, branch);
+                        }
+                        else
+                        {
+                            JointBranchNode(_localBranchNodes, nameTree, branch);
+                        }
                     }
-                    if (branch.IsRemote)
-                    {
-                        JointBranchNode(_remoteBranchNodes, nameTree, branch);
-                    }
-                    else
-                    {
-                        JointBranchNode(_localBranchNodes, nameTree, branch);
-                    }
-                }
+                    //RetrieveStatus
+                    _currentStatuses = _repository.RetrieveStatus();
+                });
+                
             }
         }
 
@@ -132,6 +138,7 @@ namespace HoneyBee.Diff.Gui
                 if (ImGui.RadioButton("Work tree", _workSpaceRadio==WorkSpaceRadio.WorkTree))
                 {
                     _workSpaceRadio = WorkSpaceRadio.WorkTree;
+                   _currentStatuses=  _repository.RetrieveStatus();
                 }
 
                 if (ImGui.RadioButton("Commit history", _workSpaceRadio==WorkSpaceRadio.CommitHistory))
@@ -243,7 +250,7 @@ namespace HoneyBee.Diff.Gui
 
         private void OnDrawWorkTree()
         {
-                _workTreeView.OnDraw(_repository.RetrieveStatus());
+                _workTreeView.OnDraw(_currentStatuses, _repository.Diff);
         }
 
         private void OnDrawCommitHistory()
