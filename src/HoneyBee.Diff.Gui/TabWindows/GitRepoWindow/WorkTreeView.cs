@@ -14,9 +14,8 @@ namespace HoneyBee.Diff.Gui
     {
         private SplitView _horizontalSplitView = new SplitView(SplitView.SplitType.Horizontal, 2, 600, 0.8f);
         private SplitView _verticalSplitView = new SplitView(SplitView.SplitType.Vertical);
-        private StatusEntry _selectStatusEntry;
-        private string _statusContent;
         public TextEditor _statusTextEditor = new TextEditor();
+        private HashSet<string> _selectFilePaths = new HashSet<string>();
 
         public void OnDraw(RepositoryStatus statuses, LibGit2Sharp.Diff diff)
         {
@@ -51,12 +50,26 @@ namespace HoneyBee.Diff.Gui
                     default:
                         break;
                 }
-                if (ImGui.RadioButton($"{statusIcon} {item.FilePath}", _selectStatusEntry == item))
+
+                bool active = _selectFilePaths.Contains(item.FilePath);
+                if (ImGui.Checkbox($"{statusIcon} {item.FilePath}", ref active))
                 {
-                    _selectStatusEntry = item;
-                    var diffContent = diff.Compare<Patch>(new List<string> { item.FilePath },true);
-                    _statusContent = diffContent.Content;
-                    _statusTextEditor.text = _statusContent;
+                    if (active)
+                    {
+                        _selectFilePaths.Add(item.FilePath);
+                    }
+                    else
+                    {
+                        _selectFilePaths.Remove(item.FilePath);
+                    }
+
+                    string statusContent = "";
+                    if (_selectFilePaths.Count > 0)
+                    {
+                        var diffContent = diff.Compare<Patch>(_selectFilePaths, true);
+                        statusContent = diffContent.Content;
+                    }
+                    _statusTextEditor.text = statusContent;
                 }
             }
         }
@@ -64,10 +77,6 @@ namespace HoneyBee.Diff.Gui
         private void DrawDiff()
         {
             _statusTextEditor.Render("Diff",ImGui.GetWindowSize());
-            //if (!string.IsNullOrEmpty(_statusContent))
-            //{
-            //    ImGui.Text(_statusContent);
-            //}
         }
     }
 }

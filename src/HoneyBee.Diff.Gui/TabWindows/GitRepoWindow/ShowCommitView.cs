@@ -54,9 +54,7 @@ namespace HoneyBee.Diff.Gui
         {
             foreach (var item in trees)
             {
-                ImGui.Text(item.Path);
-
-                if (_selectTreeEntry == null)
+                if (ImGui.RadioButton(item.Path, _selectTreeEntry == item))
                 {
                     _selectTreeEntry = item;
                 }
