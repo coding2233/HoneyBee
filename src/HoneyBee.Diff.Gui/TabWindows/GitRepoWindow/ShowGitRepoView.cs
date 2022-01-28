@@ -300,14 +300,17 @@ namespace HoneyBee.Diff.Gui
                     ImGui.TableNextRow();
                     ImGui.TableSetColumnIndex(0);
                     ImGui.Text(item.MessageShort);
-                    if (_selectCommit == item || ImGui.IsItemHovered())
+                    var rectMin = ImGui.GetItemRectMin();
+                    var rectMax = ImGui.GetItemRectMax();
+                    rectMax.X = rectMin.X+ImGui.GetColumnWidth();
+                    if (ImGui.IsMouseHoveringRect(rectMin, rectMax))
                     {
                         ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(ImGuiCol.TabActive));
                         ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg1, ImGui.GetColorU32(ImGuiCol.TabActive));
-                    }
-                    if (ImGui.IsItemClicked())
-                    {
-                        _selectCommit = item;
+                        if (ImGui.IsMouseDown(ImGuiMouseButton.Left))
+                        {
+                            _selectCommit = item;
+                        }
                     }
                     ImGui.TableSetColumnIndex(1);
                     ImGui.Text(item.Committer.When.ToString("yyyy-MM-dd HH:mm:ss"));

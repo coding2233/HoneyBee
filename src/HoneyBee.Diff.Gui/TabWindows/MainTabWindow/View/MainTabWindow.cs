@@ -92,7 +92,7 @@ namespace HoneyBee.Diff.Gui
                     ImGui.Text($"{Icon.Get(item.Folder ? Icon.Material_folder : Icon.Material_text_snippet)}{item.Data}");
                     var rectMin = ImGui.GetItemRectMin();
                     var rectMax = ImGui.GetItemRectMax();
-                    rectMax.X = ImGui.GetColumnWidth();
+                    rectMax.X = rectMin.X+ImGui.GetColumnWidth();
                     if (ImGui.IsMouseHoveringRect(rectMin, rectMax))
                     {
                         ImGui.GetWindowDrawList().AddRectFilled(rectMin, rectMax, ImGui.GetColorU32(ImGuiCol.TextSelectedBg));
