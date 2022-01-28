@@ -39,7 +39,7 @@ namespace HoneyBee.Diff.Gui
             {
                 foreach (var item in commit.Parents)
                 {
-                    _tempStringBuilder.Append($" {item.Sha}");
+                    _tempStringBuilder.Append($" {item.Sha.Substring(0,10)}");
                 }
             }
             ImGui.Text(_tempStringBuilder.ToString());
