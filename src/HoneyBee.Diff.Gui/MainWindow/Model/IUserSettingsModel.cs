@@ -9,10 +9,12 @@ namespace HoneyBee.Diff.Gui
 {
     public interface IUserSettingsModel
     {
-        public int StyleColors { get; set; }
-        public uint MarkBgColor { get; }
-        public Vector4 MarkRedColor { get; }
-        public Vector4 MarkGreenColor { get; }
-        public uint[] TextStyleColors { get; set; }
+        int StyleColors { get; set; }
+        uint MarkBgColor { get; }
+        Vector4 MarkRedColor { get; }
+        Vector4 MarkGreenColor { get; }
+        uint[] TextStyleColors { get; set; }
+        void Set<T>(string key,T value);
+        T Get<T>(string key,T defaultValue = default(T));
     }
 }

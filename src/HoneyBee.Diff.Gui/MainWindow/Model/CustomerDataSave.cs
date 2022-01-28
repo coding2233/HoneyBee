@@ -82,6 +82,21 @@ namespace HoneyBee.Diff.Gui
                 return defaultValue;
             }
         }
+
+        public bool HasCustomerData<T>(string key)
+        {
+            using (var db = new LiteDatabase(DataBasePath))
+            {
+                var col = db.GetCollection<CustomerData<T>>(GetCustomerTableName<T>());
+                var value = col.Query().Where(x => x.Key.Equals(key));
+                if (value.Count() > 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         protected string GetCustomerTableName<T>()
         {
             string tableName= Regex.Replace(typeof(T).Name, @"[^a-zA-Z0-9\u4e00-\u9fa5\s]", "");

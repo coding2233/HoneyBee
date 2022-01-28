@@ -15,6 +15,8 @@ namespace HoneyBee.Diff.Gui
     public class UserSettingsModel : CustomerDataSave,IUserSettingsModel
     {
 
+        
+
         private int _styleColors = -1;
         public int StyleColors 
         {
@@ -154,7 +156,15 @@ namespace HoneyBee.Diff.Gui
                 SetCustomerData<uint[]>($"{_styleColors}_TextStyleColors", value);
             }
         }
-
+        public void Set<T>(string key, T value)
+        {
+            SetCustomerData<T>(key, value);
+           
+        }
+        public T Get<T>(string key,T defaultValue = default(T))
+        {
+            return GetCustomerData<T>(key,defaultValue);
+        }
 
     }
 }

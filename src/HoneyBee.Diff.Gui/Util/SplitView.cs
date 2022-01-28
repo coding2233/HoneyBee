@@ -48,7 +48,7 @@ namespace HoneyBee.Diff.Gui
         public void Begin()
         {
             _splitIndex = 0;
-            ImGui.BeginChild($"SplitView_Child_{_splitIndex}", GetSplitPosition(), true);
+            ImGui.BeginChild($"SplitView_Child_{_splitIndex}", GetSplitPosition(), false);
         }
 
         public void End()
@@ -124,7 +124,7 @@ namespace HoneyBee.Diff.Gui
             ImGui.GetWindowDrawList().AddRectFilled(min, max, ImGui.GetColorU32(separatorHovered ? ImGuiCol.SeparatorHovered : ImGuiCol.Border));
 
             _splitIndex++;
-            ImGui.BeginChild($"SplitView BeginHorizontal_{_splitIndex}", GetSplitPosition(), true);
+            ImGui.BeginChild($"SplitView BeginHorizontal_{_splitIndex}", GetSplitPosition(), false);
         }
 
 

@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using LibGit2Sharp;
+using System.ComponentModel.Composition;
 
 namespace HoneyBee.Diff.Gui
 {
@@ -42,6 +43,15 @@ namespace HoneyBee.Diff.Gui
 
         private List<BranchNode> _localBranchNodes;
         private List<BranchNode> _remoteBranchNodes;
+
+        [Import]
+        public IUserSettingsModel userSettingsModel { get; set; }
+
+        public ShowGitRepoView()
+        {
+            DiffProgram.ComposeParts(this);
+
+        }
 
         public void SetRepoPath(string repoPath)
         {
@@ -132,59 +142,65 @@ namespace HoneyBee.Diff.Gui
 
         private void OnRepoKeysDraw()
         {
-            ImGui.SetNextItemOpen(true);
-            if (ImGui.TreeNode("Workspace"))
-            {
-                if (ImGui.RadioButton("Work tree", _workSpaceRadio==WorkSpaceRadio.WorkTree))
+            DrawTreeNodeHead("Workspace", () => {
+                if (ImGui.RadioButton("Work tree", _workSpaceRadio == WorkSpaceRadio.WorkTree))
                 {
                     _workSpaceRadio = WorkSpaceRadio.WorkTree;
-                   _currentStatuses=  _repository.RetrieveStatus();
+                    _currentStatuses = _repository.RetrieveStatus();
                 }
 
-                if (ImGui.RadioButton("Commit history", _workSpaceRadio==WorkSpaceRadio.CommitHistory))
+                if (ImGui.RadioButton("Commit history", _workSpaceRadio == WorkSpaceRadio.CommitHistory))
                 {
                     _workSpaceRadio = WorkSpaceRadio.CommitHistory;
                 }
-                ImGui.TreePop();
-            }
+            });
 
-            if (ImGui.TreeNode("Branch"))
-            {
+            DrawTreeNodeHead("Branch", () => {
                 foreach (var item in _localBranchNodes)
                 {
                     DrawBranchTreeNode(item);
                 }
-                ImGui.TreePop();
-            }
+            });
 
-            if (ImGui.TreeNode("Tag"))
-            {
+            DrawTreeNodeHead("Tag", () => {
                 foreach (var item in _repository.Tags)
                 {
                     ImGui.Button($"{item.FriendlyName}");
                 }
-                ImGui.TreePop();
-            }
+            });
 
-            if (ImGui.TreeNode("Remote"))
-            {
+            DrawTreeNodeHead("Remote", () => {
                 foreach (var item in _remoteBranchNodes)
                 {
                     DrawBranchTreeNode(item);
                 }
-                ImGui.TreePop();
-            }
+            });
 
-            if (ImGui.TreeNode("Submodule"))
-            {
+            DrawTreeNodeHead("Submodule", () => {
                 foreach (var item in _repository.Submodules)
                 {
                     ImGui.Button($"{item.Name}");
                 }
-                ImGui.TreePop();
-            }
+            });
         }
 
+
+        private void DrawTreeNodeHead(string name,Action onDraw)
+        {
+            string key = $"TreeNode_{name}";
+            bool oldTreeNodeOpen = userSettingsModel.Get<bool>(key, false);
+            ImGui.SetNextItemOpen(oldTreeNodeOpen);
+            bool treeNodeOpen = ImGui.TreeNode(name);
+            if(treeNodeOpen)
+            {
+                onDraw();
+                ImGui.TreePop();
+            }
+            if (treeNodeOpen != oldTreeNodeOpen)
+            {
+                userSettingsModel.Set<bool>(key, treeNodeOpen);
+            }
+        }
 
         private void DrawBranchTreeNode(BranchNode branchNode)
         {
