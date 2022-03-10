@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LibGit2Sharp;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 
 namespace HoneyBee.Diff.Gui
 {
@@ -47,10 +48,20 @@ namespace HoneyBee.Diff.Gui
         [Import]
         public IUserSettingsModel userSettingsModel { get; set; }
 
+        private Dictionary<string, int> _toolItems;
+        private string _toolItemSelected = "";
+
         public ShowGitRepoView()
         {
             DiffProgram.ComposeParts(this);
 
+            _toolItems = new Dictionary<string, int>();
+            _toolItems.Add("Commit", Icon.Material_add);
+            _toolItems.Add("Pull", Icon.Material_sync);
+            _toolItems.Add("Fetch", Icon.Material_download);
+            _toolItems.Add("Settings", Icon.Material_settings);
+            _toolItems.Add("Git Bash", Icon.Material_terminal);
+            _toolItemSelected = "Commit";
         }
 
         public void SetRepoPath(string repoPath)
@@ -116,18 +127,21 @@ namespace HoneyBee.Diff.Gui
 
         protected override void OnToolbarDraw()
         {
-            DrawToolItem(Icon.Get(Icon.Material_add), "Commit", true);
-            ImGui.SameLine();
-            DrawToolItem(Icon.Get(Icon.Material_sync), "Pull", false);
-            ImGui.SameLine();
-            DrawToolItem(Icon.Get(Icon.Material_download), "Fetch", false);
-            ImGui.SameLine();
-            ImGui.Spacing();
-            ImGui.SameLine();
-            DrawToolItem(Icon.Get(Icon.Material_settings), "Settings", false);
-
+            int itemIndex = 0;
+            foreach (var item in _toolItems)
+            {
+                if (DrawToolItem(Icon.Get(item.Value), item.Key, item.Key == _toolItemSelected))
+                {
+                    _toolItemSelected = item.Key;
+                    OnClickToolbar(_toolItemSelected);
+                }
+                if (itemIndex >= 0 && itemIndex < _toolItems.Count - 1)
+                {
+                    ImGui.SameLine();
+                }
+                itemIndex++;
+            }
             ImGui.Separator();
-
         }
 
         protected override void OnDrawContent()
@@ -139,6 +153,22 @@ namespace HoneyBee.Diff.Gui
             _splitView.End();
         }
 
+
+        private void OnClickToolbar(string item)
+        {
+            if (item.Equals("Terminal"))
+            {
+                try
+                {
+                    string repoPath = RepoPath.EndsWith(".git") ? Path.GetDirectoryName(RepoPath) : RepoPath;
+                    Process.Start(@"git-bash.exe", $"--cd={repoPath}");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Terminal exception: {e}");
+                }
+            }
+        }
 
         private void OnRepoKeysDraw()
         {

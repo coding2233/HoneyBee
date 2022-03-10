@@ -153,6 +153,13 @@ namespace HoneyBee.Diff.Gui
                 _cl.End();
                 _gd.SubmitCommands(_cl);
                 _gd.SwapBuffers(_gd.MainSwapchain);
+
+                // Update and Render additional Platform Windows
+                if ((ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable)!=0)
+                {
+                    ImGui.UpdatePlatformWindows();
+                    ImGui.RenderPlatformWindowsDefault();
+                }
             }
 
             _mainWindow?.Dispose();
