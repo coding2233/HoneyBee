@@ -186,6 +186,10 @@ namespace HoneyBee.Diff.Gui
                             {
                                 mainModel.CreateTab<MainTabWindow>();
                             }
+                            if (ImGui.MenuItem("Terminal Window"))
+                            {
+                                mainModel.CreateTab<TerminalWindow>();
+                            }
                             ImGui.EndMenu();
                         }
 

@@ -60,7 +60,7 @@ namespace HoneyBee.Diff.Gui
             _toolItems.Add("Pull", Icon.Material_sync);
             _toolItems.Add("Fetch", Icon.Material_download);
             _toolItems.Add("Settings", Icon.Material_settings);
-            _toolItems.Add("Git Bash", Icon.Material_terminal);
+            _toolItems.Add("Terminal", Icon.Material_terminal);
             _toolItemSelected = "Commit";
         }
 

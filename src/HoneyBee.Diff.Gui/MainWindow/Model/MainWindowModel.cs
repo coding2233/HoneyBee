@@ -131,6 +131,8 @@ namespace HoneyBee.Diff.Gui
                     continue;
                 string typeFullName = item.GetType().FullName;
                 string serializeData = item.Serialize();
+                if (string.IsNullOrEmpty(serializeData))
+                    continue;
                 var findData = data.Find(x => x.StartsWith(typeFullName) && x.EndsWith(serializeData));
                 if (findData != null)
                 {
