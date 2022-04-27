@@ -76,7 +76,7 @@ namespace HoneyBee.Diff.Gui
         {
         }
 
-        public void OnDraw()
+        public void OnDraw(bool canInput=true)
         {
             if (ImGui.BeginTable("DiffFolderTable", 2, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable))
             {
@@ -93,7 +93,7 @@ namespace HoneyBee.Diff.Gui
                     var rectMin = ImGui.GetItemRectMin();
                     var rectMax = ImGui.GetItemRectMax();
                     rectMax.X = rectMin.X+ImGui.GetColumnWidth();
-                    if (ImGui.IsMouseHoveringRect(rectMin, rectMax))
+                    if (canInput && ImGui.IsMouseHoveringRect(rectMin, rectMax))
                     {
                         ImGui.GetWindowDrawList().AddRectFilled(rectMin, rectMax, ImGui.GetColorU32(ImGuiCol.TextSelectedBg));
                         if (ImGui.IsMouseClicked(ImGuiMouseButton.Left))

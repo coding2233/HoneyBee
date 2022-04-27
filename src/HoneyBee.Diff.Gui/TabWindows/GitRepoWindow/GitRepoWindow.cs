@@ -81,7 +81,7 @@ namespace HoneyBee.Diff.Gui
             DiffProgram.ComposeParts(this);
         }
 
-        public void OnDraw()
+        public void OnDraw(bool canInput=true)
         {
             if (_gitRepoView == null)
             {

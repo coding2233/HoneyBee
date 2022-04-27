@@ -84,7 +84,7 @@ namespace HoneyBee.Diff.Gui
             return true;
         }
 
-        public override void OnDraw()
+        public override void OnDraw(bool canInput=true)
         {
             base.OnDraw();
 

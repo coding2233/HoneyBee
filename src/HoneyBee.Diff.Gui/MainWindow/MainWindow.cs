@@ -26,7 +26,9 @@ namespace HoneyBee.Diff.Gui
 
         private bool _isLaunchWindow;
 
-        private List<int> _waitCloseTabIndexs = new List<int>();
+        private HashSet<int> _waitCloseTabIndexs = new HashSet<int>();
+
+        private GlobalControl _globalControl;
 
         public MainWindow(bool isLaunchWindow)
         {
@@ -38,6 +40,7 @@ namespace HoneyBee.Diff.Gui
             //Ioc entrance.
             DiffProgram.ComposeParts(this);
 
+
             //logic...
             SetStyleColors();
 
@@ -47,6 +50,7 @@ namespace HoneyBee.Diff.Gui
             mainModel.Init(args.Length != 3);
 
             _textStyleModal = new TextStyleSettingModal();
+            _globalControl = new GlobalControl();
 
             _defaultWindowFlag = ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize
                 | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
@@ -110,6 +114,7 @@ namespace HoneyBee.Diff.Gui
             }
             else
             {
+         
                 ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 3.0f);
 
                 var viewport = ImGui.GetMainViewport();
@@ -117,7 +122,10 @@ namespace HoneyBee.Diff.Gui
                 ImGui.SetNextWindowSize(viewport.WorkSize);
                 ImGui.SetNextWindowViewport(viewport.ID);
 
-                if (ImGui.Begin("Diff", _defaultWindowFlag | ImGuiWindowFlags.NoBringToFrontOnFocus))
+                bool showGlobalControl = GlobalControl.Show;
+                var windorFlag = showGlobalControl ? _defaultWindowFlag | ImGuiWindowFlags.NoInputs : _defaultWindowFlag;
+
+                if (ImGui.Begin("Diff", windorFlag))
                 {
                     if (ImGui.BeginMainMenuBar())
                     {
@@ -212,10 +220,8 @@ namespace HoneyBee.Diff.Gui
                     ImGui.SetNextWindowPos(contentPos);
                     ImGui.SetNextWindowSize(contentSize);
 
-                    if (ImGui.Begin("Compare", _defaultWindowFlag))
+                    if (ImGui.Begin("Compare", windorFlag))
                     {
-
-
                         //_folderWindow?.OnDraw();
                         var tabWindows = mainModel.TabWindows;
                         if (tabWindows.Count > 0)
@@ -272,43 +278,13 @@ namespace HoneyBee.Diff.Gui
                                     }
                                     if (visible)
                                     {
-                                        tabWindow.OnDraw();
-
-                                        if (tabWindow.ExitModal)
-                                        {
-                                            ImGui.OpenPopup("Exit Modal");
-                                            bool openExitModal = true;
-                                            if (ImGui.BeginPopupModal("Exit Modal", ref openExitModal, ImGuiWindowFlags.AlwaysAutoResize))
-                                            {
-
-                                                ImGui.Text("Check whether the current TAB window is closed?");
-
-                                                if (ImGui.Button("Sure"))
-                                                {
-                                                    mainModel.RemoveTab(i);
-                                                    i--;
-                                                    break;
-                                                }
-                                                ImGui.SameLine();
-                                                if (ImGui.Button("Cancel"))
-                                                {
-                                                    tabWindow.ExitModal = false;
-                                                }
-                                                ImGui.EndPopup();
-                                            }
-                                            if (!openExitModal)
-                                            {
-                                                tabWindow.ExitModal = false;
-                                            }
-                                        }
-
+                                        tabWindow.OnDraw(!showGlobalControl);
                                         ImGui.EndTabItem();
                                     }
                                     if (!showTab)
                                     {
-                                        tabWindow.ExitModal = true;
-                                        //mainModel.RemoveTab(i);
-                                        //i--;
+                                        //tabWindow.ExitModal = true;
+                                        _waitCloseTabIndexs.Add(i);
                                     }
                                 }
 
@@ -324,13 +300,9 @@ namespace HoneyBee.Diff.Gui
                         //确认删掉多个tab
                         if (_waitCloseTabIndexs.Count > 0)
                         {
-                            ImGui.OpenPopup("Exit Multi Modal");
-                            bool openMultiExitModal = true;
-                            if (ImGui.BeginPopupModal("Exit Multi Modal", ref openMultiExitModal, ImGuiWindowFlags.AlwaysAutoResize))
-                            {
-
-                                ImGui.Text("Check whether the current TAB window is closed?");
-                                if (ImGui.Button("Sure"))
+                            string multi = _waitCloseTabIndexs.Count > 1 ? "multi" : "current";
+                            GlobalControl.DisplayDialog("Delete Tab Window", $"Check whether the {multi} TAB window is closed?", "ok", (isExit) => {
+                                if (isExit)
                                 {
                                     Queue<ITabWindow> removeTabs = new Queue<ITabWindow>();
                                     foreach (var tabIndex in _waitCloseTabIndexs)
@@ -344,20 +316,30 @@ namespace HoneyBee.Diff.Gui
                                     }
                                     _waitCloseTabIndexs.Clear();
                                 }
-                                ImGui.SameLine();
-                                if (ImGui.Button("Cancel"))
+                                else
                                 {
                                     _waitCloseTabIndexs.Clear();
                                 }
-                                ImGui.EndPopup();
-                            }
+                            }, "cancel");
                         }
 
                         ImGui.End();
                     }
                     ImGui.End();
                 }
-           
+
+                if (showGlobalControl)
+                {
+                    ImGui.SetNextWindowPos(viewport.WorkPos);
+                    ImGui.SetNextWindowSize(viewport.WorkSize);
+                    ImGui.SetNextWindowViewport(viewport.ID);
+                    ImGui.PushStyleColor(ImGuiCol.WindowBg, ImGui.GetColorU32(Vector4.One * 0.6f));
+                    if (ImGui.Begin("Global-Control", _defaultWindowFlag))
+                    {
+                        _globalControl.Draw();
+                    }
+                    ImGui.PopStyleColor();
+                }
             }
         }
 

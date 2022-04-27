@@ -19,7 +19,7 @@ namespace HoneyBee.Diff.Gui
 
         void Setup(params object[] parameters);
 
-        void OnDraw();
+        void OnDraw(bool canInput=true);
 
         string Serialize();
 

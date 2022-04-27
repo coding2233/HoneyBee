@@ -97,7 +97,7 @@ namespace HoneyBee.Diff.Gui
             return buttonClick;
         }
 
-        public virtual void OnDraw()
+        public virtual void OnDraw(bool canInput=true)
         {
             OnToolbarDraw();
 

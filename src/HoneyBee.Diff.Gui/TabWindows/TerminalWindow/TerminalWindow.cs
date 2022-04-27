@@ -46,7 +46,7 @@ namespace HoneyBee.Diff.Gui
            
         }
 
-        public void OnDraw()
+        public void OnDraw(bool canInput=true)
         {
             string cdPath = _cdPath.Equals(_rootPath) ? "~" : _cdPath;
             ImGui.Text($"{_userName}@{_userDomain} {cdPath}");

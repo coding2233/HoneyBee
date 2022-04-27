@@ -28,7 +28,7 @@ namespace HoneyBee.Diff.Gui
         {
         }
 
-        public void OnDraw()
+        public void OnDraw(bool canInput=true)
         {
             ImGui.Text($"Version: {Version}");
             var tptr = DiffProgram.GetOrCreateTexture("bee.png");
