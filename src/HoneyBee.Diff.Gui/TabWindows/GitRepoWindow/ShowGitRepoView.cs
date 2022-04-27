@@ -160,18 +160,35 @@ namespace HoneyBee.Diff.Gui
 
         private void OnClickToolbar(string item)
         {
-            if (item.Equals("Terminal"))
+            switch (item)
             {
-                try
-                {
-                    string repoPath = RepoPath.EndsWith(".git") ? Path.GetDirectoryName(RepoPath) : RepoPath;
-                    Process.Start(@"git-bash.exe", $"--cd={repoPath}");
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Terminal exception: {e}");
-                }
+                case "Terminal":
+                    try
+                    {
+                        string repoPath = RepoPath.EndsWith(".git") ? Path.GetDirectoryName(RepoPath) : RepoPath;
+                        Process.Start(@"git-bash.exe", $"--cd={repoPath}");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Terminal exception: {e}");
+                    }
+                    break;
+                case "Pull":
+                    //var co = new CloneOptions();
+                    //co.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = "xxxx", Password = "xxx" };
+                    //co.OnProgress += new LibGit2Sharp.Handlers.ProgressHandler(OnProgressHandler);
+                    //Repository.Clone("https://github.com/libgit2/libgit2sharp.git", @"C:\Users\wanderer\Desktop\000\xx", co);
+                    break;
+                default:
+                    break;
             }
+           
+        }
+
+        private bool OnProgressHandler(string s)
+        {
+            GlobalControl.DisplayProgressBar("Clone", s, 0); 
+            return true;
         }
 
         private void OnRepoKeysDraw()

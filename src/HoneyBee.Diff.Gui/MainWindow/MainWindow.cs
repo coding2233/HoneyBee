@@ -53,7 +53,7 @@ namespace HoneyBee.Diff.Gui
             _globalControl = new GlobalControl();
 
             _defaultWindowFlag = ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize
-                | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
+                | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse ;
 
             if (args.Length == 3)
             {
@@ -115,7 +115,7 @@ namespace HoneyBee.Diff.Gui
             else
             {
          
-                ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 3.0f);
+                //ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 3.0f);
 
                 var viewport = ImGui.GetMainViewport();
                 ImGui.SetNextWindowPos(viewport.WorkPos);
@@ -327,7 +327,6 @@ namespace HoneyBee.Diff.Gui
                     }
                     ImGui.End();
                 }
-
                 if (showGlobalControl)
                 {
                     ImGui.SetNextWindowPos(viewport.WorkPos);

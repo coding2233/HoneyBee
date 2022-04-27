@@ -2,6 +2,7 @@ using ImGuiNET;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,7 +28,29 @@ namespace HoneyBee.Diff.Gui
         }
         
         public static void DisplayProgressBar(string title, string info, float progress, bool cancel = false)
-        { }
+        {
+            ProgressBarGlobalControl progressBar;
+            if (Show)
+            {
+                progressBar = _globalControl._globalControlImplement as ProgressBarGlobalControl;
+                if (progressBar != null)
+                {
+                    if (progress > 0)
+                    {
+                        progressBar.SetProgress(progress);
+                    }
+                    if (!string.IsNullOrEmpty(info))
+                    {
+                        progressBar.SetInfo(info);
+                    }
+                }
+            }
+            else
+            {
+                DisplayPopup(new ProgressBarGlobalControl(title, cancel));
+            }
+        }
+
 
         public static void DisplayPopup(IGlobalControl globalControlImplement)
         {
@@ -74,9 +97,13 @@ namespace HoneyBee.Diff.Gui
 
         public bool Draw()
         {
+            bool clear = true;
+            //var center = ImGui.GetMainViewport().GetCenter();
+            //ImGui.SetNextWindowPos(center, ImGuiCond.Appearing, new Vector2(0.5f, 0.5f));
+            ImGui.PushStyleColor(ImGuiCol.PopupBg, ImGui.GetColorU32(ImGuiCol.ChildBg));
             ImGui.OpenPopup("DialogGlobalControl");
-            bool opePopupModal = true;
-            if (ImGui.BeginPopupModal("DialogGlobalControl", ref opePopupModal, ImGuiWindowFlags.AlwaysAutoResize))
+
+            if (ImGui.BeginPopupModal("DialogGlobalControl"))
             {
                 ImGui.Text(_title);
                 ImGui.Text(_message);
@@ -84,7 +111,7 @@ namespace HoneyBee.Diff.Gui
                 if (ImGui.Button(_ok))
                 {
                     _callback?.Invoke(true);
-                    return false;
+                    clear = false;
                 }
                 if (!string.IsNullOrEmpty(_cancel))
                 {
@@ -92,12 +119,82 @@ namespace HoneyBee.Diff.Gui
                     if (ImGui.Button(_cancel))
                     {
                         _callback?.Invoke(false);
-                        return false;
+                        clear = false;
                     }
                 }
                 ImGui.EndPopup();
             }
-            return true;
+            ImGui.PopStyleColor();
+
+            return clear;
+        }
+    }
+
+    public class ProgressBarGlobalControl: IGlobalControl
+    {
+        private string _title;
+        private bool _cancel;
+        private float _progress;
+        private List<string> _infos = new List<string>();
+
+        public ProgressBarGlobalControl(string title, bool cancel = false)
+        {
+            _title = title;
+            _cancel = cancel;
+        }
+
+        public bool Draw()
+        {
+            bool clear = true;
+            //var center = ImGui.GetMainViewport().GetCenter();
+            //ImGui.SetNextWindowPos(center, ImGuiCond.Appearing, new Vector2(0.5f, 0.5f));
+            //ImGui.PushStyleColor(ImGuiCol.PopupBg, ImGui.GetColorU32(ImGuiCol.ChildBg));
+            ImGui.OpenPopup("ProgressBarGlobalControl");
+            bool show = true;
+            ImGui.SetNextWindowPos(new Vector2(5, 10));
+            if (ImGui.BeginPopupModal("ProgressBarGlobalControl",ref show, ImGuiWindowFlags.ChildWindow| ImGuiWindowFlags.AlwaysAutoResize|ImGuiWindowFlags.NoTitleBar| ImGuiWindowFlags.NoMove| ImGuiWindowFlags.NoResize|ImGuiWindowFlags.NoInputs))
+            {
+                ImGui.Text(_title);
+                ImGui.SetNextItemWidth(ImGui.GetWindowViewport().WorkSize.X*0.99f);
+                float ss = (float)(ImGui.GetTime() % 5.0f)*20.0f;
+                ImGui.SliderFloat("", ref ss,0,100);
+
+
+                if (_cancel)
+                {
+                    ImGui.SameLine();
+                    if (ImGui.Button("cancel"))
+                    {
+                        clear = false;
+                    }
+                }
+
+                int index = _infos.Count > 30 ? _infos.Count - 30 : 0;
+                for (int i = index; i < _infos.Count; i++)
+                {
+                    ImGui.Text(_infos[i]);
+                }
+
+                //if (_checkShowInfo && !string.IsNullOrEmpty(_showInfo))
+                //{
+                //    ImGui.Text(_showInfo);
+                //}
+
+                ImGui.EndPopup();
+            }
+            //ImGui.PopStyleColor();
+
+            return clear;
+        }
+
+        public void SetProgress(float progress)
+        {
+            _progress = progress;
+        }
+
+        public void SetInfo(string info)
+        {
+            _infos.Add(info);
         }
     }
 }

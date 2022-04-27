@@ -65,7 +65,7 @@ namespace HoneyBee.Diff.Gui
             IntPtr context = ImGui.CreateContext();
             ImGui.SetCurrentContext(context);
 
-            ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.ViewportsEnable| ImGuiConfigFlags.DockingEnable;
+            //ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.ViewportsEnable| ImGuiConfigFlags.DockingEnable;
 
             string iniFilePath = Path.Combine(Path.GetDirectoryName(System.Environment.GetCommandLineArgs()[0]), "imgui.ini");
             fixed (byte* iniFileName = System.Text.Encoding.UTF8.GetBytes(iniFilePath))
