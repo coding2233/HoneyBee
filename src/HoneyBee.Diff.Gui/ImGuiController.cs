@@ -79,7 +79,7 @@ namespace HoneyBee.Diff.Gui
             //字体大小
             int fontSize = 14;
             //Load chinese font.
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("wqy-microhei.ttc"))
+            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("wqy-zenhei.ttf"))
             {
                 if (stream.Length > 0)
                 {

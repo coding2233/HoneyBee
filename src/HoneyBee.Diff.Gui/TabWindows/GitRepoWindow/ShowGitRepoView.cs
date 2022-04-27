@@ -50,6 +50,7 @@ namespace HoneyBee.Diff.Gui
 
         private Dictionary<string, int> _toolItems;
         private string _toolItemSelected = "";
+        private List<Commit> _historyCommits;
 
         public ShowGitRepoView()
         {
@@ -95,6 +96,9 @@ namespace HoneyBee.Diff.Gui
                     }
                     //RetrieveStatus
                     _currentStatuses = _repository.RetrieveStatus();
+                    _historyCommits = _repository.Commits.ToList() ;
+
+                    Console.WriteLine("Get data.");
                 });
                 
             }
@@ -301,29 +305,38 @@ namespace HoneyBee.Diff.Gui
 
         private void OnDrawCommitHistory()
         {
+            if (_historyCommits == null)
+                return;
+
             if (_selectCommit != null)
             {
                 _contentSplitView.Begin();
             }
 
-            int commitMax = _repository.Commits.Count();
+            int commitMax = _historyCommits.Count();
             if (_lastCommitScrollY <= 0.0f)
             {
+                //float moveInterval = GetScrollInterval(_commitViewIndex - _commitAddInterval >= 0 ? _commitAddInterval : _commitViewIndex - _commitAddInterval);
                 _commitViewIndex -= _commitAddInterval;
                 _commitViewIndex = Math.Max(_commitViewIndex, 0);
                 if (_commitViewIndex > 0)
-                    ImGui.SetScrollY(10);
+                    ImGui.SetScrollY(GetScrollInterval(_commitAddInterval));
             }
             else if (_lastCommitScrollY >= ImGui.GetScrollMaxY())
             {
-                _commitViewIndex += _commitAddInterval;
-                if (commitMax > _commitViewMax)
+                if (commitMax >= _commitViewMax)
                 {
+                    _commitViewIndex += _commitAddInterval;
                     commitMax = commitMax - _commitViewMax;
+                    _commitViewIndex = Math.Min(_commitViewIndex, commitMax);
                 }
-                _commitViewIndex = Math.Min(_commitViewIndex, commitMax);
-                if (_commitViewIndex < commitMax)
-                    ImGui.SetScrollY(_lastCommitScrollY - 1);
+                else
+                {
+                    _commitViewIndex = 0;
+                }
+
+                if (_commitViewIndex >0 && _commitViewIndex < commitMax)
+                    ImGui.SetScrollY(ImGui.GetScrollMaxY()-GetScrollInterval(_commitAddInterval));
             }
             _lastCommitScrollY = ImGui.GetScrollY();
 
@@ -335,7 +348,8 @@ namespace HoneyBee.Diff.Gui
                 ImGui.TableSetupColumn("Commit", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize);
                 ImGui.TableHeadersRow();
                 int index = 0;
-                foreach (var item in _repository.Commits)
+
+                foreach (var item in _historyCommits)
                 {
                     index++;
                     if (index < _commitViewIndex)
@@ -379,6 +393,11 @@ namespace HoneyBee.Diff.Gui
         private void OnDrawSelectCommit(Commit commit)
         {
             _showCommitView.DrawSelectCommit(commit);
+        }
+
+        private float GetScrollInterval(float size)
+        {
+            return ImGui.GetScrollMaxY() * (size / _commitViewMax);
         }
     }
 }
