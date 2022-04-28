@@ -14,13 +14,7 @@ namespace HoneyBee.Diff.Gui
 {
     public class ShowGitRepoView:GitRepoView
     {
-        public class BranchNode
-        {
-            public string Name;
-            public string FullName;
-            public Branch Branch;
-            public List<BranchNode> Children;
-        }
+
 
         public enum WorkSpaceRadio
         {
@@ -28,9 +22,9 @@ namespace HoneyBee.Diff.Gui
             CommitHistory,
         }
 
-        private string _repoName ="";
-        private Repository _repository;
-        private RepositoryStatus _currentStatuses;
+        private Git _git;
+
+
         private WorkSpaceRadio _workSpaceRadio= WorkSpaceRadio.WorkTree;
         private int _commitAddInterval = 5;
         private int _commitViewIndex = 0;
@@ -42,15 +36,11 @@ namespace HoneyBee.Diff.Gui
         private WorkTreeView _workTreeView = new WorkTreeView();
         private Commit _selectCommit=null;
 
-        private List<BranchNode> _localBranchNodes;
-        private List<BranchNode> _remoteBranchNodes;
-
         [Import]
         public IUserSettingsModel userSettingsModel { get; set; }
 
         private Dictionary<string, int> _toolItems;
         private string _toolItemSelected = "";
-        private List<Commit> _historyCommits;
 
         public ShowGitRepoView()
         {
@@ -67,67 +57,13 @@ namespace HoneyBee.Diff.Gui
 
         public void SetRepoPath(string repoPath)
         {
-            RepoPath = repoPath;
-            if (!string.IsNullOrEmpty(RepoPath))
+            if (!string.IsNullOrEmpty(repoPath))
             {
-                _repoName = Path.GetFileNameWithoutExtension(RepoPath);
-                _repository = new Repository(RepoPath);
-                //Set branch nodes.
-                _localBranchNodes = new List<BranchNode>();
-                _remoteBranchNodes = new List<BranchNode>();
-                Task.Run(() =>
-                {
-                    foreach (var branch in _repository.Branches)
-                    {
-                        string[] nameArgs = branch.FriendlyName.Split('/');
-                        Queue<string> nameTree = new Queue<string>();
-                        foreach (var item in nameArgs)
-                        {
-                            nameTree.Enqueue(item);
-                        }
-                        if (branch.IsRemote)
-                        {
-                            JointBranchNode(_remoteBranchNodes, nameTree, branch);
-                        }
-                        else
-                        {
-                            JointBranchNode(_localBranchNodes, nameTree, branch);
-                        }
-                    }
-                    //RetrieveStatus
-                    _currentStatuses = _repository.RetrieveStatus();
-                    _historyCommits = _repository.Commits.ToList() ;
-
-                    Console.WriteLine("Get data.");
-                });
-                
+                _git = new Git(repoPath);
+                RepoPath = _git.RepoPath;
             }
         }
 
-        private void JointBranchNode(List<BranchNode> branchNodes,Queue<string> nameTree,Branch branch)
-        {
-            if (nameTree.Count == 1)
-            {
-                BranchNode branchNode = new BranchNode();
-                branchNode.Name = nameTree.Dequeue();
-                branchNode.FullName = branch.FriendlyName;
-                branchNode.Branch = branch;
-                branchNodes.Add(branchNode);
-            }
-            else
-            {
-                string name = nameTree.Dequeue();
-                var findNode = branchNodes.Find(x => x.Name.Equals(name));
-                if (findNode == null)
-                {
-                    findNode = new BranchNode();
-                    findNode.Name = name;
-                    findNode.Children = new List<BranchNode>();
-                    branchNodes.Add(findNode);
-                }
-                JointBranchNode(findNode.Children, nameTree, branch);
-            }
-        }
 
         protected override void OnToolbarDraw()
         {
@@ -150,6 +86,9 @@ namespace HoneyBee.Diff.Gui
 
         protected override void OnDrawContent()
         {
+            if (_git == null)
+                return;
+
             _splitView.Begin();
             OnRepoKeysDraw();
             _splitView.Separate();
@@ -175,9 +114,10 @@ namespace HoneyBee.Diff.Gui
                     break;
                 case "Pull":
                     //var co = new CloneOptions();
-                    //co.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = "xxxx", Password = "xxx" };
-                    //co.OnProgress += new LibGit2Sharp.Handlers.ProgressHandler(OnProgressHandler);
-                    //Repository.Clone("https://github.com/libgit2/libgit2sharp.git", @"C:\Users\wanderer\Desktop\000\xx", co);
+                    ////co.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = "xxxx", Password = "xxx" };
+                    //co.OnTransferProgress = new LibGit2Sharp.Handlers.ProgressHandler(OnProgressHandler);
+                    //Repository.Clone("https://github.com/libgit2/libgit2sharp.git", @"xx", co);
+
                     break;
                 default:
                     break;
@@ -185,11 +125,11 @@ namespace HoneyBee.Diff.Gui
            
         }
 
-        private bool OnProgressHandler(string s)
-        {
-            GlobalControl.DisplayProgressBar("Clone", s, 0); 
-            return true;
-        }
+        //private bool OnProgressHandler(string s)
+        //{
+        //    GlobalControl.DisplayProgressBar("Clone", s, 0); 
+        //    return true;
+        //}
 
         private void OnRepoKeysDraw()
         {
@@ -197,7 +137,7 @@ namespace HoneyBee.Diff.Gui
                 if (ImGui.RadioButton("Work tree", _workSpaceRadio == WorkSpaceRadio.WorkTree))
                 {
                     _workSpaceRadio = WorkSpaceRadio.WorkTree;
-                    _currentStatuses = _repository.RetrieveStatus();
+                    _git.Status();
                 }
 
                 if (ImGui.RadioButton("Commit history", _workSpaceRadio == WorkSpaceRadio.CommitHistory))
@@ -207,28 +147,28 @@ namespace HoneyBee.Diff.Gui
             });
 
             DrawTreeNodeHead("Branch", () => {
-                foreach (var item in _localBranchNodes)
+                foreach (var item in _git.LocalBranchNodes)
                 {
                     DrawBranchTreeNode(item);
                 }
             });
 
             DrawTreeNodeHead("Tag", () => {
-                foreach (var item in _repository.Tags)
+                foreach (var item in _git.Tags)
                 {
                     ImGui.Button($"{item.FriendlyName}");
                 }
             });
 
             DrawTreeNodeHead("Remote", () => {
-                foreach (var item in _remoteBranchNodes)
+                foreach (var item in _git.RemoteBranchNodes)
                 {
                     DrawBranchTreeNode(item);
                 }
             });
 
             DrawTreeNodeHead("Submodule", () => {
-                foreach (var item in _repository.Submodules)
+                foreach (var item in _git.Submodules)
                 {
                     ImGui.Button($"{item.Name}");
                 }
@@ -279,27 +219,45 @@ namespace HoneyBee.Diff.Gui
                     textColor= ImGui.GetColorU32(ImGuiCol.HeaderActive);
                 }
                 ImGui.TextColored(ImGui.ColorConvertU32ToFloat4(textColor), $"\t{branchNode.Name}");
-                if (branchNode.Branch.IsTracking)
-                {
-                    var pos = ImGui.GetItemRectMax();
-                    pos.Y -= 15;
+                //if (branchNode.Branch.IsTracking)
+                //{
+                //    var pos = ImGui.GetItemRectMax();
+                //    pos.Y -= 15;
 
-                    var trackingDetails = branchNode.Branch.TrackingDetails;
-                    if (trackingDetails.BehindBy > 0)
-                    {
-                        string showTipText = $"{Icon.Get(Icon.Material_arrow_downward)}{trackingDetails.BehindBy}";
-                        textSize = ImGui.CalcTextSize(showTipText);
-                        ImGui.GetWindowDrawList().AddText(pos, ImGui.GetColorU32(ImGuiCol.Text), showTipText);
-                        pos.X += textSize.X;
-                    }
+                //    if (branchNode.BehindBy > 0)
+                //    {
+                //        string showTipText = $"{Icon.Get(Icon.Material_arrow_downward)}{branchNode.BehindBy}";
+                //        textSize = ImGui.CalcTextSize(showTipText);
+                //        ImGui.GetWindowDrawList().AddText(pos, ImGui.GetColorU32(ImGuiCol.Text), showTipText);
+                //        pos.X += textSize.X;
+                //    }
 
-                    if (trackingDetails.AheadBy > 0)
-                    {
-                        string showTipText = $"{Icon.Get(Icon.Material_arrow_upward)}{trackingDetails.AheadBy}";
-                        //Vector2 textSize = ImGui.CalcTextSize(showTipText);
-                        ImGui.GetWindowDrawList().AddText(pos, ImGui.GetColorU32(ImGuiCol.Text), showTipText);
-                    }
-                }
+                //    if (branchNode.AheadBy > 0)
+                //    {
+                //        string showTipText = $"{Icon.Get(Icon.Material_arrow_upward)}{branchNode.AheadBy}";
+                //        //Vector2 textSize = ImGui.CalcTextSize(showTipText);
+                //        ImGui.GetWindowDrawList().AddText(pos, ImGui.GetColorU32(ImGuiCol.Text), showTipText);
+                //    }
+                //}
+            }
+
+
+            var pos = ImGui.GetItemRectMax();
+            pos.Y -= 15;
+
+            if (branchNode.BehindBy > 0)
+            {
+                string showTipText = $"{Icon.Get(Icon.Material_arrow_downward)}{branchNode.BehindBy}";
+                var textSize = ImGui.CalcTextSize(showTipText);
+                ImGui.GetWindowDrawList().AddText(pos, ImGui.GetColorU32(ImGuiCol.Text), showTipText);
+                pos.X += textSize.X;
+            }
+
+            if (branchNode.AheadBy > 0)
+            {
+                string showTipText = $"{Icon.Get(Icon.Material_arrow_upward)}{branchNode.AheadBy}";
+                //Vector2 textSize = ImGui.CalcTextSize(showTipText);
+                ImGui.GetWindowDrawList().AddText(pos, ImGui.GetColorU32(ImGuiCol.Text), showTipText);
             }
         }
 
@@ -317,12 +275,13 @@ namespace HoneyBee.Diff.Gui
 
         private void OnDrawWorkTree()
         {
-                _workTreeView.OnDraw(_currentStatuses, _repository.Diff);
+                _workTreeView.OnDraw(_git.CurrentStatuses, _git.Diff);
         }
 
         private void OnDrawCommitHistory()
         {
-            if (_historyCommits == null)
+            var historyCommits = _git.HistoryCommits;
+            if (historyCommits == null)
                 return;
 
             if (_selectCommit != null)
@@ -330,7 +289,7 @@ namespace HoneyBee.Diff.Gui
                 _contentSplitView.Begin();
             }
 
-            int commitMax = _historyCommits.Count();
+            int commitMax = historyCommits.Count();
             if (_lastCommitScrollY <= 0.0f)
             {
                 //float moveInterval = GetScrollInterval(_commitViewIndex - _commitAddInterval >= 0 ? _commitAddInterval : _commitViewIndex - _commitAddInterval);
@@ -366,7 +325,7 @@ namespace HoneyBee.Diff.Gui
                 ImGui.TableHeadersRow();
                 int index = 0;
 
-                foreach (var item in _historyCommits)
+                foreach (var item in historyCommits)
                 {
                     index++;
                     if (index < _commitViewIndex)
