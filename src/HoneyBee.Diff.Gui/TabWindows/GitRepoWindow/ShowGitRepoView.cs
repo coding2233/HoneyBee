@@ -117,7 +117,7 @@ namespace HoneyBee.Diff.Gui
                     ////co.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = "xxxx", Password = "xxx" };
                     //co.OnTransferProgress = new LibGit2Sharp.Handlers.ProgressHandler(OnProgressHandler);
                     //Repository.Clone("https://github.com/libgit2/libgit2sharp.git", @"xx", co);
-
+                    Git.Clone();
                     break;
                 default:
                     break;

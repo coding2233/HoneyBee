@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HoneyBee.Diff.Gui
@@ -42,7 +43,7 @@ namespace HoneyBee.Diff.Gui
     public class Git
     {
         private Repository _repository;
-
+        private SynchronizationContext m_mainSynchronizationContext;
         public string RepoName { get; private set; }
         public string RepoPath { get; private set; }
         public RepositoryStatus CurrentStatuses { get; private set; }
@@ -93,6 +94,24 @@ namespace HoneyBee.Diff.Gui
             Task.Run(()=> {
                 CurrentStatuses = _repository.RetrieveStatus();
             });
+        }
+
+        public static void Clone(string remoteUrl,string localDirectory,Action<string> logCallback)
+        {
+            Task.Run(() =>
+            {
+                var co = new CloneOptions();
+                co.RecurseSubmodules = true;
+                co.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = "coding2233", Password = "coding2580" };
+                co.OnProgress = ProgressHandler;
+                Repository.Clone("https://gitee.com/focus-creative-games/huatuo.git", "./repo", co);
+            });
+        }
+
+        static bool ProgressHandler(string serverProgressOutput)
+        {
+            Console.WriteLine(serverProgressOutput);
+            return true;
         }
 
         private void JointBranchNode(List<BranchNode> branchNodes, Queue<string> nameTree, Branch branch)
