@@ -156,6 +156,11 @@ namespace HoneyBee.Diff.Gui
                 SetCustomerData<uint[]>($"{_styleColors}_TextStyleColors", value);
             }
         }
+
+        public bool Has<T>(string key)
+        {
+            return HasCustomerData<T>(key);
+        }
         public void Set<T>(string key, T value)
         {
             SetCustomerData<T>(key, value);

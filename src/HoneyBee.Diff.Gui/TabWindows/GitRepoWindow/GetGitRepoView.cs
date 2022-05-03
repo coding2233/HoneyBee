@@ -82,11 +82,20 @@ namespace HoneyBee.Diff.Gui
                 if (Directory.Exists(localPath))
                     return;
 
-                var cloneOptions = new CloneOptions();
-                cloneOptions.OnProgress = OnCloneProcess;
-                var result = Repository.Clone(remoteURL, localPath, cloneOptions);
-                Console.WriteLine(result);
-                _getGitRepoPath?.Invoke(result);
+                Git.Clone(remoteURL, localPath,(log)=> {
+                    GlobalControl.DisplayProgressBar("Clone", log, 0);
+                },(gitPath)=>{
+                    GlobalControl.DisplayProgressBar("Clone", "Compolete", -99.0f);
+                    //_getGitRepoPath?.Invoke(gitPath);
+                });
+                //if (Git.Credentials.Has(remoteURL))
+                //{
+                //}
+                //var cloneOptions = new CloneOptions();
+                //cloneOptions.OnProgress = OnCloneProcess;
+                //var result = Repository.Clone(remoteURL, localPath, cloneOptions);
+                //Console.WriteLine(result);
+               
             }
         }
         private void DrawAdd()

@@ -152,7 +152,7 @@ namespace HoneyBee.Diff.Gui
             ImGui.OpenPopup("ProgressBarGlobalControl");
             bool show = true;
             ImGui.SetNextWindowPos(new Vector2(5, 10));
-            if (ImGui.BeginPopupModal("ProgressBarGlobalControl",ref show, ImGuiWindowFlags.ChildWindow| ImGuiWindowFlags.AlwaysAutoResize|ImGuiWindowFlags.NoTitleBar| ImGuiWindowFlags.NoMove| ImGuiWindowFlags.NoResize|ImGuiWindowFlags.NoInputs))
+            if (ImGui.BeginPopupModal("ProgressBarGlobalControl",ref show, ImGuiWindowFlags.ChildWindow | ImGuiWindowFlags.AlwaysAutoResize|ImGuiWindowFlags.NoTitleBar| ImGuiWindowFlags.NoMove| ImGuiWindowFlags.NoResize|ImGuiWindowFlags.NoInputs))
             {
                 ImGui.Text(_title);
                 ImGui.SetNextItemWidth(ImGui.GetWindowViewport().WorkSize.X*0.99f);
@@ -183,7 +183,10 @@ namespace HoneyBee.Diff.Gui
                 ImGui.EndPopup();
             }
             //ImGui.PopStyleColor();
-
+            if (_progress <= -1.0f)
+            {
+                clear = false;
+            }
             return clear;
         }
 

@@ -1,6 +1,8 @@
 using LibGit2Sharp;
+using LibGit2Sharp.Handlers;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -43,7 +45,37 @@ namespace HoneyBee.Diff.Gui
     public class Git
     {
         private Repository _repository;
-        private SynchronizationContext m_mainSynchronizationContext;
+        private static SynchronizationContext s_mainSynchronizationContext;
+
+        private static SynchronizationContext mainSyncContext
+        {
+            get
+            {
+                if(s_mainSynchronizationContext==null)
+                {
+                    s_mainSynchronizationContext = SynchronizationContext.Current;
+                    if (s_mainSynchronizationContext == null)
+                    {
+                        s_mainSynchronizationContext = new SynchronizationContext();
+                    }
+                }
+                return s_mainSynchronizationContext;
+            }
+        }
+
+        private static GitCredentials s_credentials;
+        public static GitCredentials Credentials
+        {
+            get
+            {
+                if (s_credentials == null)
+                {
+                    s_credentials=new GitCredentials();
+                }
+                return s_credentials;
+            }
+        }
+
         public string RepoName { get; private set; }
         public string RepoPath { get; private set; }
         public RepositoryStatus CurrentStatuses { get; private set; }
@@ -96,22 +128,55 @@ namespace HoneyBee.Diff.Gui
             });
         }
 
-        public static void Clone(string remoteUrl,string localDirectory,Action<string> logCallback)
+        public void Pull()
+        {
+            if (_repository == null)
+                return;
+
+            // Credential information to fetch
+            LibGit2Sharp.PullOptions options = new LibGit2Sharp.PullOptions();
+            options.FetchOptions = new FetchOptions();
+            //if (Credentials.Has(remoteUrl))
+            //{
+            //    var cred = Credentials.Get(remoteUrl);
+            //    options.FetchOptions.CredentialsProvider = new CredentialsHandler(
+            //    (url, usernameFromUrl, types) =>
+            //        new UsernamePasswordCredentials()
+            //        {
+            //            Username = cred.UserName,
+            //            Password = cred.Password
+            //        });
+            //}
+
+            // User information to create a merge commit
+            var signature = new LibGit2Sharp.Signature(
+                new Identity("MERGE_USER_NAME", "MERGE_USER_EMAIL"), DateTimeOffset.Now);
+
+            // Pull
+            Commands.Pull(_repository, signature, options);
+        }
+
+        public static void Clone(string remoteUrl,string localDirectory,Action<string> logCallback,Action<string> complete)
         {
             Task.Run(() =>
             {
                 var co = new CloneOptions();
                 co.RecurseSubmodules = true;
-                co.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = "coding2233", Password = "coding2580" };
-                co.OnProgress = ProgressHandler;
-                Repository.Clone("https://gitee.com/focus-creative-games/huatuo.git", "./repo", co);
+                if (Credentials.Has(remoteUrl))
+                {
+                    var cred = Credentials.Get(remoteUrl);
+                    co.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = cred.UserName, Password = cred.Password };
+                }
+                co.OnProgress = (serverProgressOutput)=> {
+                    //mainSyncContext.Post((state)=> { 
+                        logCallback?.Invoke(serverProgressOutput);
+                    //},null);
+                    return true; };
+                string result = Repository.Clone(remoteUrl, localDirectory, co);
+                mainSyncContext.Post((state)=> { 
+                    complete?.Invoke(result);
+                }, null);
             });
-        }
-
-        static bool ProgressHandler(string serverProgressOutput)
-        {
-            Console.WriteLine(serverProgressOutput);
-            return true;
         }
 
         private void JointBranchNode(List<BranchNode> branchNodes, Queue<string> nameTree, Branch branch)
@@ -137,6 +202,49 @@ namespace HoneyBee.Diff.Gui
                 }
                 JointBranchNode(findNode.Children, nameTree, branch);
             }
+        }
+    }
+
+
+    public class GitCredentials
+    {
+
+        [Import]
+        public IUserSettingsModel UserSettings { get; set; }
+
+        public GitCredentials()
+        {
+            DiffProgram.ComposeParts(this);
+        }
+
+        public bool Has(string url)
+        {
+            url = Escape(url);
+            return UserSettings.Has<Credentials>(url);
+        }
+
+        public void Set(string url, string userName, string password)
+        {
+            url = Escape(url);
+            Credentials credentials = new Credentials() { UserName =userName,Password=password};
+            UserSettings.Set<Credentials>(url, credentials);
+        }
+
+        public Credentials Get(string url)
+        {
+            url = Escape(url);
+            return UserSettings.Get<Credentials>(url);
+        }
+
+        private string Escape(string url)
+        {
+            return System.Web.HttpUtility.HtmlEncode(url);
+        }
+
+        public struct Credentials
+        {
+            public string UserName { get; set; }
+            public string Password { get; set; }
         }
     }
 }

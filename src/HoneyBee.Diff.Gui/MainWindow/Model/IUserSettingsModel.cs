@@ -14,6 +14,7 @@ namespace HoneyBee.Diff.Gui
         Vector4 MarkRedColor { get; }
         Vector4 MarkGreenColor { get; }
         uint[] TextStyleColors { get; set; }
+        bool Has<T>(string key);
         void Set<T>(string key,T value);
         T Get<T>(string key,T defaultValue = default(T));
     }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace HoneyBee.Diff.Gui
 {
-    class CustomerData<T>
+    public class CustomerData<T>
     {
         //litedb必须带id
         public int Id { get; set; }
