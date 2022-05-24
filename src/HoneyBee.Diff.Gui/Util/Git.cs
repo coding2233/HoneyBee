@@ -167,11 +167,32 @@ namespace HoneyBee.Diff.Gui
                     var cred = Credentials.Get(remoteUrl);
                     co.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = cred.UserName, Password = cred.Password };
                 }
-                co.OnProgress = (serverProgressOutput)=> {
-                    //mainSyncContext.Post((state)=> { 
+               
+                co.OnProgress = (serverProgressOutput) => {
+                    mainSyncContext.Post((state) =>
+                    {
                         logCallback?.Invoke(serverProgressOutput);
-                    //},null);
+                    }, null);
+                    return true;
+                };
+                co.OnTransferProgress = (progress) => {
+                    int indexedProgress = (int)((progress.IndexedObjects / (float)progress.ReceivedObjects) * 100);
+                    int receiveProgress = (int)((progress.ReceivedObjects / (float)progress.TotalObjects) * 100);
+                    string transferProgressLog = $"Receiving objects: {receiveProgress}% ({progress.ReceivedObjects}/{progress.TotalObjects}), {progress.ReceivedBytes.ToSizeString()}" +
+                    $", Resolving deltas: {indexedProgress}% ({progress.IndexedObjects}/{progress.ReceivedObjects})";
+                    mainSyncContext.Post((state) =>
+                    {
+                        logCallback?.Invoke(transferProgressLog);
+                    }, null);
                     return true; };
+                co.OnCheckoutProgress = (path, completedSteps, totalSteps) => {
+                    int checkProgress = (int)((completedSteps / (float)totalSteps) * 100);
+                    string checkLog = $"Checkout files: {checkProgress}% ({completedSteps}/{totalSteps}), {path}";
+                    mainSyncContext.Post((state) =>
+                    {
+                        logCallback?.Invoke(checkLog);
+                    }, null);
+                };
                 string result = Repository.Clone(remoteUrl, localDirectory, co);
                 mainSyncContext.Post((state)=> { 
                     complete?.Invoke(result);

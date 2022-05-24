@@ -35,10 +35,15 @@ namespace HoneyBee.Diff.Gui
                 progressBar = _globalControl._globalControlImplement as ProgressBarGlobalControl;
                 if (progressBar != null)
                 {
-                    if (progress > 0)
+                    if (progress >= 0)
                     {
                         progressBar.SetProgress(progress);
                     }
+                    else
+                    {
+                        progressBar.Cancel();
+                    }
+
                     if (!string.IsNullOrEmpty(info))
                     {
                         progressBar.SetInfo(info);
@@ -155,7 +160,7 @@ namespace HoneyBee.Diff.Gui
             if (ImGui.BeginPopupModal("ProgressBarGlobalControl",ref show, ImGuiWindowFlags.ChildWindow | ImGuiWindowFlags.AlwaysAutoResize|ImGuiWindowFlags.NoTitleBar| ImGuiWindowFlags.NoMove| ImGuiWindowFlags.NoResize|ImGuiWindowFlags.NoInputs))
             {
                 ImGui.Text(_title);
-                ImGui.SetNextItemWidth(ImGui.GetWindowViewport().WorkSize.X*0.99f);
+                ImGui.SetNextItemWidth(ImGui.GetWindowViewport().WorkSize.X*0.95f);
                 float ss = (float)(ImGui.GetTime() % 5.0f)*20.0f;
                 ImGui.SliderFloat("", ref ss,0,100);
 
@@ -182,7 +187,7 @@ namespace HoneyBee.Diff.Gui
                 ImGui.EndPopup();
             }
             //ImGui.PopStyleColor();
-            if (_progress <= -1.0f)
+            if (_progress < 0f)
             {
                 clear = false;
             }
@@ -192,6 +197,11 @@ namespace HoneyBee.Diff.Gui
         public void SetProgress(float progress)
         {
             _progress = progress;
+        }
+
+        public void Cancel()
+        {
+            _progress = -1.0f;
         }
 
         public void SetInfo(string info)
