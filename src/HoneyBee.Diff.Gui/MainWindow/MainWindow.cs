@@ -130,7 +130,7 @@ namespace HoneyBee.Diff.Gui
                 }
 
                 var windorFlag = _defaultWindowFlag;
-                if (ImGui.Begin("Diff", windorFlag))
+                if (ImGui.Begin("Diff", windorFlag | ImGuiWindowFlags.NoBringToFrontOnFocus))
                 {
                     if (ImGui.BeginMainMenuBar())
                     {
