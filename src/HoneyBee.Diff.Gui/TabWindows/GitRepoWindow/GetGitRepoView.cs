@@ -15,6 +15,8 @@ namespace HoneyBee.Diff.Gui
         private int _toolItemIndex = 0;
         private string _remoteURL = "";
         private string _localPath = "";
+        private bool _useDefaultRepoName = true;
+        private string _repoName = "";
 
         private Action<string> _getGitRepoPath;
         private List<ToolbarTab> _toolbarTabs;
@@ -54,48 +56,83 @@ namespace HoneyBee.Diff.Gui
         private void DrawClone()
         {
             ImGui.Text("Clone");
-            ImGui.InputText("Git_Remote_URL", ref _remoteURL, 200);
+            if (ImGui.InputText("Git_Remote_URL", ref _remoteURL, 200))
+            {
+                if (_useDefaultRepoName || string.IsNullOrEmpty(_repoName))
+                {
+                    _repoName = Path.GetFileNameWithoutExtension(_remoteURL);
+                }
+            }
             ImGui.InputText("Git_Local_Path", ref _localPath, 200);
             ImGui.SameLine();
             if (ImGui.Button(Icon.Get(Icon.Material_open_in_browser)))
             {
-                string localPath = string.IsNullOrEmpty(_localPath) ? "./" : _localPath;
+                string localFolderPath = string.IsNullOrEmpty(_localPath) ? "./" : _localPath;
                 ImGuiFileDialog.OpenFolder((selectPath) => {
                     if (!string.IsNullOrEmpty(selectPath))
                     {
                         _localPath = selectPath;
                     }
-                }, localPath);
+                }, localFolderPath);
             }
+
+            string localPath = null;
+            if (!string.IsNullOrEmpty(_remoteURL))
+            {
+                if (ImGui.Checkbox("Default repository name", ref _useDefaultRepoName))
+                {
+                    if (_useDefaultRepoName)
+                    {
+                        _repoName = Path.GetFileNameWithoutExtension(_remoteURL);
+                    }
+                }
+                ImGui.SameLine();
+                if (_useDefaultRepoName)
+                {
+                    ImGui.Text(_repoName);
+                }
+                else
+                {
+                     ImGui.InputText("", ref _repoName, 50);
+                }
+
+                if (!string.IsNullOrEmpty(_localPath))
+                {
+                    localPath = Path.Combine(_localPath, _repoName);
+                    if (Directory.Exists(localPath))
+                    {
+                        //ImGui.SameLine();
+                        ImGui.TextColored(new System.Numerics.Vector4(1,0, 0, 1), "Folder already exists");
+                        localPath = null;
+                    }
+                }
+            }
+
+            bool disableClone = string.IsNullOrEmpty(localPath);
+            if (disableClone)
+            {
+                ImGui.BeginDisabled();
+            }
+
             if (ImGui.Button(Icon.Get(Icon.Material_download) + "Clone"))
             {
-                if (string.IsNullOrEmpty(_remoteURL) || string.IsNullOrEmpty(_localPath))
-                    return;
-
                 string remoteURL = _remoteURL;
-                string repoName = Path.GetFileNameWithoutExtension(remoteURL);
                 if (!remoteURL.EndsWith(".git"))
                 {
                     remoteURL = $"{remoteURL}.git";
                 }
-                string localPath = Path.Combine(_localPath, repoName);
-                if (Directory.Exists(localPath))
-                    return;
 
                 Git.Clone(remoteURL, localPath,(log)=> {
                     GlobalControl.DisplayProgressBar("Clone", log, 0);
                 },(gitPath)=>{
                     GlobalControl.DisplayProgressBar("Clone", "Compolete", -99.0f);
-                    //_getGitRepoPath?.Invoke(gitPath);
+                    _getGitRepoPath?.Invoke(gitPath);
                 });
-                //if (Git.Credentials.Has(remoteURL))
-                //{
-                //}
-                //var cloneOptions = new CloneOptions();
-                //cloneOptions.OnProgress = OnCloneProcess;
-                //var result = Repository.Clone(remoteURL, localPath, cloneOptions);
-                //Console.WriteLine(result);
-               
+            }
+
+            if (disableClone)
+            {
+                ImGui.EndDisabled();
             }
         }
         private void DrawAdd()

@@ -173,16 +173,10 @@ namespace HoneyBee.Diff.Gui
                     }
                 }
 
-                int index = _infos.Count > 30 ? _infos.Count - 30 : 0;
-                for (int i = index; i < _infos.Count; i++)
+                for (int i = 0; i < _infos.Count; i++)
                 {
                     ImGui.Text(_infos[i]);
                 }
-
-                //if (_checkShowInfo && !string.IsNullOrEmpty(_showInfo))
-                //{
-                //    ImGui.Text(_showInfo);
-                //}
 
                 ImGui.EndPopup();
             }
@@ -207,6 +201,10 @@ namespace HoneyBee.Diff.Gui
         public void SetInfo(string info)
         {
             _infos.Add(info);
+            while (_infos.Count > 30)
+            {
+                _infos.RemoveAt(0);
+            }
         }
     }
 }
