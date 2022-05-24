@@ -100,11 +100,12 @@ namespace HoneyBee.Diff.Gui
             bool clear = true;
             //var center = ImGui.GetMainViewport().GetCenter();
             //ImGui.SetNextWindowPos(center, ImGuiCond.Appearing, new Vector2(0.5f, 0.5f));
-            ImGui.PushStyleColor(ImGuiCol.PopupBg, ImGui.GetColorU32(ImGuiCol.ChildBg));
             ImGui.OpenPopup("DialogGlobalControl");
-
+            //ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
             if (ImGui.BeginPopupModal("DialogGlobalControl"))
             {
+                //ImGui.PopStyleVar();
+
                 ImGui.Text(_title);
                 ImGui.Text(_message);
 
@@ -124,7 +125,6 @@ namespace HoneyBee.Diff.Gui
                 }
                 ImGui.EndPopup();
             }
-            ImGui.PopStyleColor();
 
             return clear;
         }
@@ -158,7 +158,6 @@ namespace HoneyBee.Diff.Gui
                 ImGui.SetNextItemWidth(ImGui.GetWindowViewport().WorkSize.X*0.99f);
                 float ss = (float)(ImGui.GetTime() % 5.0f)*20.0f;
                 ImGui.SliderFloat("", ref ss,0,100);
-
 
                 if (_cancel)
                 {

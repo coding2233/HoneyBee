@@ -123,8 +123,13 @@ namespace HoneyBee.Diff.Gui
                 ImGui.SetNextWindowViewport(viewport.ID);
 
                 bool showGlobalControl = GlobalControl.Show;
-                var windorFlag = showGlobalControl ? _defaultWindowFlag | ImGuiWindowFlags.NoInputs : _defaultWindowFlag;
 
+                if (showGlobalControl)
+                {
+                    ImGui.BeginDisabled();
+                }
+
+                var windorFlag = _defaultWindowFlag;
                 if (ImGui.Begin("Diff", windorFlag))
                 {
                     if (ImGui.BeginMainMenuBar())
@@ -327,17 +332,19 @@ namespace HoneyBee.Diff.Gui
                     }
                     ImGui.End();
                 }
+
                 if (showGlobalControl)
                 {
+                    ImGui.EndDisabled();
+
                     ImGui.SetNextWindowPos(viewport.WorkPos);
                     ImGui.SetNextWindowSize(viewport.WorkSize);
                     ImGui.SetNextWindowViewport(viewport.ID);
-                    ImGui.PushStyleColor(ImGuiCol.WindowBg, ImGui.GetColorU32(Vector4.One * 0.6f));
-                    if (ImGui.Begin("Global-Control", _defaultWindowFlag))
+                    if (ImGui.Begin("Global-Control", _defaultWindowFlag|ImGuiWindowFlags.NoBackground))
                     {
                         _globalControl.Draw();
                     }
-                    ImGui.PopStyleColor();
+                    ImGui.End();
                 }
             }
         }
