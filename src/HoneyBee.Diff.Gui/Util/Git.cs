@@ -11,37 +11,6 @@ using System.Threading.Tasks;
 
 namespace HoneyBee.Diff.Gui
 {
-    public class BranchNode
-    {
-        public string Name;
-        public string FullName;
-        public Branch Branch;
-        public List<BranchNode> Children;
-        public int BehindBy;
-        public int AheadBy;
-
-        public void UpdateByIndex()
-        {
-            AheadBy = 0;
-            BehindBy = 0;
-            if (Children != null)
-            {
-                foreach (var item in Children)
-                {
-                    item.UpdateByIndex();
-                    AheadBy += item.AheadBy;
-                    BehindBy += item.BehindBy;
-                }
-            }
-            if (Branch != null && Branch.IsTracking)
-            {
-                var trackingDetails = Branch.TrackingDetails;
-                BehindBy += (int)trackingDetails.BehindBy;
-                AheadBy += (int)trackingDetails.AheadBy;
-            }
-        }
-    }
-
     public class Git
     {
         private Repository _repository;
@@ -128,32 +97,59 @@ namespace HoneyBee.Diff.Gui
             });
         }
 
-        public void Pull()
+        public void Pull(Action<string> onLogCallback,Action<MergeResult> onCompleteCallback)
         {
             if (_repository == null)
                 return;
 
-            // Credential information to fetch
-            LibGit2Sharp.PullOptions options = new LibGit2Sharp.PullOptions();
-            options.FetchOptions = new FetchOptions();
-            //if (Credentials.Has(remoteUrl))
-            //{
-            //    var cred = Credentials.Get(remoteUrl);
-            //    options.FetchOptions.CredentialsProvider = new CredentialsHandler(
-            //    (url, usernameFromUrl, types) =>
-            //        new UsernamePasswordCredentials()
-            //        {
-            //            Username = cred.UserName,
-            //            Password = cred.Password
-            //        });
-            //}
+            Task.Run(()=> {
+                // Credential information to fetch
+                LibGit2Sharp.PullOptions options = new LibGit2Sharp.PullOptions();
+                options.FetchOptions = new FetchOptions();
+                //if (Credentials.Has(remoteUrl))
+                //{
+                //    var cred = Credentials.Get(remoteUrl);
+                //    options.FetchOptions.CredentialsProvider = new CredentialsHandler(
+                //    (url, usernameFromUrl, types) =>
+                //        new UsernamePasswordCredentials()
+                //        {
+                //            Username = cred.UserName,
+                //            Password = cred.Password
+                //        });
+                //}
 
-            // User information to create a merge commit
-            var signature = new LibGit2Sharp.Signature(
-                new Identity("MERGE_USER_NAME", "MERGE_USER_EMAIL"), DateTimeOffset.Now);
+                options.FetchOptions.OnProgress = (serverProgressOutput) => {
+                    mainSyncContext.Post((state) => {
+                        onLogCallback?.Invoke(serverProgressOutput);
+                    }, null);
+                    return true;
+                };
+                options.FetchOptions.OnTransferProgress = (progress) => {
+                    int indexedProgress = (int)((progress.IndexedObjects / (float)progress.ReceivedObjects) * 100);
+                    int receiveProgress = (int)((progress.ReceivedObjects / (float)progress.TotalObjects) * 100);
+                    string transferProgressLog = $"Receiving objects: {receiveProgress}% ({progress.ReceivedObjects}/{progress.TotalObjects}), {progress.ReceivedBytes.ToSizeString()}" +
+                        $", Resolving deltas: {indexedProgress}% ({progress.IndexedObjects}/{progress.ReceivedObjects})";
+                    mainSyncContext.Post((state) =>
+                    {
+                        onLogCallback?.Invoke(transferProgressLog);
+                    }, null);
+                    return true;
+                };
+                options.FetchOptions.OnUpdateTips = (refName, oldId, newId) => {
+                    mainSyncContext.Post((state) =>
+                    {
+                        onLogCallback?.Invoke($"{oldId}->{newId} , {refName}");
+                    }, null);
+                    return true; };
 
-            // Pull
-            Commands.Pull(_repository, signature, options);
+                // User information to create a merge commit
+                var signature = new LibGit2Sharp.Signature(
+                    new Identity("MERGE_USER_NAME", "MERGE_USER_EMAIL"), DateTimeOffset.Now);
+
+                // Pull
+                var mergeResult = Commands.Pull(_repository, signature, options);
+                onCompleteCallback?.Invoke(mergeResult);
+            });
         }
 
         public static void Clone(string remoteUrl,string localDirectory,Action<string> logCallback,Action<string> complete)
@@ -222,6 +218,37 @@ namespace HoneyBee.Diff.Gui
                     branchNodes.Add(findNode);
                 }
                 JointBranchNode(findNode.Children, nameTree, branch);
+            }
+        }
+    }
+
+    public class BranchNode
+    {
+        public string Name;
+        public string FullName;
+        public Branch Branch;
+        public List<BranchNode> Children;
+        public int BehindBy;
+        public int AheadBy;
+
+        public void UpdateByIndex()
+        {
+            AheadBy = 0;
+            BehindBy = 0;
+            if (Children != null)
+            {
+                foreach (var item in Children)
+                {
+                    item.UpdateByIndex();
+                    AheadBy += item.AheadBy;
+                    BehindBy += item.BehindBy;
+                }
+            }
+            if (Branch != null && Branch.IsTracking)
+            {
+                var trackingDetails = Branch.TrackingDetails;
+                BehindBy += (int)trackingDetails.BehindBy;
+                AheadBy += (int)trackingDetails.AheadBy;
             }
         }
     }

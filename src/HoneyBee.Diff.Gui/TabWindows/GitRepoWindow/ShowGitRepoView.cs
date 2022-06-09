@@ -111,11 +111,12 @@ namespace HoneyBee.Diff.Gui
                     }
                     break;
                 case "Pull":
-                    //var co = new CloneOptions();
-                    ////co.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = "xxxx", Password = "xxx" };
-                    //co.OnTransferProgress = new LibGit2Sharp.Handlers.ProgressHandler(OnProgressHandler);
-                    //Repository.Clone("https://github.com/libgit2/libgit2sharp.git", @"xx", co);
-                    //Git.Clone();
+                    _git.Pull((log) => {
+                        GlobalControl.DisplayProgressBar("Pull", log, 0);
+                    }, (mergeResult) => {
+                        GlobalControl.DisplayProgressBar("Pull", "Compolete", -99.0f);
+                        //_getGitRepoPath?.Invoke(gitPath);
+                    });
                     break;
                 default:
                     break;
