@@ -102,8 +102,9 @@ namespace HoneyBee.Diff.Gui
                 case "Terminal":
                     try
                     {
-                        string repoPath = RepoPath.EndsWith(".git") ? Path.GetDirectoryName(RepoPath) : RepoPath;
-                        Process.Start(@"git-bash.exe", $"--cd={repoPath}");
+                        //string repoPath = RepoPath.EndsWith(".git") ? Path.GetDirectoryName(RepoPath) : RepoPath;
+                        //Process.Start(@"git-bash.exe", $"--cd={repoPath}");
+                        Terminal.Show = true;
                     }
                     catch (Exception e)
                     {
@@ -111,12 +112,14 @@ namespace HoneyBee.Diff.Gui
                     }
                     break;
                 case "Pull":
-                    _git.Pull((log) => {
-                        GlobalControl.DisplayProgressBar("Pull", log, 0);
-                    }, (mergeResult) => {
-                        GlobalControl.DisplayProgressBar("Pull", "Compolete", -99.0f);
-                        //_getGitRepoPath?.Invoke(gitPath);
-                    });
+                    //_git.Pull((log) => {
+                    //    GlobalControl.DisplayProgressBar("Pull", log, 0);
+                    //}, (mergeResult) => {
+                    //    GlobalControl.DisplayProgressBar("Pull", "Compolete", -99.0f);
+                    //    //_getGitRepoPath?.Invoke(gitPath);
+                    //});
+                    string repoPath = _git.RepoPath.EndsWith(".git") ? Path.GetDirectoryName(_git.RepoPath) : _git.RepoPath;
+                    Terminal.Pull(repoPath);
                     break;
                 default:
                     break;

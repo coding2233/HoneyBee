@@ -87,7 +87,6 @@ namespace HoneyBee.Diff.Gui
 
         public void Setup(params object[] parameters)
         {
-
         }
 
 

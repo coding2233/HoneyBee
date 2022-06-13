@@ -350,6 +350,9 @@ namespace HoneyBee.Diff.Gui
                     }
                     ImGui.End();
                 }
+
+                //Terminal
+                Terminal.Draw();
             }
         }
 

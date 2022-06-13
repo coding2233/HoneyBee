@@ -47,6 +47,7 @@ namespace HoneyBee.Diff.Gui
 
         public string RepoName { get; private set; }
         public string RepoPath { get; private set; }
+        public string RepoRootPath { get; private set; }
         public RepositoryStatus CurrentStatuses { get; private set; }
         public List<BranchNode> LocalBranchNodes { get; private set; } = new List<BranchNode>();
         public List<BranchNode> RemoteBranchNodes { get; private set; } = new List<BranchNode>();
@@ -58,8 +59,10 @@ namespace HoneyBee.Diff.Gui
         public Git(string repoPath)
         {
             RepoPath = repoPath;
+            RepoName = Path.GetFileNameWithoutExtension(repoPath);
+            RepoRootPath = Path.GetDirectoryName(repoPath);
+
             Task.Run(()=> {
-                RepoName = Path.GetFileNameWithoutExtension(repoPath);
                 _repository = new Repository(repoPath);
 
                 foreach (var branch in _repository.Branches)
