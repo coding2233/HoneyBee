@@ -9,6 +9,7 @@ using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Reflection;
 using System.IO;
+using System.Diagnostics;
 
 namespace HoneyBee.Diff.Gui
 {
@@ -76,6 +77,9 @@ namespace HoneyBee.Diff.Gui
             {
                 mainModel.CreateTab<MainTabWindow>();
             }
+
+
+           
         }
 
         public void OnDraw()

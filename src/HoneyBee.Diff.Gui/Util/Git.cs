@@ -57,8 +57,8 @@ namespace HoneyBee.Diff.Gui
 
         public Git(string repoPath)
         {
+            RepoPath = repoPath;
             Task.Run(()=> {
-                RepoPath = repoPath;
                 RepoName = Path.GetFileNameWithoutExtension(repoPath);
                 _repository = new Repository(repoPath);
 
