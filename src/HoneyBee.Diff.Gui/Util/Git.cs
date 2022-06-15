@@ -134,7 +134,7 @@ namespace HoneyBee.Diff.Gui
 
         public void Commit(string message)
         {
-            if (!string.IsNullOrEmpty(message))
+            if (string.IsNullOrEmpty(message))
                 return;
 
             _signatureAuthor = _repository.Config.BuildSignature(DateTimeOffset.Now);

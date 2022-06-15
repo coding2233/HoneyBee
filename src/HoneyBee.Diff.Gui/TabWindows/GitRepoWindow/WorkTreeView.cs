@@ -41,7 +41,7 @@ namespace HoneyBee.Diff.Gui
             ImGui.SameLine();
             if (ImGui.Button("Commit"))
             {
-                if (string.IsNullOrEmpty(_commit))
+                if (!string.IsNullOrEmpty(_commit))
                 {
                     git.Commit(_commit);
                 }
