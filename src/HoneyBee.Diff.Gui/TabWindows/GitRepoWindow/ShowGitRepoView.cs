@@ -46,8 +46,9 @@ namespace HoneyBee.Diff.Gui
 
             _toolItems = new Dictionary<string, int>();
             _toolItems.Add("Commit", Icon.Material_add);
-            _toolItems.Add("Pull", Icon.Material_sync);
-            _toolItems.Add("Fetch", Icon.Material_download);
+            _toolItems.Add("Sync", Icon.Material_sync);
+            _toolItems.Add("Pull", Icon.Material_download);
+            _toolItems.Add("Fetch", Icon.Material_downloading);//Material_vertical_align_bottom
             _toolItems.Add("Settings", Icon.Material_settings);
             _toolItems.Add("Terminal", Icon.Material_terminal);
             _toolItemSelected = "Commit";
@@ -112,14 +113,7 @@ namespace HoneyBee.Diff.Gui
                     }
                     break;
                 case "Pull":
-                    //_git.Pull((log) => {
-                    //    GlobalControl.DisplayProgressBar("Pull", log, 0);
-                    //}, (mergeResult) => {
-                    //    GlobalControl.DisplayProgressBar("Pull", "Compolete", -99.0f);
-                    //    //_getGitRepoPath?.Invoke(gitPath);
-                    //});
-                    string repoPath = _git.RepoPath.EndsWith(".git") ? Path.GetDirectoryName(_git.RepoPath) : _git.RepoPath;
-                    Terminal.Pull(repoPath);
+                    Terminal.Pull(_git.RepoRootPath);
                     break;
                 default:
                     break;
@@ -277,7 +271,7 @@ namespace HoneyBee.Diff.Gui
 
         private void OnDrawWorkTree()
         {
-                _workTreeView.OnDraw(_git.CurrentStatuses, _git.Diff);
+            _workTreeView.OnDraw(_git,_git.CurrentStatuses, _git.Diff);
         }
 
         private void OnDrawCommitHistory()

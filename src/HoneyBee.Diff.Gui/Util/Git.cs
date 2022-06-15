@@ -48,6 +48,7 @@ namespace HoneyBee.Diff.Gui
         public string RepoName { get; private set; }
         public string RepoPath { get; private set; }
         public string RepoRootPath { get; private set; }
+        public Repository Repository => _repository;
         public RepositoryStatus CurrentStatuses { get; private set; }
         public List<BranchNode> LocalBranchNodes { get; private set; } = new List<BranchNode>();
         public List<BranchNode> RemoteBranchNodes { get; private set; } = new List<BranchNode>();
@@ -60,11 +61,10 @@ namespace HoneyBee.Diff.Gui
         {
             RepoPath = repoPath;
             RepoName = Path.GetFileNameWithoutExtension(repoPath);
-            RepoRootPath = Path.GetDirectoryName(repoPath);
+            RepoRootPath = repoPath.EndsWith(".git") ? Path.GetDirectoryName(repoPath) : repoPath;
+            _repository = new Repository(repoPath);
 
             Task.Run(()=> {
-                _repository = new Repository(repoPath);
-
                 foreach (var branch in _repository.Branches)
                 {
                     string[] nameArgs = branch.FriendlyName.Split('/');
@@ -90,6 +90,26 @@ namespace HoneyBee.Diff.Gui
                 HistoryCommits = _repository.Commits.ToList();
 
             });
+        }
+
+        public void Add(List<string> files = null)
+        {
+            if (files == null)
+            {
+                Commands.Stage(_repository, "*");
+            }
+            else
+            {
+                foreach (var item in files)
+                {
+                    if (string.IsNullOrEmpty(item))
+                        continue;
+                    // Stage the file
+                    _repository.Index.Add(item);
+                }
+                _repository.Index.Write();
+            }
+            Status();
         }
 
         public void Status()

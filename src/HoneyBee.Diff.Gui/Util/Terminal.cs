@@ -29,7 +29,6 @@ namespace HoneyBee.Diff.Gui
         private Process m_cmdProcess;
         private string m_command="";
 
-
         public static void Pull(string gitPath)
         {
             self.RunProcess("git pull",gitPath);
@@ -81,6 +80,7 @@ namespace HoneyBee.Diff.Gui
         {
             if (m_cmdProcess != null)
             {
+                AddRenderText("Other commands are being executed");
                 return;
             }
 
