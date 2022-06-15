@@ -51,56 +51,56 @@ namespace HoneyBee.Diff.Gui
 
         private void DrawStatus(Git git, RepositoryStatus statuses, LibGit2Sharp.Diff diff)
         {
-            HashSet<StatusEntry> stageEntries = new HashSet<StatusEntry>();
-            HashSet<StatusEntry> unstageEntries = new HashSet<StatusEntry>();
+            IEnumerable<StatusEntry> stageStatusEntries=null;
 
             if (statuses != null)
             {
-                foreach (StatusEntry item in statuses)
-                {
-                    if (item.State == FileStatus.Ignored)
-                        continue;
-                    if (item.State == FileStatus.ModifiedInIndex
-                        || item.State == FileStatus.ModifiedInWorkdir)
-                    {
-                        stageEntries.Add(item);
-                    }
-                    else
-                    {
-                        unstageEntries.Add(item);
-                    }
-                }
+                stageStatusEntries = statuses.Staged;
             }
 
             _verticalSplitView.Begin();
-            DrawStageFilesStatus(stageEntries);
+            DrawStageFilesStatus(git, stageStatusEntries);
             _verticalSplitView.Separate();
-            DrawUnstageFileStatus(git, unstageEntries, diff);
+            DrawUnstageFileStatus(git, statuses, diff);
             _verticalSplitView.End();
       
         }
 
-        private void DrawStageFilesStatus(HashSet<StatusEntry> statuses)
+        private void DrawStageFilesStatus(Git git, IEnumerable<StatusEntry> statuses)
         {
-            //ImGui.Text("Stage files");
-            foreach (var item in statuses)
+            if (ImGui.Button("Unstage All"))
             {
-                ImGui.Text(item.FilePath);
+                git.Restore();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Unstage Selected"))
+            {
+            }
+
+            if (statuses != null)
+            {
+                //ImGui.Text("Stage files");
+                foreach (var item in statuses)
+                {
+                    ImGui.Text(item.FilePath);
+                }
             }
         }
 
-        private void DrawUnstageFileStatus(Git git, HashSet<StatusEntry> statuses, LibGit2Sharp.Diff diff)
+        private void DrawUnstageFileStatus(Git git, RepositoryStatus statuses, LibGit2Sharp.Diff diff)
         {
-                if (ImGui.Button("Stage All"))
-                {
-                    git.Add();
-                }
-                ImGui.SameLine();
-                if (ImGui.Button("Stage Selected"))
-                {
-                    git.Add(_selectFilePaths.ToList());
-                }
-                //files
+            if (ImGui.Button("Stage All"))
+            {
+                git.Add();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Stage Selected"))
+            {
+                git.Add(_selectFilePaths.ToList());
+            }
+            //files
+            if (statuses!=null)
+            {
                 foreach (StatusEntry item in statuses)
                 {
                     if (item.State == FileStatus.Ignored)
@@ -142,8 +142,9 @@ namespace HoneyBee.Diff.Gui
                         _statusTextEditor.text = statusContent;
                     }
                 }
-        }
 
+            }
+        }
         private void DrawDiff()
         {
             _statusTextEditor.Render("Diff",ImGui.GetWindowSize());

@@ -124,6 +124,26 @@ namespace HoneyBee.Diff.Gui
             Status();
         }
 
+        public void Restore(List<string> files=null)
+        {
+            if (files == null)
+            {
+                Commands.Unstage(_repository, "*");
+            }
+            else
+            {
+                foreach (var item in files)
+                {
+                    if (string.IsNullOrEmpty(item))
+                        continue;
+                    // Stage the file
+                    _repository.Index.Remove(item);
+                }
+                _repository.Index.Write();
+            }
+            Status();
+        }
+
         public void Status()
         {
             CurrentStatuses = null;
