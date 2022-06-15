@@ -35,13 +35,15 @@ namespace HoneyBee.Diff.Gui
 
         private void DrawCommit(Git git)
         {
-            //ImGui.Text("Commit");
             //ImGui.SetNextItemWidth(ImGui.GetWindowWidth());
-            ImGui.InputTextMultiline("", ref _commit, 500,new Vector2(ImGui.GetWindowWidth(),60));
+            ImGui.InputTextMultiline("", ref _commit, 500,new Vector2(ImGui.GetWindowWidth(),70));
+            ImGui.Text($"{git.SignatureAuthor.Name}<{git.SignatureAuthor.Email}>");
+            ImGui.SameLine();
             if (ImGui.Button("Commit"))
             {
                 if (string.IsNullOrEmpty(_commit))
                 {
+                    git.Commit(_commit);
                 }
                 _commit = "";
             }

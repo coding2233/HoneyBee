@@ -56,6 +56,17 @@ namespace HoneyBee.Diff.Gui
         public TagCollection Tags => _repository.Tags;
         public SubmoduleCollection Submodules => _repository.Submodules;
         public LibGit2Sharp.Diff Diff => _repository.Diff;
+        public Signature _signatureAuthor;
+        public Signature SignatureAuthor
+        {
+            get {
+                if (_signatureAuthor == null)
+                {
+                    _signatureAuthor = _repository.Config.BuildSignature(DateTimeOffset.Now);
+                }
+                return _signatureAuthor;
+            }
+        }
 
         public Git(string repoPath)
         {
@@ -92,6 +103,7 @@ namespace HoneyBee.Diff.Gui
             });
         }
 
+
         public void Add(List<string> files = null)
         {
             if (files == null)
@@ -118,6 +130,16 @@ namespace HoneyBee.Diff.Gui
             Task.Run(()=> {
                 CurrentStatuses = _repository.RetrieveStatus();
             });
+        }
+
+        public void Commit(string message)
+        {
+            if (!string.IsNullOrEmpty(message))
+                return;
+
+            _signatureAuthor = _repository.Config.BuildSignature(DateTimeOffset.Now);
+            _repository.Commit(message, _signatureAuthor, _signatureAuthor);
+            Status();
         }
 
         public void Pull(Action<string> onLogCallback,Action<MergeResult> onCompleteCallback)
