@@ -75,32 +75,7 @@ namespace HoneyBee.Diff.Gui
             RepoRootPath = repoPath.EndsWith(".git") ? Path.GetDirectoryName(repoPath) : repoPath;
             _repository = new Repository(repoPath);
 
-            Task.Run(()=> {
-                foreach (var branch in _repository.Branches)
-                {
-                    string[] nameArgs = branch.FriendlyName.Split('/');
-                    Queue<string> nameTree = new Queue<string>();
-                    foreach (var item in nameArgs)
-                    {
-                        nameTree.Enqueue(item);
-                    }
-                    if (branch.IsRemote)
-                    {
-                        JointBranchNode(RemoteBranchNodes, nameTree, branch);
-                    }
-                    else
-                    {
-                        JointBranchNode(LocalBranchNodes, nameTree, branch);
-                    }
-                }
-                foreach (var item in LocalBranchNodes)
-                {
-                    item.UpdateByIndex();
-                }
-                CurrentStatuses = _repository.RetrieveStatus();
-                HistoryCommits = _repository.Commits.ToList();
-
-            });
+            UpdateStatus();
         }
 
 
@@ -152,6 +127,42 @@ namespace HoneyBee.Diff.Gui
             });
         }
 
+      
+
+        public void UpdateHistory()
+        {
+            Task.Run(() => {
+                foreach (var branch in _repository.Branches)
+                {
+                    string[] nameArgs = branch.FriendlyName.Split('/');
+                    Queue<string> nameTree = new Queue<string>();
+                    foreach (var item in nameArgs)
+                    {
+                        nameTree.Enqueue(item);
+                    }
+                    if (branch.IsRemote)
+                    {
+                        JointBranchNode(RemoteBranchNodes, nameTree, branch);
+                    }
+                    else
+                    {
+                        JointBranchNode(LocalBranchNodes, nameTree, branch);
+                    }
+                }
+                foreach (var item in LocalBranchNodes)
+                {
+                    item.UpdateByIndex();
+                }
+                HistoryCommits = _repository.Commits.ToList();
+            });
+        }
+
+        public void UpdateStatus()
+        {
+            Status();
+            UpdateHistory();
+        }
+
         public void Commit(string message)
         {
             if (string.IsNullOrEmpty(message))
@@ -159,7 +170,8 @@ namespace HoneyBee.Diff.Gui
 
             _signatureAuthor = _repository.Config.BuildSignature(DateTimeOffset.Now);
             _repository.Commit(message, _signatureAuthor, _signatureAuthor);
-            Status();
+
+            UpdateStatus();
         }
 
         public void Pull(Action<string> onLogCallback,Action<MergeResult> onCompleteCallback)
