@@ -132,6 +132,10 @@ namespace HoneyBee.Diff.Gui
         public void UpdateHistory()
         {
             Task.Run(() => {
+
+                LocalBranchNodes.Clear();
+                RemoteBranchNodes.Clear();
+                
                 foreach (var branch in _repository.Branches)
                 {
                     string[] nameArgs = branch.FriendlyName.Split('/');
