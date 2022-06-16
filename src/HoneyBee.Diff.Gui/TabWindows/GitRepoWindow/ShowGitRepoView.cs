@@ -22,7 +22,6 @@ namespace HoneyBee.Diff.Gui
 
         private Git _git;
 
-
         private WorkSpaceRadio _workSpaceRadio= WorkSpaceRadio.WorkTree;
         private int _commitAddInterval = 5;
         private int _commitViewIndex = 0;
@@ -39,6 +38,7 @@ namespace HoneyBee.Diff.Gui
 
         private Dictionary<string, int> _toolItems;
         private string _toolItemSelected = "";
+        private bool _showFetchWindow;
 
         public ShowGitRepoView()
         {
@@ -96,6 +96,7 @@ namespace HoneyBee.Diff.Gui
             _splitView.End();
 
             //Draw fetch
+            DrawFetchWindow();
         }
 
 
@@ -111,6 +112,11 @@ namespace HoneyBee.Diff.Gui
                     break;
                 case "Pull":
                     Terminal.Pull(_git.RepoRootPath);
+                    break;
+                case "Fetch":
+                    //_showFetchWindow = true;
+                    GlobalControl.DisplayDialog("xxx", "xxx", "ok");
+
                     break;
                 default:
                     break;
@@ -167,7 +173,6 @@ namespace HoneyBee.Diff.Gui
                 }
             });
         }
-
 
         private void DrawTreeNodeHead(string name,Action onDraw)
         {
@@ -368,5 +373,59 @@ namespace HoneyBee.Diff.Gui
         {
             return ImGui.GetScrollMaxY() * (size / _commitViewMax);
         }
+
+
+        private int _fetchRemote = 0;
+        private int _fetchRemoteBranch = -1;
+        private int _fetchLocalBranch = -1;
+        private void DrawFetchWindow()
+        {
+            if (_showFetchWindow)
+            {
+                ImGui.SetNextWindowSize(new Vector2(600, 400));
+                //ImGui.SetNextWindowFocus();
+                if (ImGui.Begin("Fetch", ref _showFetchWindow))
+                {
+                    string[] remoteNames = new string[_git.RemoteBranchNodes.Count];
+                    for (int i = 0; i < _git.RemoteBranchNodes.Count; i++)
+                    {
+                        remoteNames[i] = _git.RemoteBranchNodes[i].Name;
+                    }
+                    if (ImGui.Combo("Remote",ref _fetchRemote, remoteNames, remoteNames.Length))
+                    {
+                        _fetchRemoteBranch = -1;
+                    }
+                    
+                    var remoteBranchNode = _git.RemoteBranchNodes[_fetchRemote];
+                    List<string> remoteBranchs = new List<string>();
+                    for (int i = 0; i < remoteBranchNode.Children.Count; i++)
+                    {
+                        if (remoteBranchNode.Children[i].Name.Equals("HEAD"))
+                            continue;
+
+                        remoteBranchs.Add(remoteBranchNode.Children[i].Name);
+                    }
+                    
+                    if (ImGui.Combo("Remote Branch", ref _fetchRemoteBranch, remoteBranchs.ToArray(), remoteBranchs.Count))
+                    {
+                    }
+
+                    string[] localBranchs = new string[_git.LocalBranchNodes.Count];
+                    for (int i = 0; i < localBranchs.Length; i++)
+                    {
+                        localBranchs[i] = _git.LocalBranchNodes[i].Name;
+                    }
+
+                    if (ImGui.Combo("Local Branch", ref _fetchLocalBranch, localBranchs.ToArray(), localBranchs.Length))
+                    {
+                    }
+                    //_git.RemoteBranchNodes[0].
+
+                }
+                ImGui.End();
+            }
+        }
+    
+    
     }
 }

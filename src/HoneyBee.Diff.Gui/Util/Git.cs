@@ -124,8 +124,6 @@ namespace HoneyBee.Diff.Gui
             });
         }
 
-      
-
         public void UpdateHistory()
         {
             Task.Run(() => {

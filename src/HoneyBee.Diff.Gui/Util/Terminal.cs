@@ -56,6 +56,7 @@ namespace HoneyBee.Diff.Gui
 
         private void DrawTerminal()
         {
+            ImGui.SetNextWindowSize(new System.Numerics.Vector2(600, 400));
             ImGui.SetNextWindowFocus();
             ImGui.PushID("GlobalTerminal");
             bool showContent = ImGui.Begin("Terminal",ref Show);
