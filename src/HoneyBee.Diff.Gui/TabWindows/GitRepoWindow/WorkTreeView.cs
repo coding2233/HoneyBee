@@ -15,7 +15,8 @@ namespace HoneyBee.Diff.Gui
         private SplitView _horizontalSplitView = new SplitView(SplitView.SplitType.Horizontal, 2, 600, 0.8f);
         private SplitView _verticalSplitView = new SplitView(SplitView.SplitType.Vertical);
         public TextEditor _statusTextEditor = new TextEditor();
-        private HashSet<string> _selectFilePaths = new HashSet<string>();
+        private HashSet<string> _selectStageFiles = new HashSet<string>();
+        private HashSet<string> _selectUnstageFiles = new HashSet<string>();
         private string _commit="";
 
         public void OnDraw(Git git, RepositoryStatus statuses, LibGit2Sharp.Diff diff)
@@ -59,30 +60,32 @@ namespace HoneyBee.Diff.Gui
             }
 
             _verticalSplitView.Begin();
-            DrawStageFilesStatus(git, stageStatusEntries);
+            DrawStageFilesStatus(git, stageStatusEntries,diff);
             _verticalSplitView.Separate();
             DrawUnstageFileStatus(git, statuses, diff);
             _verticalSplitView.End();
       
         }
 
-        private void DrawStageFilesStatus(Git git, IEnumerable<StatusEntry> statuses)
+        private void DrawStageFilesStatus(Git git, IEnumerable<StatusEntry> statuses, LibGit2Sharp.Diff diff)
         {
             if (ImGui.Button("Unstage All"))
             {
                 git.Restore();
+                ClearSelectFiles();
             }
             ImGui.SameLine();
             if (ImGui.Button("Unstage Selected"))
             {
+                git.Restore(_selectStageFiles.ToList());
+                ClearSelectFiles();
             }
 
             if (statuses != null)
             {
-                //ImGui.Text("Stage files");
                 foreach (var item in statuses)
                 {
-                    ImGui.Text(item.FilePath);
+                    DrawStatusFile(item, _selectStageFiles, diff);
                 }
             }
         }
@@ -92,62 +95,95 @@ namespace HoneyBee.Diff.Gui
             if (ImGui.Button("Stage All"))
             {
                 git.Add();
+                ClearSelectFiles();
             }
             ImGui.SameLine();
             if (ImGui.Button("Stage Selected"))
             {
-                git.Add(_selectFilePaths.ToList());
+                git.Add(_selectUnstageFiles.ToList());
+                ClearSelectFiles();
             }
+
             //files
             if (statuses!=null)
             {
-                foreach (StatusEntry item in statuses)
+                foreach (var item in statuses)
                 {
-                    if (item.State == FileStatus.Ignored)
+                    if (statuses.Staged.Contains(item))
                         continue;
-
-                    string statusIcon = Icon.Get(Icon.Material_change_circle);
-                    switch (item.State)
-                    {
-                        case FileStatus.NewInIndex:
-                        case FileStatus.NewInWorkdir:
-                            statusIcon = Icon.Get(Icon.Material_fiber_new);
-                            break;
-                        case FileStatus.DeletedFromIndex:
-                        case FileStatus.DeletedFromWorkdir:
-                            statusIcon = Icon.Get(Icon.Material_delete);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    bool active = _selectFilePaths.Contains(item.FilePath);
-                    if (ImGui.Checkbox($"{statusIcon} {item.FilePath}", ref active))
-                    {
-                        if (active)
-                        {
-                            _selectFilePaths.Add(item.FilePath);
-                        }
-                        else
-                        {
-                            _selectFilePaths.Remove(item.FilePath);
-                        }
-
-                        string statusContent = "";
-                        if (_selectFilePaths.Count > 0)
-                        {
-                            var diffContent = diff.Compare<Patch>(_selectFilePaths, true);
-                            statusContent = diffContent.Content;
-                        }
-                        _statusTextEditor.text = statusContent;
-                    }
+                    DrawStatusFile(item, _selectUnstageFiles, diff);
                 }
-
             }
         }
         private void DrawDiff()
         {
             _statusTextEditor.Render("Diff",ImGui.GetWindowSize());
+        }
+
+        //绘制单独的文件
+        private void DrawStatusFile(StatusEntry statusEntry, HashSet<string> selectFiles, LibGit2Sharp.Diff diff)
+        {
+            if (statusEntry == null || statusEntry.State==FileStatus.Ignored)
+                return;
+
+            //?
+            string statusIcon = Icon.Get(Icon.Material_question_mark);
+            switch (statusEntry.State)
+            {
+                case FileStatus.NewInIndex:
+                case FileStatus.NewInWorkdir:
+                    statusIcon = Icon.Get(Icon.Material_fiber_new);
+                    break;
+                case FileStatus.DeletedFromIndex:
+                case FileStatus.DeletedFromWorkdir:
+                    statusIcon = Icon.Get(Icon.Material_delete);
+                    break;
+                case FileStatus.RenamedInIndex:
+                case FileStatus.RenamedInWorkdir:
+                    statusIcon = Icon.Get(Icon.Material_edit_note);
+                    break;
+                case FileStatus.ModifiedInIndex:
+                case FileStatus.ModifiedInWorkdir:
+                    statusIcon = Icon.Get(Icon.Material_update);
+                    break;
+                case FileStatus.TypeChangeInIndex:
+                case FileStatus.TypeChangeInWorkdir:
+                    statusIcon = Icon.Get(Icon.Material_change_circle);
+                    break;
+                case FileStatus.Conflicted:
+                    statusIcon = Icon.Get(Icon.Material_warning);
+                    break;
+                default:
+                    break;
+            }
+
+            //checkbox 
+            bool active = selectFiles.Contains(statusEntry.FilePath);
+            if (ImGui.Checkbox($"{statusIcon} {statusEntry.FilePath}", ref active))
+            {
+                if (active)
+                {
+                    selectFiles.Add(statusEntry.FilePath);
+                }
+                else
+                {
+                    selectFiles.Remove(statusEntry.FilePath);
+                }
+
+                string statusContent = "";
+                if (selectFiles.Count > 0)
+                {
+                    var diffContent = diff.Compare<Patch>(selectFiles, true);
+                    statusContent = diffContent.Content;
+                }
+                _statusTextEditor.text = statusContent;
+            }
+        }
+
+        private void ClearSelectFiles()
+        {
+            _selectStageFiles.Clear();
+            _selectUnstageFiles.Clear();
         }
     }
 }

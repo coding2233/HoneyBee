@@ -103,9 +103,7 @@ namespace HoneyBee.Diff.Gui
                 case "Terminal":
                     try
                     {
-                        //string repoPath = RepoPath.EndsWith(".git") ? Path.GetDirectoryName(RepoPath) : RepoPath;
-                        //Process.Start(@"git-bash.exe", $"--cd={repoPath}");
-                        Terminal.Show = true;
+                        Terminal.SetShow(_git.RepoRootPath);
                     }
                     catch (Exception e)
                     {

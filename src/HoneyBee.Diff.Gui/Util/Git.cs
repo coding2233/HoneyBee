@@ -87,14 +87,8 @@ namespace HoneyBee.Diff.Gui
             }
             else
             {
-                foreach (var item in files)
-                {
-                    if (string.IsNullOrEmpty(item))
-                        continue;
-                    // Stage the file
-                    _repository.Index.Add(item);
-                }
-                _repository.Index.Write();
+                if(files.Count>0)
+                    Commands.Stage(_repository, files);
             }
             Status();
         }
@@ -107,14 +101,8 @@ namespace HoneyBee.Diff.Gui
             }
             else
             {
-                foreach (var item in files)
-                {
-                    if (string.IsNullOrEmpty(item))
-                        continue;
-                    // Stage the file
-                    _repository.Index.Remove(item);
-                }
-                _repository.Index.Write();
+                if (files.Count > 0)
+                    Commands.Unstage(_repository, files);
             }
             Status();
         }

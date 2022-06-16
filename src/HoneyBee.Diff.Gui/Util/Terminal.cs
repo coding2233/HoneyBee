@@ -24,12 +24,19 @@ namespace HoneyBee.Diff.Gui
             }
         }
 
-        public static bool Show=false;
+        private static bool Show=false;
+        private static string m_workDirectory = null;
 
         private Process m_cmdProcess;
         private string m_command="";
 
-        public static void Pull(string gitPath)
+        public static void SetShow(string workDirectory = null)
+        {
+            m_workDirectory = workDirectory;
+            Show = true;
+        }
+
+        public static void Pull(string gitPath,Action onComplete=null)
         {
             self.RunProcess("git pull",gitPath);
             Show = true;
@@ -40,6 +47,10 @@ namespace HoneyBee.Diff.Gui
             if (Show)
             {
                 self.DrawTerminal();
+            }
+            else
+            {
+                m_workDirectory = null;
             }
         }
 
@@ -103,9 +114,10 @@ namespace HoneyBee.Diff.Gui
                     using (m_cmdProcess = new Process())
                     {
                         var startInfo = new ProcessStartInfo();
-                        if (!string.IsNullOrEmpty(workDirectory))
+                        string wd = string.IsNullOrEmpty(workDirectory) ? m_workDirectory : workDirectory;
+                        if (!string.IsNullOrEmpty(wd))
                         {
-                            startInfo.WorkingDirectory = workDirectory;
+                            startInfo.WorkingDirectory = wd;
                         }
                         startInfo.FileName = cmd;
                         startInfo.Arguments = arguments;
