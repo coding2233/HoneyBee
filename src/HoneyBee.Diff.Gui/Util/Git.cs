@@ -79,7 +79,7 @@ namespace HoneyBee.Diff.Gui
         }
 
 
-        public void Add(List<string> files = null)
+        public void Stage(IEnumerable<string> files = null)
         {
             if (files == null)
             {
@@ -87,13 +87,13 @@ namespace HoneyBee.Diff.Gui
             }
             else
             {
-                if(files.Count>0)
+                if(files.Count()>0)
                     Commands.Stage(_repository, files);
             }
             Status();
         }
 
-        public void Restore(List<string> files=null)
+        public void Unstage(IEnumerable<string> files = null)
         {
             if (files == null)
             {
@@ -101,10 +101,19 @@ namespace HoneyBee.Diff.Gui
             }
             else
             {
-                if (files.Count > 0)
+                if (files.Count() > 0)
                     Commands.Unstage(_repository, files);
             }
             Status();
+        }
+
+        public void Restore(IEnumerable<string> files)
+        {
+            if (files == null || files.Count() == 0)
+                return;
+
+            var options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
+            _repository.CheckoutPaths(_repository.Head.FriendlyName, files, options);
         }
 
         public void Status()

@@ -71,13 +71,13 @@ namespace HoneyBee.Diff.Gui
         {
             if (ImGui.Button("Unstage All"))
             {
-                git.Restore();
+                git.Unstage();
                 ClearSelectFiles();
             }
             ImGui.SameLine();
             if (ImGui.Button("Unstage Selected"))
             {
-                git.Restore(_selectStageFiles.ToList());
+                git.Unstage(_selectStageFiles);
                 ClearSelectFiles();
             }
 
@@ -94,13 +94,19 @@ namespace HoneyBee.Diff.Gui
         {
             if (ImGui.Button("Stage All"))
             {
-                git.Add();
+                git.Stage();
                 ClearSelectFiles();
             }
             ImGui.SameLine();
             if (ImGui.Button("Stage Selected"))
             {
-                git.Add(_selectUnstageFiles.ToList());
+                git.Stage(_selectUnstageFiles);
+                ClearSelectFiles();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Discard Selected"))
+            {
+                git.Restore(_selectUnstageFiles);
                 ClearSelectFiles();
             }
 
