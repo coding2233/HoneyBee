@@ -109,7 +109,7 @@ namespace HoneyBee.Diff.Gui
             }
             else if (!_draging && ImGui.IsMouseHoveringRect(hoverMin, hoverMax))
             {
-                if (ImGui.IsMouseDown(ImGuiMouseButton.Left))
+                if (ImGui.IsWindowFocused()&&ImGui.IsMouseDown(ImGuiMouseButton.Left))
                 {
                     _draging = true;
                     _dragPosition = _splitWidth[_splitIndex];

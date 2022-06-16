@@ -29,7 +29,7 @@ namespace HoneyBee.Diff.Gui
         private int _commitViewMax = 100;
         private float _lastCommitScrollY = 0.0f;
         private SplitView _splitView = new SplitView(SplitView.SplitType.Horizontal,2,200);
-        private SplitView _contentSplitView = new SplitView(SplitView.SplitType.Vertical,2,600,0.9f);
+        private SplitView _contentSplitView = new SplitView(SplitView.SplitType.Vertical,2,300,0.9f);
         private ShowCommitView _showCommitView = new ShowCommitView();
         private WorkTreeView _workTreeView = new WorkTreeView();
         private Commit _selectCommit=null;
@@ -48,7 +48,8 @@ namespace HoneyBee.Diff.Gui
             _toolItems.Add("Commit", Icon.Material_add);
             _toolItems.Add("Sync", Icon.Material_sync);
             _toolItems.Add("Pull", Icon.Material_download);
-            _toolItems.Add("Fetch", Icon.Material_downloading);//Material_vertical_align_bottom
+            _toolItems.Add("Push", Icon.Material_publish);
+            _toolItems.Add("Fetch", Icon.Material_downloading);
             _toolItems.Add("Settings", Icon.Material_settings);
             _toolItems.Add("Terminal", Icon.Material_terminal);
             _toolItemSelected = "Commit";
@@ -93,6 +94,8 @@ namespace HoneyBee.Diff.Gui
             _splitView.Separate();
             OnRepoContentDraw();
             _splitView.End();
+
+            //Draw fetch
         }
 
 
@@ -100,15 +103,11 @@ namespace HoneyBee.Diff.Gui
         {
             switch (item)
             {
+                case "Sync":
+                    _git.UpdateStatus();
+                    break;
                 case "Terminal":
-                    try
-                    {
-                        Terminal.SetShow(_git.RepoRootPath);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"Terminal exception: {e}");
-                    }
+                    Terminal.SetShow(_git.RepoRootPath);
                     break;
                 case "Pull":
                     Terminal.Pull(_git.RepoRootPath);
