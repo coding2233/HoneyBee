@@ -79,6 +79,10 @@ namespace HoneyBee.Diff.Gui
             UpdateStatus();
         }
 
+        public bool CheckIndex(string file)
+        {
+            return _repository.Index.Where(x => x.Path.Equals(file)).Count() > 0;
+        }
 
         public void Add(IEnumerable<string> files)
         {
@@ -90,8 +94,7 @@ namespace HoneyBee.Diff.Gui
                     _repository.Index.Add(item);
                 }
                 _repository.Index.Write();
-                _repository.Index.WriteToTree();
-                Stage(files);
+                Status();
             }
         }
 

@@ -17,6 +17,7 @@ namespace HoneyBee.Diff.Gui
         public TextEditor _statusTextEditor = new TextEditor();
         private HashSet<string> _selectStageFiles = new HashSet<string>();
         private HashSet<string> _selectUnstageFiles = new HashSet<string>();
+        private HashSet<StatusEntry> _newIndexAdded = new HashSet<StatusEntry>();
         private string _commit="";
 
         public void OnDraw(Git git, RepositoryStatus statuses, LibGit2Sharp.Diff diff)
@@ -53,10 +54,20 @@ namespace HoneyBee.Diff.Gui
         private void DrawStatus(Git git, RepositoryStatus statuses, LibGit2Sharp.Diff diff)
         {
             IEnumerable<StatusEntry> stageStatusEntries=null;
-
+            _newIndexAdded.Clear();
             if (statuses != null)
             {
                 stageStatusEntries = statuses.Staged;
+                if (statuses.Added != null)
+                {
+                    foreach (var item in statuses.Added)
+                    {
+                        if (git.CheckIndex(item.FilePath))
+                        {
+                            _newIndexAdded.Add(item);
+                        }
+                    }
+                }
             }
 
             _verticalSplitView.Begin();
@@ -83,6 +94,10 @@ namespace HoneyBee.Diff.Gui
 
             if (statuses != null)
             {
+                foreach (var item in _newIndexAdded)
+                {
+                    DrawStatusFile(item, _selectStageFiles, diff);
+                }
                 foreach (var item in statuses)
                 {
                     DrawStatusFile(item, _selectStageFiles, diff);
@@ -136,6 +151,10 @@ namespace HoneyBee.Diff.Gui
                 {
                     if (statuses.Staged.Contains(item))
                         continue;
+                    //需要忽略NewIndex的
+                    if (_newIndexAdded.Contains(item))
+                        continue;
+
                     DrawStatusFile(item, _selectUnstageFiles, diff);
                 }
             }

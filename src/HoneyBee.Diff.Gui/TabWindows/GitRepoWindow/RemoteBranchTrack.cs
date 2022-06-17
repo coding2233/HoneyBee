@@ -103,11 +103,23 @@ namespace HoneyBee.Diff.Gui
             List<string> branchs = new List<string>();
             if (branchNode.Branch != null)
             {
-                branchs.Add(branchNode.FullName);
-                if (branchNode.Branch.IsCurrentRepositoryHead)
+                string branchNodeFullName = branchNode.FullName;
+                if (branchNode.Branch.IsRemote)
                 {
-                    CurrentRepositoryHeadBranch = branchNode.FullName;
+                    string remoteName = $"{branchNode.Branch.RemoteName}/";
+                    if (branchNodeFullName.Length > remoteName.Length)
+                    {
+                        branchNodeFullName = branchNodeFullName.Substring(remoteName.Length);
+                    }
                 }
+                else
+                {
+                    if (branchNode.Branch.IsCurrentRepositoryHead)
+                    {
+                        CurrentRepositoryHeadBranch = branchNode.FullName;
+                    }
+                }
+                branchs.Add(branchNodeFullName);
             }
             else
             {
