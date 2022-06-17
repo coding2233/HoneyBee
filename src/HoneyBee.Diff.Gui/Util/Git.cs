@@ -133,6 +133,7 @@ namespace HoneyBee.Diff.Gui
 
             var options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
             _repository.CheckoutPaths(_repository.Head.FriendlyName, files, options);
+            Status();
         }
 
         public void Status()

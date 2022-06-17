@@ -52,6 +52,7 @@ namespace HoneyBee.Diff.Gui
 
         private void OnDrawCommitTree(Tree trees)
         {
+            //需要对比两个提交的差异
             foreach (var item in trees)
             {
                 if (ImGui.RadioButton(item.Path, _selectTreeEntry == item))
