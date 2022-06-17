@@ -67,6 +67,7 @@ namespace HoneyBee.Diff.Gui
                 return _signatureAuthor;
             }
         }
+        public RemoteCollection Remotes => _repository.Network.Remotes;
 
         public Git(string repoPath)
         {
@@ -78,6 +79,21 @@ namespace HoneyBee.Diff.Gui
             UpdateStatus();
         }
 
+
+        public void Add(IEnumerable<string> files)
+        {
+            //IEnumerable<StatusEntry> Added
+            if (files != null&& files.Count()>0)
+            {
+                foreach (var item in files)
+                {
+                    _repository.Index.Add(item);
+                }
+                _repository.Index.Write();
+                _repository.Index.WriteToTree();
+                Stage(files);
+            }
+        }
 
         public void Stage(IEnumerable<string> files = null)
         {

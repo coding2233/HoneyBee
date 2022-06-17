@@ -95,12 +95,31 @@ namespace HoneyBee.Diff.Gui
             if (ImGui.Button("Stage All"))
             {
                 git.Stage();
+                if (statuses.Added != null && statuses.Count() > 0)
+                {
+                    HashSet<string> addedFiles = new HashSet<string>();
+                    foreach (var item in statuses.Added)
+                    {
+                        addedFiles.Add(item.FilePath);
+                    }
+                    git.Add(addedFiles);
+                }
                 ClearSelectFiles();
             }
             ImGui.SameLine();
             if (ImGui.Button("Stage Selected"))
             {
                 git.Stage(_selectUnstageFiles);
+                if (statuses.Added != null && statuses.Count() > 0)
+                {
+                    HashSet<string> addedFiles = new HashSet<string>();
+                    foreach (var item in statuses.Added)
+                    {
+                        if(_selectUnstageFiles.Contains(item.FilePath))
+                            addedFiles.Add(item.FilePath);
+                    }
+                    git.Add(addedFiles);
+                }
                 ClearSelectFiles();
             }
             ImGui.SameLine();
