@@ -73,6 +73,7 @@ namespace HoneyBee.Diff.Gui
                 ImGui.GetIO().NativePtr->IniFilename = iniFileName;
             }
 
+            //io->ImeWindowHandle = ofGetWin32Window();
             ////Load default font.
             //var defaultFont = ImGui.GetIO().Fonts.AddFontDefault();
 
