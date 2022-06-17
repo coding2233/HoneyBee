@@ -81,7 +81,7 @@ namespace HoneyBee.Diff.Gui
         {
             if (RemoteBranchIndex==-1 && LocalBranchIndex >= 0)
             {
-                string localBranchFullName = $"{Remotes[RemoteIndex]}/{LocalBranchs[LocalBranchIndex]}";
+                string localBranchFullName = LocalBranchs[LocalBranchIndex];
                 for (int i = 0; i < RemoteBranchs.Length; i++)
                 {
                     if (RemoteBranchs[i].Equals(localBranchFullName))
