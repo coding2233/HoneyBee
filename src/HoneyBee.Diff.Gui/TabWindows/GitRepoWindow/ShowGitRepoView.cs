@@ -202,9 +202,12 @@ namespace HoneyBee.Diff.Gui
 
         private void DrawBranchTreeNode(BranchNode branchNode)
         {
+            bool treeNodeEx = false;
+
             if (branchNode.Children != null && branchNode.Children.Count > 0)
             {
-                if (ImGui.TreeNode(branchNode.Name))
+                treeNodeEx = ImGui.TreeNode(branchNode.Name);
+                if(treeNodeEx)
                 {
                     foreach (var item in branchNode.Children)
                     {
@@ -224,23 +227,25 @@ namespace HoneyBee.Diff.Gui
                 ImGui.TextColored(ImGui.ColorConvertU32ToFloat4(textColor), $"\t{branchNode.Name}");
             }
 
-
-            var pos = ImGui.GetItemRectMax();
-            pos.Y -= 15;
-
-            if (branchNode.BehindBy > 0)
+            if (!treeNodeEx || branchNode.Branch != null)
             {
-                string showTipText = $"{Icon.Get(Icon.Material_arrow_downward)}{branchNode.BehindBy}";
-                var textSize = ImGui.CalcTextSize(showTipText);
-                ImGui.GetWindowDrawList().AddText(pos, ImGui.GetColorU32(ImGuiCol.Text), showTipText);
-                pos.X += textSize.X;
-            }
+                var pos = ImGui.GetItemRectMax();
+                pos.Y -= 15;
 
-            if (branchNode.AheadBy > 0)
-            {
-                string showTipText = $"{Icon.Get(Icon.Material_arrow_upward)}{branchNode.AheadBy}";
-                //Vector2 textSize = ImGui.CalcTextSize(showTipText);
-                ImGui.GetWindowDrawList().AddText(pos, ImGui.GetColorU32(ImGuiCol.Text), showTipText);
+                if (branchNode.BehindBy > 0)
+                {
+                    string showTipText = $"{Icon.Get(Icon.Material_arrow_downward)}{branchNode.BehindBy}";
+                    var textSize = ImGui.CalcTextSize(showTipText);
+                    ImGui.GetWindowDrawList().AddText(pos, ImGui.GetColorU32(ImGuiCol.Text), showTipText);
+                    pos.X += textSize.X;
+                }
+
+                if (branchNode.AheadBy > 0)
+                {
+                    string showTipText = $"{Icon.Get(Icon.Material_arrow_upward)}{branchNode.AheadBy}";
+                    //Vector2 textSize = ImGui.CalcTextSize(showTipText);
+                    ImGui.GetWindowDrawList().AddText(pos, ImGui.GetColorU32(ImGuiCol.Text), showTipText);
+                }
             }
         }
 
