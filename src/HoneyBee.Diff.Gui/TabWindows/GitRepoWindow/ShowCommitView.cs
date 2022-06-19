@@ -15,20 +15,18 @@ namespace HoneyBee.Diff.Gui
         StringBuilder _tempStringBuilder = new StringBuilder();
         private TreeEntry _selectTreeEntry;
 
-        public void DrawSelectCommit(Commit commit)
+        public void DrawSelectCommit(LibGit2Sharp.Diff diff, Commit commit,Commit parentCommit)
         {
             _horizontalSplitView.Begin();
             _verticalSplitView.Begin();
             OnDrawCommitInfo(commit);
             _verticalSplitView.Separate();
-            OnDrawCommitTree(commit.Tree);
+            OnDrawCommitTree(diff,commit.Tree, parentCommit==null?null: parentCommit.Tree);
             _verticalSplitView.End();
             _horizontalSplitView.Separate();
             OnDrawDiff();
             _horizontalSplitView.End();
-         
         }
-
 
         private void OnDrawCommitInfo(Commit commit)
         {
@@ -50,8 +48,13 @@ namespace HoneyBee.Diff.Gui
             ImGui.Text(commit.Message);
         }
 
-        private void OnDrawCommitTree(Tree trees)
+        private void OnDrawCommitTree(LibGit2Sharp.Diff diff,Tree trees,Tree parentTrees)
         {
+           var result=  diff.Compare<TreeChanges>(parentTrees, trees);
+            foreach (TreeEntryChanges c in result)
+            {
+                //Console.WriteLine(c);
+            }
             //需要对比两个提交的差异
             foreach (var item in trees)
             {

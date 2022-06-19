@@ -31,7 +31,8 @@ namespace HoneyBee.Diff.Gui
         private SplitView _contentSplitView = new SplitView(SplitView.SplitType.Vertical,2,300,0.9f);
         private ShowCommitView _showCommitView = new ShowCommitView();
         private WorkTreeView _workTreeView = new WorkTreeView();
-        private Commit _selectCommit=null;
+        private Commit _selectCommit = null;
+        private Commit _selectParentCommit = null;
 
         [Import]
         public IUserSettingsModel userSettingsModel { get; set; }
@@ -334,6 +335,14 @@ namespace HoneyBee.Diff.Gui
                         if (ImGui.IsMouseDown(ImGuiMouseButton.Left))
                         {
                             _selectCommit = item;
+                            if (index < historyCommits.Count)
+                            {
+                                _selectParentCommit = historyCommits[index];
+                            }
+                            else
+                            {
+                                _selectParentCommit = null;
+                            }
                         }
                     }
                     ImGui.TableSetColumnIndex(1);
@@ -349,14 +358,14 @@ namespace HoneyBee.Diff.Gui
             if (_selectCommit != null)
             {
                 _contentSplitView.Separate();
-                OnDrawSelectCommit(_selectCommit);
+                OnDrawSelectCommit(_selectCommit,_selectParentCommit);
                 _contentSplitView.End();
             }
         }
 
-        private void OnDrawSelectCommit(Commit commit)
+        private void OnDrawSelectCommit(Commit commit,Commit parentCommit)
         {
-            _showCommitView.DrawSelectCommit(commit);
+            _showCommitView.DrawSelectCommit(_git.Diff,commit, parentCommit);
         }
 
         private float GetScrollInterval(float size)
@@ -424,7 +433,6 @@ namespace HoneyBee.Diff.Gui
                 {
                     ImGui.TextDisabled(_remoteBranchTrack.RemoteUrl);
                 }
-
 
                 if (ImGui.Combo("Remote Branch", ref _remoteBranchTrack.RemoteBranchIndex, _remoteBranchTrack.RemoteBranchs, _remoteBranchTrack.RemoteBranchs.Length))
                 {
