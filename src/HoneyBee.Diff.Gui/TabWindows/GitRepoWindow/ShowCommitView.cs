@@ -13,7 +13,11 @@ namespace HoneyBee.Diff.Gui
         private SplitView _horizontalSplitView = new SplitView(SplitView.SplitType.Horizontal,2,600,0.6f);
         private SplitView _verticalSplitView = new SplitView(SplitView.SplitType.Vertical);
         StringBuilder _tempStringBuilder = new StringBuilder();
-        private TreeEntry _selectTreeEntry;
+        private PatchEntryChanges _selectTreeEntry;
+
+        private string _selectTreeId;
+        private string _selectTreeParentId;
+        private Patch _diffPatch;
 
         public void DrawSelectCommit(LibGit2Sharp.Diff diff, Commit commit,Commit parentCommit)
         {
@@ -50,30 +54,61 @@ namespace HoneyBee.Diff.Gui
 
         private void OnDrawCommitTree(LibGit2Sharp.Diff diff,Tree trees,Tree parentTrees)
         {
-           var result=  diff.Compare<TreeChanges>(parentTrees, trees);
-            foreach (TreeEntryChanges c in result)
+            bool update = false;
+            if (_selectTreeId != trees.Sha)
             {
-                //Console.WriteLine(c);
+                _selectTreeId = trees.Sha;
+                update = true;
             }
-            //需要对比两个提交的差异
-            foreach (var item in trees)
+            string selectTreeParentId = parentTrees == null ? null : parentTrees.Sha;
+            if (_selectTreeParentId != selectTreeParentId)
             {
-                if (ImGui.RadioButton(item.Path, _selectTreeEntry == item))
+                _selectTreeParentId = selectTreeParentId;
+                update = true;
+            }
+            if (update)
+            {
+                _diffPatch = diff.Compare<Patch>(parentTrees, trees);
+
+                //var result = diff.Compare<TreeChanges>(parentTrees, trees);
+                //foreach (TreeEntryChanges c in result)
+                //{
+                //    //Console.WriteLine(c);
+                //    if (ImGui.RadioButton(c.Path, _selectTreeEntry == c))
+                //    {
+                //        _selectTreeEntry = c;
+                //    }
+                //}
+            }
+
+            if (_diffPatch != null)
+            {
+                foreach (var item in _diffPatch)
                 {
-                    _selectTreeEntry = item;
+                    if (ImGui.RadioButton(item.Path, _selectTreeEntry == item))
+                    {
+                        _selectTreeEntry = item;
+                    }
+                    //_diffPatch
+                    //item.
                 }
             }
+         
+            //需要对比两个提交的差异
+            //foreach (var item in trees)
+            //{
+            //    if (ImGui.RadioButton(item.Path, _selectTreeEntry == item))
+            //    {
+            //        _selectTreeEntry = item;
+            //    }
+            //}
         }
 
         private void OnDrawDiff()
         {
             if (_selectTreeEntry != null)
             {
-                ImGui.Text(_selectTreeEntry.Mode.ToString());
-                ImGui.Text(_selectTreeEntry.Name);
-                ImGui.Text(_selectTreeEntry.Path);
-                ImGui.Text(_selectTreeEntry.Target.ToString());
-                ImGui.Text(_selectTreeEntry.TargetType.ToString());
+                ImGui.Text(_selectTreeEntry.Patch);
             }
         }
 
