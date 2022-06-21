@@ -29,6 +29,8 @@ namespace HoneyBee.Diff.Gui
 
         private Process m_cmdProcess;
         private string m_command="";
+        private TextEditor _terminalShowText = new TextEditor();
+
 
         public static void SetShow(string workDirectory = null)
         {
@@ -76,10 +78,6 @@ namespace HoneyBee.Diff.Gui
             ImGui.PopID();
             if (showContent)
             {
-                foreach (var item in _history)
-                {
-                    ImGui.Text(item);
-                }
                 if (m_cmdProcess == null)
                 {
                     ImGui.InputText("", ref m_command, 200);
@@ -94,6 +92,16 @@ namespace HoneyBee.Diff.Gui
                         }
                     }
                 }
+
+                ImGui.BeginChild("Terminal Text Window");
+                _terminalShowText.Render("Terminal Text",ImGui.GetWindowSize());
+                ImGui.EndChild();
+
+                //foreach (var item in _history)
+                //{
+                //    ImGui.Text(item);
+                //}
+                
             }
             else
             {
@@ -180,6 +188,7 @@ namespace HoneyBee.Diff.Gui
             if (line == null)
                 return;
             _history.Enqueue(line);
+            _terminalShowText.text += $"{line}\n";
         }
 
         private void RunProcessComplete(string error)

@@ -14,6 +14,7 @@ namespace HoneyBee.Diff.Gui
         private SplitView _verticalSplitView = new SplitView(SplitView.SplitType.Vertical);
         StringBuilder _tempStringBuilder = new StringBuilder();
         private PatchEntryChanges _selectTreeEntry;
+        public TextEditor _selectTreeEntryTextEditor = new TextEditor();
 
         private string _selectTreeId;
         private string _selectTreeParentId;
@@ -87,6 +88,7 @@ namespace HoneyBee.Diff.Gui
                 {
                     if (ImGui.RadioButton(item.Path, _selectTreeEntry == item))
                     {
+                        _selectTreeEntryTextEditor.text = item.Patch;
                         _selectTreeEntry = item;
                     }
                     //_diffPatch
@@ -108,7 +110,8 @@ namespace HoneyBee.Diff.Gui
         {
             if (_selectTreeEntry != null)
             {
-                ImGui.Text(_selectTreeEntry.Patch);
+                _selectTreeEntryTextEditor.Render("SelectTreeEntryText",ImGui.GetWindowSize());
+                //ImGui.Text(_selectTreeEntry.Patch);
             }
         }
 
