@@ -214,13 +214,15 @@ namespace HoneyBee.Diff.Gui
                     selectFiles.Remove(statusEntry.FilePath);
                 }
 
-                string statusContent = "";
-                if (selectFiles.Count > 0)
-                {
-                    var diffContent = diff.Compare<Patch>(selectFiles, true);
-                    statusContent = diffContent.Content;
-                }
-                _statusTextEditor.text = statusContent;
+                _statusTextEditor.text = diff.Compare<Patch>(new List<string>() { statusEntry.FilePath }, true).Content;
+
+                //string statusContent = "";
+                //if (active)
+                //{
+                //    var diffContent = diff.Compare<Patch>(selectFiles, true);
+                //    statusContent = diffContent.Content;
+                //}
+                //_statusTextEditor.text = statusContent;
             }
         }
 
